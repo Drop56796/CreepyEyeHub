@@ -1,19 +1,5 @@
-
-
---------------------------------------------------------------------
-
--- Lib
-
 local UILib = loadstring(game:HttpGet('https://raw.githubusercontent.com/inceldom/kinx/main/ui'))()
-
 local win = UILib:Window("CreepyHub",Color3.fromRGB(255, 0, 0), Enum.KeyCode.RightControl)
-
---------------------------------------------------------------------
-
--- Sections
-
--- Main
-
 local MainSection = win:Tab("Main")
 
 MainSection:Button("item esp", function()
@@ -91,3 +77,12 @@ Settings:Button("Copy", function()
     UILib:Notification("Copied!")
 end)
 
+Settings:Button("Close UI", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/CloseButton/main/A.lua"))()
+    win.Enabled = false 
+    for _, v in pairs(win:GetChildren()) do
+        if v:IsA("GuiObject") then
+            v:Destroy()
+        end
+    end
+end)    
