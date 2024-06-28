@@ -21,7 +21,6 @@ local Tabs = {
 local MainGroup = Tabs.Main:AddLeftGroupbox('Player')
 local OtherGroup = Tabs.Other:AddLeftGroupbox('Other') 
 
--- 玩家移动检测
 MainGroup:AddToggle('Door', {
     Text = 'Door esp',
     Default = false,
@@ -31,6 +30,31 @@ MainGroup:AddToggle('Door', {
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/nb/main/n.lua"))()
         else
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/nb/main/h.lua"))()
+        end
+    end
+})
+
+MainGroup:AddToggle('PlayerESP', {
+    Text = 'Player ESP',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if not _G.PlayerESPEnabled then
+                _G.PlayerESPEnabled = true
+                for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                    create3DBox(player)
+                end
+            end
+        else
+            if _G.PlayerESPEnabled then
+                _G.PlayerESPEnabled = false
+                for playerName, box in pairs(ESPBoxes) do
+                    if box then
+                        box:Remove()
+                        ESPBoxes[playerName] = nil
+                    end
+                end
+            end
         end
     end
 })
