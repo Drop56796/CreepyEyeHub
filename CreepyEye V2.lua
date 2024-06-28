@@ -15,12 +15,11 @@ local Window = Library:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab('Main'),
-    Settings = Window:AddTab('Settings'),
-    Other = Window:AddTab('other') 
+    Other = Window:AddTab('other'),
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('Player')
-local OtherGroup = Tabs.Other:AddRightGroupbox('Other') 
+local OtherGroup = Tabs.Other:AddLeftGroupbox('Other') 
 
 -- 玩家移动检测
 MainGroup:AddToggle('Door', {
@@ -61,6 +60,22 @@ MainGroup:AddSlider('Speed', {
 	end
 })
 
+MainGroup:AddButton({
+    Text = 'Health = 0',
+    Func = function()
+        game.Players.LocalPlayer.Character.Humanoid.Health = 0
+    end,
+    Tooltip = 'Death'
+})
+
+MainGroup:AddButton({
+    Text = 'Health = 100',
+    Func = function()
+        game.Players.LocalPlayer.Character.Humanoid.Health = 100
+    end,
+    Tooltip = 'Restore your health'
+})
+
 OtherGroup:AddButton({
     Text = 'Script mode V3',
     Func = function()
@@ -89,10 +104,9 @@ OtherGroup:AddButton({
     Text = '情云',
     Func = function()
         loadstring(utf8.char((function() return table.unpack({108,111,97,100,115,116,114,105,110,103,40,103,97,109,101,58,72,116,116,112,71,101,116,40,34,104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,47,67,104,105,110,97,81,89,47,45,47,109,97,105,110,47,37,69,54,37,56,51,37,56,53,37,69,52,37,66,65,37,57,49,34,41,41,40,41})end)()))()
-end)
     end,
     Tooltip = 'Made by Chinese'
-})
+}) 
 
 OtherGroup:AddButton({
     Text = 'USA Hub',
@@ -109,3 +123,20 @@ OtherGroup:AddButton({
     end,
     Tooltip = 'By msstudio45'
 })
+
+OtherGroup:AddButton({
+    Text = 'Trauma Hub V4',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Mercury/main/Mercury.lua"))()
+    end,
+    Tooltip = 'By Drop'
+})
+
+OtherGroup:AddButton({
+    Text = 'Vape V4',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Vape-V4/main/%E7%94%B5%E5%AD%90%E7%83%9FV4.lua"))()
+    end,
+    Tooltip = 'Original Mod in Minecraft'
+})
+
