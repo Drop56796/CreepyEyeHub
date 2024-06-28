@@ -34,6 +34,31 @@ MainGroup:AddToggle('Door', {
     end
 })
 
+MainGroup:AddToggle('Auto Jump', {
+    Text = 'Auto Jump',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local player = game.Players.LocalPlayer
+            local hum = player.Character:WaitForChild("Humanoid")
+            local runService = game:GetService("RunService")
+            local autoJumpConnection = runService.Heartbeat:Connect(function()
+                if hum.FloorMaterial ~= Enum.Material.Air then
+                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+            player:SetAttribute("AutoJumpConnection", autoJumpConnection)
+        else
+            local player = game.Players.LocalPlayer
+            local autoJumpConnection = player:GetAttribute("AutoJumpConnection")
+            if autoJumpConnection then
+                autoJumpConnection:Disconnect()
+                player:SetAttribute("AutoJumpConnection", nil)
+            end
+        end
+    end
+})
+
 MainGroup:AddToggle('PlayerESP', {
     Text = 'Player ESP',
     Default = false,
