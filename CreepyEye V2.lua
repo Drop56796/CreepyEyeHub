@@ -41,18 +41,24 @@ MainGroup:AddToggle('PlayerESP', {
         if Value then
             if not _G.PlayerESPEnabled then
                 _G.PlayerESPEnabled = true
-                for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-                    create3DBox(player)
-                end
+                local espUI = Instance.new("BillboardGui", game.Players.LocalPlayer.Character)
+                espUI.Name = "ESPUI"
+                espUI.Size = UDim2.new(0, 100, 0, 100)
+                espUI.Adornee = game.Players.LocalPlayer.Character.Head
+                espUI.AlwaysOnTop = true
+                local nameLabel = Instance.new("TextLabel", espUI)
+                nameLabel.Text = "Player ESP Enabled"
+                nameLabel.Size = UDim2.new(1, 0, 1, 0)
+                nameLabel.BackgroundTransparency = 1
+                nameLabel.TextColor3 = Color3.new(1, 1, 1)
+                _G.ESPUI = espUI
             end
         else
             if _G.PlayerESPEnabled then
                 _G.PlayerESPEnabled = false
-                for playerName, box in pairs(ESPBoxes) do
-                    if box then
-                        box:Remove()
-                        ESPBoxes[playerName] = nil
-                    end
+                if _G.ESPUI then
+                    _G.ESPUI:Destroy()
+                    _G.ESPUI = nil
                 end
             end
         end
