@@ -24,7 +24,7 @@ local OtherGroup = Tabs.Other:AddLeftGroupbox('Other')
 MainGroup:AddToggle('Door', {
     Text = 'Door esp',
     Default = false,
-    Tooltip = 'esp for Door',
+    Tooltip = 'esp for Door (if not esp else Open Toggle)',
     Callback = function(Value)
         if Value then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/nb/main/n.lua"))()
@@ -75,57 +75,6 @@ MainGroup:AddToggle('PlayerESP', {
     end
 })
 
-MainGroup:AddToggle('Auto Jump', {
-    Text = 'Auto Jump',
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            local player = game.Players.LocalPlayer
-            local hum = player.Character:WaitForChild("Humanoid")
-            local runService = game:GetService("RunService")
-            local autoJumpConnection = runService.Heartbeat:Connect(function()
-                if hum.FloorMaterial ~= Enum.Material.Air then
-                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end)
-            player:SetAttribute("AutoJumpConnection", autoJumpConnection)
-        else
-            local player = game.Players.LocalPlayer
-            local autoJumpConnection = player:GetAttribute("AutoJumpConnection")
-            if autoJumpConnection then
-                autoJumpConnection:Disconnect()
-                player:SetAttribute("AutoJumpConnection", nil)
-            end
-        end
-    end
-})
-
-
-
-MainGroup:AddToggle('God Mode', {
-    Text = 'God Mode(Beta)',
-    Default = false,
-    Tooltip = 'Become invincible and change position',
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local hum = player.Character:WaitForChild("Humanoid")
-        local camera = game.Workspace.CurrentCamera
-        if Value then
-            hum.MaxHealth = math.huge
-            hum.Health = math.huge
-            local originalPosition = player.Character.HumanoidRootPart.Position
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition.X, originalPosition.Y - 150, originalPosition.Z)
-            camera.CameraSubject = player.Character.HumanoidRootPart
-        else
-            hum.MaxHealth = 100
-            hum.Health = 100
-            local originalPosition = player.Character.HumanoidRootPart.Position
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition.X, originalPosition.Y + 150, originalPosition.Z)
-            camera.CameraSubject = player.Character.HumanoidRootPart
-        end
-    end
-})
-
 MainGroup:AddToggle('No Clip', {
     Text = 'No Clip(Beta)',
     Default = false,
@@ -152,6 +101,149 @@ MainGroup:AddToggle('No Clip', {
                     v.CanCollide = true
                 end
             end
+        end
+    end
+})
+
+MainGroup:AddToggle('Rush Alert', {
+    Text = 'Rush Alert',
+    Default = false,
+    Tooltip = 'Alert when Rush is coming',
+    Callback = function(Value)
+        local Players = game:GetService("Players")
+        local GuiService = game:GetService("GuiService")
+
+        -- UI提示信息
+        local uiPrompt = Instance.new("TextLabel")
+        uiPrompt.Text = "Rush is coming"
+        uiPrompt.Size = UDim2.new(0, 200, 0, 50)
+        uiPrompt.Position = UDim2.new(0.5, -100, 0.9, -25)
+        uiPrompt.BackgroundTransparency = 0.5
+        uiPrompt.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        uiPrompt.Visible = false
+        uiPrompt.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+        -- 检查函数
+        local function checkRushMovingEntity()
+            local found = false
+            for _, entity in pairs(game.Workspace:GetDescendants()) do
+                if entity.Name:lower() == "rushmoving" then  -- 不区分大小写检查
+                    found = true
+                    break
+                end
+            end
+            
+            -- 根据结果显示或隐藏UI提示
+            uiPrompt.Visible = found
+        end
+
+        if Value then
+            _G.RushAlertEnabled = true
+            while _G.RushAlertEnabled do
+                checkRushMovingEntity()
+                task.wait(1)  -- 检查频率
+            end
+        else
+            _G.RushAlertEnabled = false
+            uiPrompt.Visible = false
+        end
+    end
+})
+
+MainGroup:AddToggle('PlayerESP', {
+    Text = 'Player ESP(Beta)',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            _G.PlayerESPEnabled = true
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+                    local espUI = player.Character.Head:FindFirstChild("ESPUI")
+                    if not espUI then
+                        espUI = Instance.new("BillboardGui", player.Character.Head)
+                        espUI.Name = "ESPUI"
+                        espUI.Size = UDim2.new(0, 100, 0, 25)
+                        espUI.Adornee = player.Character.Head
+                        espUI.AlwaysOnTop = true
+                        espUI.StudsOffset = Vector3.new(0, 2, 0)
+
+                        local nameLabel = Instance.new("TextLabel", espUI)
+                        nameLabel.Text = player.Name
+                        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+                        nameLabel.BackgroundTransparency = 1
+                        nameLabel.TextColor3 = Color3.new(1, 1, 1)
+                    end
+                end
+            end
+        else
+            _G.PlayerESPEnabled = false
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player.Character and player.Character:FindFirstChild("Head") then
+                    local espUI = player.Character.Head:FindFirstChild("ESPUI")
+                    if espUI then
+                        espUI:Destroy()
+                    end
+                end
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('Auto Jump', {
+    Text = 'Auto Jump',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local player = game.Players.LocalPlayer
+            local hum = player.Character:WaitForChild("Humanoid")
+            _G.AutoJumpEnabled = true
+            while _G.AutoJumpEnabled do
+                if hum.FloorMaterial ~= Enum.Material.Air then
+                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+                task.wait(0.1) -- Adjust the wait time as needed
+            end
+        else
+            _G.AutoJumpEnabled = false
+        end
+    end
+})
+
+MainGroup:AddToggle('God Mode', {
+    Text = 'God Mode(Beta)',
+    Default = false,
+    Tooltip = 'Become invincible and change position',
+    Callback = function(Value)
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local range = 10 -- Adjust this range as needed
+
+        -- Function to check distance and bypass entities
+        local function bypassEntities()
+            for _, entity in pairs(workspace:GetDescendants()) do
+                if entity:IsA("Model") and entity:FindFirstChild("Humanoid") then
+                    local distance = (character.PrimaryPart.Position - entity.PrimaryPart.Position).magnitude
+                    if distance <= range then
+                        -- Example: Set transparency or move character
+                        character.PrimaryPart.CFrame = character.PrimaryPart.CFrame + Vector3.new(0, 25, 0)
+                    end
+                end
+            end
+        end
+
+        if Value then
+            hum.MaxHealth = math.huge
+            hum.Health = math.huge
+            _G.GodModeEnabled = true
+            while _G.GodModeEnabled do
+                bypassEntities()
+                task.wait(0.1) -- Adjust delay as needed
+            end
+        else
+            hum.MaxHealth = 100
+            hum.Health = 100
+            _G.GodModeEnabled = false
         end
     end
 })
