@@ -113,7 +113,6 @@ MainGroup:AddToggle('Rush Alert', {
         local Players = game:GetService("Players")
         local GuiService = game:GetService("GuiService")
 
-        -- UI提示信息
         local uiPrompt = Instance.new("TextLabel")
         uiPrompt.Text = "Rush is coming"
         uiPrompt.Size = UDim2.new(0, 200, 0, 50)
@@ -122,18 +121,16 @@ MainGroup:AddToggle('Rush Alert', {
         uiPrompt.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         uiPrompt.Visible = false
         uiPrompt.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-
-        -- 检查函数
+	
         local function checkRushMovingEntity()
             local found = false
             for _, entity in pairs(game.Workspace:GetDescendants()) do
-                if entity.Name:lower() == "rushmoving" then  -- 不区分大小写检查
+                if entity.Name:lower() == "rushmoving" then
                     found = true
                     break
                 end
             end
             
-            -- 根据结果显示或隐藏UI提示
             uiPrompt.Visible = found
         end
 
@@ -141,7 +138,7 @@ MainGroup:AddToggle('Rush Alert', {
             _G.RushAlertEnabled = true
             while _G.RushAlertEnabled do
                 checkRushMovingEntity()
-                task.wait(1)  -- 检查频率
+                task.wait(1) 
             end
         else
             _G.RushAlertEnabled = false
@@ -201,7 +198,7 @@ MainGroup:AddToggle('Auto Jump', {
                 if hum.FloorMaterial ~= Enum.Material.Air then
                     hum:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
-                task.wait(0.1) -- Adjust the wait time as needed
+                task.wait(0.1) 
             end
         else
             _G.AutoJumpEnabled = false
@@ -217,15 +214,14 @@ MainGroup:AddToggle('God Mode', {
         local Players = game:GetService("Players")
         local player = Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
-        local range = 10 -- Adjust this range as needed
+        local range = 10
 
-        -- Function to check distance and bypass entities
+        
         local function bypassEntities()
             for _, entity in pairs(workspace:GetDescendants()) do
                 if entity:IsA("Model") and entity:FindFirstChild("Humanoid") then
                     local distance = (character.PrimaryPart.Position - entity.PrimaryPart.Position).magnitude
                     if distance <= range then
-                        -- Example: Set transparency or move character
                         character.PrimaryPart.CFrame = character.PrimaryPart.CFrame + Vector3.new(0, 25, 0)
                     end
                 end
@@ -238,7 +234,7 @@ MainGroup:AddToggle('God Mode', {
             _G.GodModeEnabled = true
             while _G.GodModeEnabled do
                 bypassEntities()
-                task.wait(0.1) -- Adjust delay as needed
+                task.wait(0.1)
             end
         else
             hum.MaxHealth = 100
@@ -258,7 +254,7 @@ MainGroup:AddToggle('ESP LeverForGate', {
             local box = Instance.new("BoxHandleAdornment")
             box.Size = part.Size
             box.Adornee = part
-            box.Color3 = Color3.new(1, 1, 1) -- White color
+            box.Color3 = Color3.new(1, 1, 1) 
             box.Transparency = 0.5
             box.AlwaysOnTop = true
             box.ZIndex = 10
@@ -403,21 +399,66 @@ MainGroup:AddToggle('Item ESP', {
     Default = false,
     Tooltip = 'Highlight items in the game',
     Callback = function(Value)
+        flags.espitems = Value
+
         if Value then
-            for _, item in pairs(workspace:GetChildren()) do
-                if item:IsA("Tool") or item:IsA("Part") then
-                    local highlight = Instance.new("Highlight")
-                    highlight.Adornee = item
-                    highlight.FillColor = Color3.fromRGB(0, 255, 0)
-                    highlight.Parent = item
-                    item.Highlight = highlight
+            local function check(v)
+                if table.find(esptableinstances, v) then
+                    return
+                end
+
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+                    task.wait(0.1)
+
+                    local part = (v:FindFirstChild("Handle") or v:FindFirstChild("Prop"))
+                    local h = esp(part, Color3.fromRGB(160, 190, 255), part, v.Name)
+                    table.insert(esptable.items, h)
+                    table.insert(esptableinstances, v)
                 end
             end
-        else
-            for _, item in pairs(workspace:GetChildren()) do
-                if (item:IsA("Tool") or item:IsA("Part")) and item:FindFirstChild("Highlight") then
-                    item.Highlight:Destroy()
+
+            local function setup(room)
+                task.wait(0.1)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    room.AncestryChanged:Connect(function()
+                        if not room:IsDescendantOf(workspace.CurrentRooms) then
+                            subaddcon:Disconnect()
+                        end
+                    end)
                 end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+                task.wait()
+            end
+
+            if workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:FindFirstChild("Assets") then
+                setup(workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)])
+            end
+
+            addconnect:Disconnect()
+
+            for i, v in pairs(esptable.items) do
+                v.delete()
             end
         end
     end
