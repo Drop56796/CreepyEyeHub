@@ -19,7 +19,9 @@ local Tabs = {
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('Player')
-local OtherGroup = Tabs.Other:AddLeftGroupbox('Other') 
+local OtherGroup = Tabs.Other:AddLeftGroupbox('Other Hub')
+local RightGroup = Tabs.Main:AddRightGroupbox('Fun and other')
+
 
 MainGroup:AddToggle('Door', {
     Text = 'Door esp',
@@ -406,8 +408,8 @@ MainGroup:AddToggle('Highlight Player', {
 
         if Value then
             local light = Instance.new("PointLight")
-            light.Brightness = 2
-            light.Range = 10
+            light.Brightness = 10
+            light.Range = 30
             light.Color = Color3.fromRGB(255, 255, 255) -- 白色光
             light.Parent = head
             _G.PlayerLight = light
@@ -560,7 +562,7 @@ MainGroup:AddSlider('Speed', {
 	end
 })
 
-MainGroup:AddButton({
+RightGroup:AddButton({
     Text = 'Health = 0',
     Func = function()
         game.Players.LocalPlayer.Character.Humanoid.Health = 0
@@ -568,12 +570,44 @@ MainGroup:AddButton({
     Tooltip = 'Death'
 })
 
-MainGroup:AddButton({
+RightGroup:AddButton({
     Text = 'Health = 100',
     Func = function()
         game.Players.LocalPlayer.Character.Humanoid.Health = 100
     end,
     Tooltip = 'Restore your health'
+})
+
+RightGroup:AddButton({
+    Text = 'Floor2 Package',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/iCherryKardes/Doors/main/Floor%202%20Mod"))()
+    end,
+    Tooltip = 'Floor2 Package'
+})
+
+RightGroup:AddButton({
+    Text = 'Keyboard',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
+    end,
+    Tooltip = 'PC Keyboard'
+})
+
+RightGroup:AddButton({
+    Text = 'Floor2 candle',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Floor-2-candle-By-icherryKardess-/The-Floor-2-candle-(By-icherryKardess)/Floor2%20candle%20(The%20candle%20by%20icherrykardess).lua"))()
+    end,
+    Tooltip = 'Floo2 Candle'
+})
+
+RightGroup:AddButton({
+    Text = 'Endless Flashlight',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/InsanemodeV5/main/Endless.lua"))()
+    end,
+    Tooltip = 'Original item by Doors Endless mode'
 })
 
 OtherGroup:AddButton({
@@ -582,6 +616,14 @@ OtherGroup:AddButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/munciseek/Script-Mode/main/V3/Main-Scipt"))()
     end,
     Tooltip = 'By munciseek'
+})
+
+OtherGroup:AddButton({
+    Text = '白',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BINjiaobzx6/BINjiao/main/obf_jZ7fGQTwd7mnRF8EL2N6UNhCXC746GdxQVEEP0ZgkC2zrf6xpXodn9h9kTjU491J.lua"))()
+    end,
+    Tooltip = 'By XingKong'
 })
 
 OtherGroup:AddButton({
@@ -663,3 +705,4 @@ OtherGroup:AddButton({
     end,
     Tooltip = 'By FFJ1'
 })
+
