@@ -394,75 +394,6 @@ MainGroup:AddToggle('Entity ESP', {
     end
 })
 
-MainGroup:AddToggle('Item ESP', {
-    Text = 'Item ESP',
-    Default = false,
-    Tooltip = 'Highlight items in the game',
-    Callback = function(Value)
-        flags.espitems = Value
-
-        if Value then
-            local function check(v)
-                if table.find(esptableinstances, v) then
-                    return
-                end
-
-                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
-                    task.wait(0.1)
-
-                    local part = (v:FindFirstChild("Handle") or v:FindFirstChild("Prop"))
-                    local h = esp(part, Color3.fromRGB(160, 190, 255), part, v.Name)
-                    table.insert(esptable.items, h)
-                    table.insert(esptableinstances, v)
-                end
-            end
-
-            local function setup(room)
-                task.wait(0.1)
-                local assets = room:WaitForChild("Assets")
-
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v)
-                    end)
-
-                    for i, v in pairs(assets:GetDescendants()) do
-                        check(v)
-                    end
-
-                    room.AncestryChanged:Connect(function()
-                        if not room:IsDescendantOf(workspace.CurrentRooms) then
-                            subaddcon:Disconnect()
-                        end
-                    end)
-                end
-            end
-
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                if room:FindFirstChild("Assets") then
-                    setup(room)
-                end
-                task.wait()
-            end
-
-            if workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:FindFirstChild("Assets") then
-                setup(workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)])
-            end
-
-            addconnect:Disconnect()
-
-            for i, v in pairs(esptable.items) do
-                v.delete()
-            end
-        end
-    end
-})
 
 MainGroup:AddToggle('Highlight Player', {
     Text = 'Highlight Player(Beta)',
@@ -521,8 +452,7 @@ MainGroup:AddToggle('Monitor Eyes', {
 
         if Value then
             _G.MonitorEyes = workspace.ChildAdded:Connect(onChildAdded)
-
-            -- Initial check for existing children
+	    
             for _, child in pairs(workspace:GetChildren()) do
                 if child.Name:find("Eyes") then
                     player:SendNotification({
@@ -542,104 +472,6 @@ MainGroup:AddToggle('Monitor Eyes', {
     end
 })
 
-MainGroup:AddToggle('Book/Breaker ESP', {
-    Text = 'Book/Breaker ESP',
-    Default = false,
-    Tooltip = 'Highlight books and breakers in rooms 50 and 100',
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local runService = game:GetService("RunService")
-        local connection
-        local espbooks = Value
-        local esptable = { books = {} }
-        local esptableinstances = {}
-
-        local function esp(v, color, part, label)
-            local billboard = Instance.new("BillboardGui")
-            billboard.Adornee = part
-            billboard.Size = UDim2.new(0, 100, 0, 50)
-            billboard.StudsOffset = Vector3.new(0, 2, 0)
-            billboard.AlwaysOnTop = true
-
-            local textLabel = Instance.new("TextLabel")
-            textLabel.Parent = billboard
-            textLabel.Size = UDim2.new(1, 0, 1, 0)
-            textLabel.BackgroundTransparency = 1
-            textLabel.Text = label
-            textLabel.TextColor3 = color
-            textLabel.TextScaled = true
-
-            billboard.Parent = game.CoreGui
-
-            local function delete()
-                if billboard then
-                    billboard:Destroy()
-                end
-            end
-
-            return {
-                delete = delete
-            }
-        end
-
-        local function check(v, room)
-            if table.find(esptableinstances, v) then
-                return
-            end
-
-            if v:IsA("Model") and (v.Name == "LiveHintBook" or v.Name == "LiveBreakerPolePickup") then
-                task.wait(0.1)
-                local h
-                if v.Name == "LiveHintBook" then
-                    h = esp(v, Color3.fromRGB(160, 190, 255), v.PrimaryPart, "Book")
-                elseif v.Name == "LiveBreakerPolePickup" then
-                    h = esp(v, Color3.fromRGB(160, 190, 255), v.PrimaryPart, "Breaker")
-                end
-
-                table.insert(esptable.books, h)
-                table.insert(esptableinstances, v)
-
-                v.AncestryChanged:Connect(function()
-                    if not v:IsDescendantOf(room) then
-                        h.delete()
-                    end
-                end)
-            end
-        end
-
-        local function setup(room)
-            task.wait(0.1)
-            if room.Name == "50" or room.Name == "100" then
-                room.DescendantAdded:Connect(function(v)
-                    check(v, room)
-                end)
-
-                for i, v in pairs(room:GetDescendants()) do
-                    check(v, room)
-                end
-            end
-        end
-
-        if Value then
-            workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                setup(room)
-                task.wait()
-            end
-
-            if workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:FindFirstChild("Assets") then
-                setup(workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)])
-            end
-        else
-            for i, v in pairs(esptable.books) do
-                v.delete()
-            end
-        end
-    end
-})
 
 MainGroup:AddSlider('FieldOfView', {
     Text = 'FOV',
