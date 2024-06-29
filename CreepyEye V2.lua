@@ -367,7 +367,7 @@ MainGroup:AddToggle('Auto Click', {
             end
         end
     end
-}))
+})
 
 MainGroup:AddToggle('Entity ESP', {
     Text = 'Entity ESP',
@@ -471,6 +471,68 @@ MainGroup:AddToggle('Monitor Eyes', {
         end
     end
 })
+
+MainGroup:AddToggle('Monitor Files', {
+    Text = 'Monitor Files',
+    Default = false,
+    Tooltip = 'Monitor for specific files in the workspace',
+    Callback = function(Value)
+        local function createESPBox(part)
+            local box = Instance.new("BoxHandleAdornment")
+            box.Size = part.Size
+            box.Adornee = part
+            box.AlwaysOnTop = true
+            box.ZIndex = 10
+            box.Transparency = 0.5
+            box.Color3 = Color3.new(1, 0, 0)
+            box.Parent = part
+        end
+
+        local function createLabel(part)
+            local billboard = Instance.new("BillboardGui")
+            billboard.Adornee = part
+            billboard.Size = UDim2.new(0, 100, 0, 50)
+            billboard.StudsOffset = Vector3.new(0, 2, 0)
+            billboard.AlwaysOnTop = true
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Text = part.Name
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextColor3 = Color3.new(1, 1, 1)
+            textLabel.Parent = billboard
+
+            billboard.Parent = part
+        end
+
+        local function checkForFiles()
+            for _, child in pairs(workspace:GetChildren()) do
+                if child.Name == "LiveHintBook" or child.Name == "LiveBreakerPolePickup" then
+                    createESPBox(child)
+                    createLabel(child)
+                end
+            end
+        end
+
+        if Value then
+            _G.MonitorFiles = workspace.ChildAdded:Connect(function(child)
+                if child.Name == "LiveHintBook" or child.Name == "LiveBreakerPolePickup" then
+                    createESPBox(child)
+                    createLabel(child)
+                end
+            end)
+
+            -- Initial check for existing children
+            checkForFiles()
+        else
+            if _G.MonitorFiles then
+                _G.MonitorFiles:Disconnect()
+                _G.MonitorFiles = nil
+            end
+        end
+    end
+})
+
 
 
 MainGroup:AddSlider('FieldOfView', {
