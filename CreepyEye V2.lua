@@ -34,6 +34,47 @@ MainGroup:AddToggle('Door', {
     end
 })
 
+MainGroup:AddToggle('PlayerESP', {
+    Text = 'Player ESP(Beta)',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if not _G.PlayerESPEnabled then
+                _G.PlayerESPEnabled = true
+                
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+                        local espUI = Instance.new("BillboardGui", player.Character.Head)
+                        espUI.Name = "ESPUI"
+                        espUI.Size = UDim2.new(0, 100, 0, 25)
+                        espUI.Adornee = player.Character.Head
+                        espUI.AlwaysOnTop = true
+                        espUI.StudsOffset = Vector3.new(0, 2, 0)
+
+                        local nameLabel = Instance.new("TextLabel", espUI)
+                        nameLabel.Text = player.Name
+                        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+                        nameLabel.BackgroundTransparency = 1
+                        nameLabel.TextColor3 = Color3.new(1, 1, 1)
+                    end
+                end
+            end
+        else
+            if _G.PlayerESPEnabled then
+                _G.PlayerESPEnabled = false
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    if player.Character and player.Character:FindFirstChild("Head") then
+                        local espUI = player.Character.Head:FindFirstChild("ESPUI")
+                        if espUI then
+                            espUI:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end
+})
+
 MainGroup:AddToggle('Auto Jump', {
     Text = 'Auto Jump',
     Default = false,
@@ -59,31 +100,56 @@ MainGroup:AddToggle('Auto Jump', {
     end
 })
 
-MainGroup:AddToggle('PlayerESP', {
-    Text = 'Player ESP',
+
+
+MainGroup:AddToggle('God Mode', {
+    Text = 'God Mode(Beta)',
     Default = false,
+    Tooltip = 'Become invincible and change position',
     Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local hum = player.Character:WaitForChild("Humanoid")
+        local camera = game.Workspace.CurrentCamera
         if Value then
-            if not _G.PlayerESPEnabled then
-                _G.PlayerESPEnabled = true
-                local espUI = Instance.new("BillboardGui", game.Players.LocalPlayer.Character)
-                espUI.Name = "ESPUI"
-                espUI.Size = UDim2.new(0, 100, 0, 100)
-                espUI.Adornee = game.Players.LocalPlayer.Character.Head
-                espUI.AlwaysOnTop = true
-                local nameLabel = Instance.new("TextLabel", espUI)
-                nameLabel.Text = "Player ESP Enabled"
-                nameLabel.Size = UDim2.new(1, 0, 1, 0)
-                nameLabel.BackgroundTransparency = 1
-                nameLabel.TextColor3 = Color3.new(1, 1, 1)
-                _G.ESPUI = espUI
-            end
+            hum.MaxHealth = math.huge
+            hum.Health = math.huge
+            local originalPosition = player.Character.HumanoidRootPart.Position
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition.X, originalPosition.Y - 150, originalPosition.Z)
+            camera.CameraSubject = player.Character.HumanoidRootPart
         else
-            if _G.PlayerESPEnabled then
-                _G.PlayerESPEnabled = false
-                if _G.ESPUI then
-                    _G.ESPUI:Destroy()
-                    _G.ESPUI = nil
+            hum.MaxHealth = 100
+            hum.Health = 100
+            local originalPosition = player.Character.HumanoidRootPart.Position
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition.X, originalPosition.Y + 150, originalPosition.Z)
+            camera.CameraSubject = player.Character.HumanoidRootPart
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'No Clip(Beta)',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        if Value then
+            _G.NoClip = runService.Stepped:Connect(function()
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end)
+        else
+            if _G.NoClip then
+                _G.NoClip:Disconnect()
+                _G.NoClip = nil
+            end
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
                 end
             end
         end
@@ -106,7 +172,7 @@ MainGroup:AddSlider('Speed', {
 	Text = 'Speed',
 	Default = 0,
 	Min = 0,
-	Max = 25,
+	Max = 50,
   Rounding = 1,
 	Compact = false,
 
@@ -194,4 +260,5 @@ OtherGroup:AddButton({
     end,
     Tooltip = 'Original Mod in Minecraft'
 })
+
 
