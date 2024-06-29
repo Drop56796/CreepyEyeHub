@@ -339,6 +339,163 @@ MainGroup:AddToggle('Monitor Gold', {
     end
 })
 
+MainGroup:AddToggle('Auto Click', {
+    Text = 'Auto Click',
+    Default = false,
+    Tooltip = 'Automatically click interactable objects',
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local runService = game:GetService("RunService")
+        local connection
+
+        if Value then
+            connection = runService.Stepped:Connect(function()
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj:IsA("ClickDetector") and (obj.Parent.Position - player.Character.HumanoidRootPart.Position).magnitude < 10 then
+                        fireclickdetector(obj)
+                    elseif obj:IsA("ProximityPrompt") and (obj.Parent.Position - player.Character.HumanoidRootPart.Position).magnitude < 10 then
+                        obj:InputHoldBegin()
+                        wait(0.1)
+                        obj:InputHoldEnd()
+                    end
+                end
+            end)
+        else
+            if connection then
+                connection:Disconnect()
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('Entity ESP', {
+    Text = 'Entity ESP',
+    Default = false,
+    Tooltip = 'Highlight entities in the game',
+    Callback = function(Value)
+        if Value then
+            for _, entity in pairs(workspace:GetChildren()) do
+                if entity:IsA("Model") and entity:FindFirstChild("Humanoid") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Adornee = entity
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                    highlight.Parent = entity
+                    entity.Highlight = highlight
+                end
+            end
+        else
+            for _, entity in pairs(workspace:GetChildren()) do
+                if entity:IsA("Model") and entity:FindFirstChild("Humanoid") and entity:FindFirstChild("Highlight") then
+                    entity.Highlight:Destroy()
+                end
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('Item ESP', {
+    Text = 'Item ESP',
+    Default = false,
+    Tooltip = 'Highlight items in the game',
+    Callback = function(Value)
+        if Value then
+            for _, item in pairs(workspace:GetChildren()) do
+                if item:IsA("Tool") or item:IsA("Part") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Adornee = item
+                    highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                    highlight.Parent = item
+                    item.Highlight = highlight
+                end
+            end
+        else
+            for _, item in pairs(workspace:GetChildren()) do
+                if (item:IsA("Tool") or item:IsA("Part")) and item:FindFirstChild("Highlight") then
+                    item.Highlight:Destroy()
+                end
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('Highlight Player', {
+    Text = 'Highlight Player(Beta)',
+    Default = false,
+    Tooltip = 'Create a light on player\'s head',
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local head = char:WaitForChild("Head")
+
+        if Value then
+            local light = Instance.new("PointLight")
+            light.Brightness = 2
+            light.Range = 10
+            light.Color = Color3.fromRGB(255, 255, 255) -- 白色光
+            light.Parent = head
+            _G.PlayerLight = light
+        else
+            if _G.PlayerLight then
+                _G.PlayerLight:Destroy()
+                _G.PlayerLight = nil
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('Monitor Eyes', {
+    Text = 'Monitor Eyes(Beta)',
+    Default = false,
+    Tooltip = 'Monitor for Eyes objects',
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local runService = game:GetService("RunService")
+
+        local function createESPBox(part)
+            local box = Instance.new("BoxHandleAdornment")
+            box.Size = part.Size
+            box.Adornee = part
+            box.AlwaysOnTop = true
+            box.ZIndex = 10
+            box.Transparency = 0.5
+            box.Color3 = Color3.new(1, 0, 0)
+            box.Parent = part
+        end
+
+        local function onChildAdded(child)
+            if child.Name:find("Eyes") then
+                player:SendNotification({
+                    Title = "Warning",
+                    Text = "Eyes is spawn, don't look!",
+                    Duration = 5
+                })
+                createESPBox(child)
+            end
+        end
+
+        if Value then
+            _G.MonitorEyes = workspace.ChildAdded:Connect(onChildAdded)
+
+            -- Initial check for existing children
+            for _, child in pairs(workspace:GetChildren()) do
+                if child.Name:find("Eyes") then
+                    player:SendNotification({
+                        Title = "Warning",
+                        Text = "Eyes is spawn, don't look!",
+                        Duration = 5
+                    })
+                    createESPBox(child)
+                end
+            end
+        else
+            if _G.MonitorEyes then
+                _G.MonitorEyes:Disconnect()
+                _G.MonitorEyes = nil
+            end
+        end
+    end
+})
+
 MainGroup:AddSlider('FieldOfView', {
     Text = 'FOV',
     Default = 70,
@@ -442,6 +599,30 @@ OtherGroup:AddButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Vape-V4/main/%E7%94%B5%E5%AD%90%E7%83%9FV4.lua"))()
     end,
     Tooltip = 'Original Mod in Minecraft'
+})
+
+OtherGroup:AddButton({
+    Text = 'Dex V3',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+    end,
+    Tooltip = 'Mobile only(Android Executor)'
+})
+
+OtherGroup:AddButton({
+    Text = 'Silence Hub V2(Warn:Old Version)',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Moonsec/moonsec/moonsec.lua"))()
+    end,
+    Tooltip = 'By Drop'
+})
+
+OtherGroup:AddButton({
+    Text = 'FFJ1',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FFJ1/Roblox-Exploits/main/scripts/Loader.lua"))()
+    end,
+    Tooltip = 'By FFJ1'
 })
 
 
