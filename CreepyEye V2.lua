@@ -248,6 +248,97 @@ MainGroup:AddToggle('God Mode', {
     end
 })
 
+MainGroup:AddToggle('ESP LeverForGate', {
+    Text = 'ESP LeverForGate(Beta)',
+    Default = false,
+    Tooltip = 'Highlight LeverForGate objects',
+    Callback = function(Value)
+        local runService = game:GetService("RunService")
+        local function createESP(part)
+            local box = Instance.new("BoxHandleAdornment")
+            box.Size = part.Size
+            box.Adornee = part
+            box.Color3 = Color3.new(1, 1, 1) -- White color
+            box.Transparency = 0.5
+            box.AlwaysOnTop = true
+            box.ZIndex = 10
+            box.Parent = part
+        end
+
+        local function removeESP(part)
+            for _, child in pairs(part:GetChildren()) do
+                if child:IsA("BoxHandleAdornment") then
+                    child:Destroy()
+                end
+            end
+        end
+
+        local function updateESP()
+            for _, part in pairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name == "LeverForGate" then
+                    if not part:FindFirstChildOfClass("BoxHandleAdornment") then
+                        createESP(part)
+                    end
+                else
+                    removeESP(part)
+                end
+            end
+        end
+
+        if Value then
+            _G.ESPLeverForGate = runService.RenderStepped:Connect(updateESP)
+        else
+            if _G.ESPLeverForGate then
+                _G.ESPLeverForGate:Disconnect()
+                _G.ESPLeverForGate = nil
+            end
+            for _, part in pairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name == "LeverForGate" then
+                    removeESP(part)
+                end
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('Monitor Gold', {
+    Text = 'Monitor Gold(Beta)',
+    Default = false,
+    Tooltip = 'Monitor GoldPile objects',
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+        local goldLabel = Instance.new("TextLabel", screenGui)
+        
+        goldLabel.Size = UDim2.new(0, 200, 0, 50)
+        goldLabel.Position = UDim2.new(0, 10, 0, 10)
+        goldLabel.TextColor3 = Color3.new(1, 1, 1)
+        goldLabel.BackgroundTransparency = 0.5
+        goldLabel.TextScaled = true
+        goldLabel.Text = "GoldPile Count: 0"
+
+        if Value then
+            _G.MonitorGold = runService.Stepped:Connect(function()
+                local goldCount = 0
+                for _, v in pairs(char:GetDescendants()) do
+                    if v.Name == "GoldPile" then
+                        goldCount = goldCount + 1
+                    end
+                end
+                goldLabel.Text = "GoldPile Count: " .. goldCount
+            end)
+        else
+            if _G.MonitorGold then
+                _G.MonitorGold:Disconnect()
+                _G.MonitorGold = nil
+            end
+            goldLabel:Destroy()
+        end
+    end
+})
+
 MainGroup:AddSlider('FieldOfView', {
     Text = 'FOV',
     Default = 70,
