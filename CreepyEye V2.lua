@@ -349,23 +349,34 @@ MainGroup:AddToggle('Auto Click', {
         local function autoClick()
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 for _, obj in pairs(workspace:GetDescendants()) do
-                    local distance = (obj.Parent.Position - player.Character.HumanoidRootPart.Position).magnitude
-                    if obj:IsA("ClickDetector") and distance < 10 then
-                        fireclickdetector(obj)
-                    elseif obj:IsA("ProximityPrompt") and distance < 10 then
-                        obj:InputHoldBegin()
-                        wait(0.1)
-                        obj:InputHoldEnd()
+                    local success, err = pcall(function()
+                        local distance = (obj.Parent.Position - player.Character.HumanoidRootPart.Position).magnitude
+                        if obj:IsA("ClickDetector") and distance < 10 then
+                            fireclickdetector(obj)
+                        elseif obj:IsA("ProximityPrompt") and distance < 10 then
+                            obj:InputHoldBegin()
+                            wait(0.1)
+                            obj:InputHoldEnd()
+                        end
+                    end)
+                    if not success then
+                        warn("Error interacting with object: " .. err)
                     end
                 end
             end
         end
 
         if Value then
-            connection = runService.Stepped:Connect(autoClick)
+            connection = runService.Stepped:Connect(function()
+                local success, err = pcall(autoClick)
+                if not success then
+                    warn("Error in autoClick: " .. err)
+                end
+            end)
         else
             if connection then
                 connection:Disconnect()
+                connection = nil
             end
         end
     end
