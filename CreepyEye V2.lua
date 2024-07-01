@@ -149,44 +149,6 @@ MainGroup:AddToggle('Rush Alert', {
     end
 })
 
-MainGroup:AddToggle('PlayerESP', {
-    Text = 'Player ESP(Beta)',
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            _G.PlayerESPEnabled = true
-            for _, player in pairs(game.Players:GetPlayers()) do
-                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-                    local espUI = player.Character.Head:FindFirstChild("ESPUI")
-                    if not espUI then
-                        espUI = Instance.new("BillboardGui", player.Character.Head)
-                        espUI.Name = "ESPUI"
-                        espUI.Size = UDim2.new(0, 100, 0, 25)
-                        espUI.Adornee = player.Character.Head
-                        espUI.AlwaysOnTop = true
-                        espUI.StudsOffset = Vector3.new(0, 2, 0)
-
-                        local nameLabel = Instance.new("TextLabel", espUI)
-                        nameLabel.Text = player.Name
-                        nameLabel.Size = UDim2.new(1, 0, 1, 0)
-                        nameLabel.BackgroundTransparency = 1
-                        nameLabel.TextColor3 = Color3.new(1, 1, 1)
-                    end
-                end
-            end
-        else
-            _G.PlayerESPEnabled = false
-            for _, player in pairs(game.Players:GetPlayers()) do
-                if player.Character and player.Character:FindFirstChild("Head") then
-                    local espUI = player.Character.Head:FindFirstChild("ESPUI")
-                    if espUI then
-                        espUI:Destroy()
-                    end
-                end
-            end
-        end
-    end
-})
 
 MainGroup:AddToggle('Auto Jump', {
     Text = 'Auto Jump',
@@ -337,26 +299,29 @@ MainGroup:AddToggle('Monitor Gold', {
     end
 })
 
-MainGroup:AddToggle('Auto Click', {
-    Text = 'Auto Click',
+MainGroup:AddToggle('Look Aura', {
+    Text = 'Look Aura',
     Default = false,
-    Tooltip = 'Automatically click interactable objects',
+    Tooltip = 'Automatically interact with objects in your line of sight',
     Callback = function(Value)
         local player = game.Players.LocalPlayer
         local runService = game:GetService("RunService")
+        local camera = game.Workspace.CurrentCamera
         local connection
 
-        local function autoClick()
+        local function lookAura()
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                for _, obj in pairs(workspace:GetDescendants()) do
+                local ray = Ray.new(camera.CFrame.Position, camera.CFrame.LookVector * 10)
+                local hit, position = workspace:FindPartOnRay(ray, player.Character)
+
+                if hit then
                     local success, err = pcall(function()
-                        local distance = (obj.Parent.Position - player.Character.HumanoidRootPart.Position).magnitude
-                        if obj:IsA("ClickDetector") and distance < 10 then
-                            fireclickdetector(obj)
-                        elseif obj:IsA("ProximityPrompt") and distance < 10 then
-                            obj:InputHoldBegin()
+                        if hit:IsA("ClickDetector") then
+                            fireclickdetector(hit)
+                        elseif hit:IsA("ProximityPrompt") then
+                            hit:InputHoldBegin()
                             wait(0.1)
-                            obj:InputHoldEnd()
+                            hit:InputHoldEnd()
                         end
                     end)
                     if not success then
@@ -367,10 +332,10 @@ MainGroup:AddToggle('Auto Click', {
         end
 
         if Value then
-            connection = runService.Stepped:Connect(function()
-                local success, err = pcall(autoClick)
+            connection = runService.Heartbeat:Connect(function()
+                local success, err = pcall(lookAura)
                 if not success then
-                    warn("Error in autoClick: " .. err)
+                    warn("Error in lookAura: " .. err)
                 end
             end)
         else
