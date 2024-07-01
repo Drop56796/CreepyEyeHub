@@ -127,7 +127,7 @@ MainGroup:AddToggle('Rush Alert', {
         local function checkRushMovingEntity()
             local found = false
             for _, entity in pairs(game.Workspace:GetDescendants()) do
-                if entity.Name:lower() == "rushmoving" then
+                if entity.Name:lower() == "RushMoving" then
                     found = true
                     break
                 end
@@ -186,7 +186,7 @@ MainGroup:AddToggle('God Mode', {
                 if entity:IsA("Model") and entity:FindFirstChild("Humanoid") then
                     local distance = (character.PrimaryPart.Position - entity.PrimaryPart.Position).magnitude
                     if distance <= range then
-                        character.PrimaryPart.CFrame = character.PrimaryPart.CFrame + Vector3.new(0, 25, 0)
+                        character.PrimaryPart.CFrame = character.PrimaryPart.CFrame + Vector3.new(0, 500, 0)
                     end
                 end
             end
@@ -261,44 +261,6 @@ MainGroup:AddToggle('ESP LeverForGate', {
     end
 })
 
-MainGroup:AddToggle('Monitor Gold', {
-    Text = 'Monitor Gold(Beta)',
-    Default = false,
-    Tooltip = 'Monitor GoldPile objects',
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local char = player.Character
-        local runService = game:GetService("RunService")
-        local screenGui = Instance.new("ScreenGui", player.PlayerGui)
-        local goldLabel = Instance.new("TextLabel", screenGui)
-        
-        goldLabel.Size = UDim2.new(0, 200, 0, 50)
-        goldLabel.Position = UDim2.new(0, 10, 0, 10)
-        goldLabel.TextColor3 = Color3.new(1, 1, 1)
-        goldLabel.BackgroundTransparency = 0.5
-        goldLabel.TextScaled = true
-        goldLabel.Text = "GoldPile Count: 0"
-
-        if Value then
-            _G.MonitorGold = runService.Stepped:Connect(function()
-                local goldCount = 0
-                for _, v in pairs(char:GetDescendants()) do
-                    if v.Name == "GoldPile" then
-                        goldCount = goldCount + 1
-                    end
-                end
-                goldLabel.Text = "GoldPile Count: " .. goldCount
-            end)
-        else
-            if _G.MonitorGold then
-                _G.MonitorGold:Disconnect()
-                _G.MonitorGold = nil
-            end
-            goldLabel:Destroy()
-        end
-    end
-})
-
 MainGroup:AddToggle('Look Aura', {
     Text = 'Look Aura',
     Default = false,
@@ -313,15 +275,17 @@ MainGroup:AddToggle('Look Aura', {
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 local ray = Ray.new(camera.CFrame.Position, camera.CFrame.LookVector * 10)
                 local hit, position = workspace:FindPartOnRay(ray, player.Character)
-
+                
                 if hit then
                     local success, err = pcall(function()
                         if hit:IsA("ClickDetector") then
                             fireclickdetector(hit)
                         elseif hit:IsA("ProximityPrompt") then
-                            hit:InputHoldBegin()
+                            fireproximityprompt(hit)
+                        elseif hit:IsA("TouchTransmitter") then
+                            firetouchinterest(hit, player.Character.HumanoidRootPart, 0)
                             wait(0.1)
-                            hit:InputHoldEnd()
+                            firetouchinterest(hit, player.Character.HumanoidRootPart, 1)
                         end
                     end)
                     if not success then
