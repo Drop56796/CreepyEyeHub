@@ -498,9 +498,9 @@ MainGroup:AddToggle('Monitor Eyes', {
 
         local function onChildAdded(child)
             if child.Name:find("Eyes") then
-                player:SendNotification({
+                game:GetService("StarterGui"):SetCore("SendNotification", {
                     Title = "Warning",
-                    Text = "Eyes is spawn, don't look!",
+                    Text = "Eyes has spawned, don't look!",
                     Duration = 5
                 })
                 createESPBox(child)
@@ -512,9 +512,9 @@ MainGroup:AddToggle('Monitor Eyes', {
 	    
             for _, child in pairs(workspace:GetChildren()) do
                 if child.Name:find("Eyes") then
-                    player:SendNotification({
+                    game:GetService("StarterGui"):SetCore("SendNotification", {
                         Title = "Warning",
-                        Text = "Eyes is spawn, don't look!",
+                        Text = "Eyes has spawned, don't look!",
                         Duration = 5
                     })
                     createESPBox(child)
