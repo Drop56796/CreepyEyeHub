@@ -400,20 +400,24 @@ MainGroup:AddToggle('Entity ESP', {
     end
 })
 
-MainGroup:AddToggle('AutoOpenDoor', {
+MainGroup:AddToggle('AutoOpendoor', {
     Text = 'Auto Open Door (Doors)',
     Default = false,
     Callback = function(Value)
         if Value then
-            _G.AutoOpenDoorEnabled = true
+            _G.AutoOpendoorEnabled = true
 
-            local function autoOpenDoor()
-                while _G.AutoOpenDoorEnabled do
+            local function autoOpendoor()
+                while _G.AutoOpendoorEnabled do
                     for _, door in pairs(workspace.Doors:GetChildren()) do
-                        if door:IsA("Model") and door:FindFirstChild("Door") then
-                            local distance = (door.Door.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                            if distance < 3 then 
-                                fireproximityprompt(door.Door.ProximityPrompt)
+                        if door:IsA("Model") and door:FindFirstChild("door") then
+                            local proximityPrompt = door.door:FindFirstChildOfClass("ProximityPrompt")
+                            if proximityPrompt then
+                                proximityPrompt.MaxActivationDistance = 10
+                                local distance = (door.door.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                                if distance < 10 then 
+                                    fireproximityprompt(proximityPrompt)
+                                end
                             end
                         end
                     end
@@ -421,12 +425,21 @@ MainGroup:AddToggle('AutoOpenDoor', {
                 end
             end
 
-            spawn(autoOpenDoor)
+            spawn(autoOpendoor)
         else
-            _G.AutoOpenDoorEnabled = false
+            _G.AutoOpendoorEnabled = false
+            for _, door in pairs(workspace.Doors:GetChildren()) do
+                if door:IsA("Model") and door:FindFirstChild("door") then
+                    local proximityPrompt = door.door:FindFirstChildOfClass("ProximityPrompt")
+                    if proximityPrompt then
+                        proximityPrompt.MaxActivationDistance = 3
+                    end
+                end
+            end
         end
     end
 })
+
 
 MainGroup:AddToggle('Highlight Player', {
     Text = 'Highlight Player(Beta)',
