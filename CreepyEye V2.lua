@@ -149,6 +149,14 @@ MainGroup:AddToggle('PlayerESP', {
                         nameLabel.Size = UDim2.new(1, 0, 1, 0)
                         nameLabel.BackgroundTransparency = 1
                         nameLabel.TextColor3 = Color3.new(1, 1, 1)
+
+                        local box = Instance.new("BoxHandleAdornment", player.Character)
+                        box.Name = "ESPBox"
+                        box.Adornee = player.Character
+                        box.Size = player.Character:GetExtentsSize()
+                        box.Color3 = Color3.new(1, 0, 0)
+                        box.Transparency = 0.5
+                        box.AlwaysOnTop = true
                     end
                 end
             end
@@ -160,6 +168,11 @@ MainGroup:AddToggle('PlayerESP', {
                         local espUI = player.Character.Head:FindFirstChild("ESPUI")
                         if espUI then
                             espUI:Destroy()
+                        end
+
+                        local box = player.Character:FindFirstChild("ESPBox")
+                        if box then
+                            box:Destroy()
                         end
                     end
                 end
