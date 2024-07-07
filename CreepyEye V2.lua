@@ -4,7 +4,7 @@ local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 local Window = Library:CreateWindow({
-    Title = 'Creepy Eye V2',
+    Title = 'Creepy Eye V2 Welcome (Game:{all})',
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -22,15 +22,106 @@ local MainGroup = Tabs.Main:AddLeftGroupbox('Player')
 local OtherGroup = Tabs.Other:AddLeftGroupbox('Other Hub')
 local RightGroup = Tabs.Main:AddRightGroupbox('Fun and other')
 
+MainGroup:AddToggle('Fly', {
+    Text = 'Fly',
+    Default = false,
+    Tooltip = 'Bro Think he in minecraft Create mode',
+    Callback = function(Value)
+        local RunService = game:GetService("RunService")
+        local Players = game:GetService("Players")
+        local UserInputService = game:GetService("UserInputService")
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local flying = false
+        local speed = 15
+        local direction = Vector3.new(0, 0, 0)
+
+        local function onInputBegan(input, gameProcessed)
+            if gameProcessed then return end
+            if input.UserInputType == Enum.UserInputType.Touch then
+                local touch = input.Position
+                if touch.Y < workspace.CurrentCamera.ViewportSize.Y / 2 then
+                    direction = direction + Vector3.new(0, 1, 0)
+                else
+                    direction = direction + Vector3.new(0, -1, 0)
+                end
+            elseif input.KeyCode == Enum.KeyCode.W then
+                direction = direction + Vector3.new(0, 0, -1)
+            elseif input.KeyCode == Enum.KeyCode.S then
+                direction = direction + Vector3.new(0, 0, 1)
+            elseif input.KeyCode == Enum.KeyCode.A then
+                direction = direction + Vector3.new(-1, 0, 0)
+            elseif input.KeyCode == Enum.KeyCode.D then
+                direction = direction + Vector3.new(1, 0, 0)
+            elseif input.KeyCode == Enum.KeyCode.Space then
+                direction = direction + Vector3.new(0, 1, 0)
+            elseif input.KeyCode == Enum.KeyCode.LeftShift then
+                direction = direction + Vector3.new(0, -1, 0)
+            end
+        end
+
+        local function onInputEnded(input, gameProcessed)
+            if gameProcessed then return end
+            if input.UserInputType == Enum.UserInputType.Touch then
+                local touch = input.Position
+                if touch.Y < workspace.CurrentCamera.ViewportSize.Y / 2 then
+                    direction = direction - Vector3.new(0, 1, 0)
+                else
+                    direction = direction - Vector3.new(0, -1, 0)
+                end
+            elseif input.KeyCode == Enum.KeyCode.W then
+                direction = direction - Vector3.new(0, 0, -1)
+            elseif input.KeyCode == Enum.KeyCode.S then
+                direction = direction - Vector3.new(0, 0, 1)
+            elseif input.KeyCode == Enum.KeyCode.A then
+                direction = direction - Vector3.new(-1, 0, 0)
+            elseif input.KeyCode == Enum.KeyCode.D then
+                direction = direction - Vector3.new(1, 0, 0)
+            elseif input.KeyCode == Enum.KeyCode.Space then
+                direction = direction - Vector3.new(0, 1, 0)
+            elseif input.KeyCode == Enum.KeyCode.LeftShift then
+                direction = direction - Vector3.new(0, -1, 0)
+            end
+        end
+
+        if Value then
+            flying = true
+            UserInputService.InputBegan:Connect(onInputBegan)
+            UserInputService.InputEnded:Connect(onInputEnded)
+            loopConnection = RunService.RenderStepped:Connect(function()
+                if flying then
+                    humanoidRootPart.Velocity = direction * speed
+                end
+            end)
+        else
+            if loopConnection then
+                loopConnection:Disconnect()
+                loopConnection = nil
+            end
+            humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            flying = false
+        end
+    end
+})
 
 MainGroup:AddToggle('Door', {
     Text = 'Door esp',
     Default = false,
     Tooltip = 'esp for Door (if not esp else Open Toggle)',
     Callback = function(Value)
+        local RunService = game:GetService("RunService")
+        local loopConnection
+
         if Value then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/nb/main/n.lua"))()
+            loopConnection = RunService.RenderStepped:Connect(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/nb/main/n.lua"))()
+            end)
         else
+            if loopConnection then
+                loopConnection:Disconnect()
+                loopConnection = nil
+            end
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/nb/main/h.lua"))()
         end
     end
