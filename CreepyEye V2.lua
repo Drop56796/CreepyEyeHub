@@ -261,40 +261,39 @@ MainGroup:AddToggle('Auto Jump', {
     end
 })
 
-MainGroup:AddToggle('God Mode', {
-    Text = 'God Mode(Beta)',
+MainGroup:AddToggle('GodMode', {
+    Text = 'God Mode',
     Default = false,
-    Tooltip = 'Become invincible and change position',
+    Tooltip = 'Toggle god mode on or off',
     Callback = function(Value)
         local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
         local player = Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
-        local range = 10
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local originalPosition = humanoidRootPart.Position
+        local offset = Vector3.new(0, 200, 0)
+        local antiCheatBypass = false
 
-        
-        local function bypassEntities()
-            for _, entity in pairs(workspace:GetDescendants()) do
-                if entity:IsA("Model") and entity:FindFirstChild("Humanoid") then
-                    local distance = (character.PrimaryPart.Position - entity.PrimaryPart.Position).magnitude
-                    if distance <= range then
-                        character.PrimaryPart.CFrame = character.PrimaryPart.CFrame + Vector3.new(0, 500, 0)
-                    end
+        local function moveParts(offset)
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Position = part.Position + offset
                 end
             end
         end
 
         if Value then
-            hum.MaxHealth = math.huge
-            hum.Health = math.huge
-            _G.GodModeEnabled = true
-            while _G.GodModeEnabled do
-                bypassEntities()
-                task.wait(0.1)
-            end
+            antiCheatBypass = true
+            moveParts(offset)
+            RunService.RenderStepped:Connect(function()
+                if antiCheatBypass then
+                    humanoidRootPart.CFrame = CFrame.new(originalPosition)
+                end
+            end)
         else
-            hum.MaxHealth = 100
-            hum.Health = 100
-            _G.GodModeEnabled = false
+            antiCheatBypass = false
+            moveParts(-offset)
         end
     end
 })
@@ -352,6 +351,7 @@ MainGroup:AddToggle('ESP LeverForGate', {
     end
 })
 
+
 MainGroup:AddToggle('AutoClick', {
     Text = 'Auto Click (Doors)',
     Default = false,
@@ -362,8 +362,19 @@ MainGroup:AddToggle('AutoClick', {
 
             local function autoClick()
                 while _G.AutoClickEnabled do
-                    game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                    game:GetService("VirtualUser"):Button1Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    local player = game.Players.LocalPlayer
+                    local character = player.Character
+                    if character then
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        if humanoidRootPart then
+                            local ray = Ray.new(humanoidRootPart.Position, humanoidRootPart.CFrame.LookVector * 5)
+                            local target, position = workspace:FindPartOnRayWithIgnoreList(ray, {character})
+                            if target and target:IsA("ClickDetector") then
+                                game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                                game:GetService("VirtualUser"):Button1Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                            end
+                        end
+                    end
                     wait(clickInterval)
                 end
             end
