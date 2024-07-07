@@ -477,8 +477,8 @@ MainGroup:AddToggle('Highlight Player', {
         if Value then
             local light = Instance.new("PointLight")
             light.Brightness = 5
-            light.Range = 5
-            light.Color = Color3.fromRGB(255, 255, 255) -- 白色光
+            light.Range = 15
+            light.Color = Color3.fromRGB(255, 255, 255)
             light.Parent = head
             _G.PlayerLight = light
         else
@@ -554,17 +554,16 @@ MainGroup:AddSlider('FieldOfView', {
     end
 })
 
-MainGroup:AddSlider('Speed', {
-	Text = 'Speed',
-	Default = 0,
-	Min = 0,
-	Max = 50,
-  Rounding = 1,
-	Compact = false,
-
-	Callback = function(Value)
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-	end
+MainGroup:AddSlider('WalkSpeed', {
+    Text = 'Speed',
+    Default = 0,
+    Min = 0, 
+    Max = 100, 
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
 })
 
 RightGroup:AddButton({
