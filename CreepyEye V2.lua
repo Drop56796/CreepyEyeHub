@@ -261,52 +261,25 @@ MainGroup:AddToggle('ESP LeverForGate', {
     end
 })
 
-MainGroup:AddToggle('Look Aura', {
-    Text = 'Look Aura',
+MainGroup:AddToggle('AutoClick', {
+    Text = 'Auto Click (Doors)',
     Default = false,
-    Tooltip = 'Automatically interact with objects in your line of sight',
     Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local runService = game:GetService("RunService")
-        local camera = game.Workspace.CurrentCamera
-        local connection
-
-        local function lookAura()
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local ray = Ray.new(camera.CFrame.Position, camera.CFrame.LookVector * 10)
-                local hit, position = workspace:FindPartOnRay(ray, player.Character)
-                
-                if hit then
-                    local success, err = pcall(function()
-                        if hit:IsA("ClickDetector") then
-                            fireclickdetector(hit)
-                        elseif hit:IsA("ProximityPrompt") then
-                            fireproximityprompt(hit)
-                        elseif hit:IsA("TouchTransmitter") then
-                            firetouchinterest(hit, player.Character.HumanoidRootPart, 0)
-                            wait(0.1)
-                            firetouchinterest(hit, player.Character.HumanoidRootPart, 1)
-                        end
-                    end)
-                    if not success then
-                        warn("Error interacting with object: " .. err)
-                    end
-                end
-            end
-        end
-
         if Value then
-            connection = runService.Heartbeat:Connect(function()
-                local success, err = pcall(lookAura)
-                if not success then
-                    warn("Error in lookAura: " .. err)
+            _G.AutoClickEnabled = true
+            local clickInterval = 0.1
+
+            local function autoClick()
+                while _G.AutoClickEnabled do
+                    game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    game:GetService("VirtualUser"):Button1Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                    wait(clickInterval)
                 end
-            end)
-        else
-            if connection then
-                connection:Disconnect()
-                connection = nil
             end
+
+            spawn(autoClick)
+        else
+            _G.AutoClickEnabled = false
         end
     end
 })
@@ -336,6 +309,33 @@ MainGroup:AddToggle('Entity ESP', {
     end
 })
 
+MainGroup:AddToggle('AutoOpenDoor', {
+    Text = 'Auto Open Door (Doors)',
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            _G.AutoOpenDoorEnabled = true
+
+            local function autoOpenDoor()
+                while _G.AutoOpenDoorEnabled do
+                    for _, door in pairs(workspace.Doors:GetChildren()) do
+                        if door:IsA("Model") and door:FindFirstChild("Door") then
+                            local distance = (door.Door.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                            if distance < 3 then 
+                                fireproximityprompt(door.Door.ProximityPrompt)
+                            end
+                        end
+                    end
+                    wait(0.1)
+                end
+            end
+
+            spawn(autoOpenDoor)
+        else
+            _G.AutoOpenDoorEnabled = false
+        end
+    end
+})
 
 MainGroup:AddToggle('Highlight Player', {
     Text = 'Highlight Player(Beta)',
@@ -348,8 +348,8 @@ MainGroup:AddToggle('Highlight Player', {
 
         if Value then
             local light = Instance.new("PointLight")
-            light.Brightness = 10
-            light.Range = 30
+            light.Brightness = 5
+            light.Range = 5
             light.Color = Color3.fromRGB(255, 255, 255) -- 白色光
             light.Parent = head
             _G.PlayerLight = light
@@ -413,69 +413,6 @@ MainGroup:AddToggle('Monitor Eyes', {
         end
     end
 })
-
-MainGroup:AddToggle('Monitor Files', {
-    Text = 'Monitor Files',
-    Default = false,
-    Tooltip = 'Monitor for specific files in the workspace',
-    Callback = function(Value)
-        local function createESPBox(part)
-            local box = Instance.new("BoxHandleAdornment")
-            box.Size = part.Size
-            box.Adornee = part
-            box.AlwaysOnTop = true
-            box.ZIndex = 10
-            box.Transparency = 0.5
-            box.Color3 = Color3.new(1, 0, 0)
-            box.Parent = part
-        end
-
-        local function createLabel(part)
-            local billboard = Instance.new("BillboardGui")
-            billboard.Adornee = part
-            billboard.Size = UDim2.new(0, 100, 0, 50)
-            billboard.StudsOffset = Vector3.new(0, 2, 0)
-            billboard.AlwaysOnTop = true
-
-            local textLabel = Instance.new("TextLabel")
-            textLabel.Text = part.Name
-            textLabel.Size = UDim2.new(1, 0, 1, 0)
-            textLabel.BackgroundTransparency = 1
-            textLabel.TextColor3 = Color3.new(1, 1, 1)
-            textLabel.Parent = billboard
-
-            billboard.Parent = part
-        end
-
-        local function checkForFiles()
-            for _, child in pairs(workspace:GetChildren()) do
-                if child.Name == "LiveHintBook" or child.Name == "LiveBreakerPolePickup" then
-                    createESPBox(child)
-                    createLabel(child)
-                end
-            end
-        end
-
-        if Value then
-            _G.MonitorFiles = workspace.ChildAdded:Connect(function(child)
-                if child.Name == "LiveHintBook" or child.Name == "LiveBreakerPolePickup" then
-                    createESPBox(child)
-                    createLabel(child)
-                end
-            end)
-
-            -- Initial check for existing children
-            checkForFiles()
-        else
-            if _G.MonitorFiles then
-                _G.MonitorFiles:Disconnect()
-                _G.MonitorFiles = nil
-            end
-        end
-    end
-})
-
-
 
 MainGroup:AddSlider('FieldOfView', {
     Text = 'FOV',
