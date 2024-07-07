@@ -4,7 +4,7 @@ local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 local Window = Library:CreateWindow({
-    Title = 'Creepy Eye V2 Welcome"..game.Players.LocalPlayer.Name.."Executor:"..identifyexecutor()"',
+    Title = 'Creepy Eye V2 Welcome..game.Players.LocalPlayer.Name..Executor:..identifyexecutor()',
     Center = true,
     AutoShow = true,
     Resizable = true,
