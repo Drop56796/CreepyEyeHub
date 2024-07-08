@@ -1,7 +1,7 @@
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/Vape.txt"))()
 assert(lib, "Failed to load library")
 
-local win = lib:Window("Creepy client v1", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
+local win = lib:Window("Creepy client Welcome"..game.Players.LocalPlayer.Name.."", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
 assert(win, "Failed to create window")
 
 local tab1 = win:Tab("Here>>>")
@@ -150,5 +150,30 @@ tab1:Toggle("Auto-Heal", false, function(state)
     else
         -- 停止治疗操作
         autoHealEnabled = false
+    end
+end)
+
+tab2:Toggle("High Light", false, function(state)
+    local Light = game:GetService("Lighting")
+
+    function dofullbright()
+        Light.Ambient = Color3.new(1, 1, 1)
+        Light.ColorShift_Bottom = Color3.new(1, 1, 1)
+        Light.ColorShift_Top = Color3.new(1, 1, 1)
+    end
+
+    function resetLighting()
+        Light.Ambient = Color3.new(0, 0, 0)
+        Light.ColorShift_Bottom = Color3.new(0, 0, 0)
+        Light.ColorShift_Top = Color3.new(0, 0, 0)
+    end
+
+    if state then  
+        while state do
+            dofullbright()
+            wait(2)
+        end
+    else
+        resetLighting()
     end
 end)
