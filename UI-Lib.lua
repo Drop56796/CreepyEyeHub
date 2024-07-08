@@ -172,6 +172,8 @@ function lib:Window(text, preset, closebind)
         end
     end)
 
+    ToggleButton.MouseButton1Click:Connect(ToggleUI)
+
     TabFolder.Name = "TabFolder"
     TabFolder.Parent = Main
 
