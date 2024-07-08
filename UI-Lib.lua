@@ -83,6 +83,7 @@ function lib:Window(text, preset, closebind)
     local Title = Instance.new("TextLabel")
     local TabFolder = Instance.new("Folder")
     local DragFrame = Instance.new("Frame")
+    local ToggleButton = Instance.new("TextButton") -- 新增的按钮
 
     Main.Name = "Main"
     Main.Parent = ui
@@ -94,7 +95,7 @@ function lib:Window(text, preset, closebind)
     Main.ClipsDescendants = true
     Main.Visible = true
 
-    -- Set the background image
+    -- 设置背景图片
     local BackgroundImage = Instance.new("ImageLabel")
     BackgroundImage.Name = "BackgroundImage"
     BackgroundImage.Parent = Main
@@ -132,39 +133,47 @@ function lib:Window(text, preset, closebind)
 
     MakeDraggable(DragFrame, Main)
 
+    -- 新增的按钮设置
+    ToggleButton.Name = "ToggleButton"
+    ToggleButton.Parent = ui
+    ToggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(44, 120, 224)
+    ToggleButton.Position = UDim2.new(0.5, 0, 0.9, 0)
+    ToggleButton.Size = UDim2.new(0, 100, 0, 50)
+    ToggleButton.Font = Enum.Font.GothamSemibold
+    ToggleButton.Text = "Toggle UI"
+    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleButton.TextSize = 14.000
+
     local uitoggled = false
-    UserInputService.InputBegan:Connect(
-        function(io, p)
-            if io.KeyCode == CloseBind then
-                if uitoggled == false then
-                    uitoggled = true
-                
-                    Main:TweenSize(
-                        UDim2.new(0, 0, 0, 0), 
-                        Enum.EasingDirection.Out, 
-                        Enum.EasingStyle.Quart, 
-                        .6, 
-                        true, 
-                        function()
-                            ui.Enabled = false
-                        end
-                    )
-                    
-                else
-                    uitoggled = false
-                    ui.Enabled = true
-                
-                    Main:TweenSize(
-                        UDim2.new(0, 560, 0, 319),
-                        Enum.EasingDirection.Out,
-                        Enum.EasingStyle.Quart,
-                        .6,
-                        true
-                    )
+
+    local function ToggleUI()
+        if uitoggled == false then
+            uitoggled = true
+            Main:TweenSize(
+                UDim2.new(0, 0, 0, 0), 
+                Enum.EasingDirection.Out, 
+                Enum.EasingStyle.Quart, 
+                .6, 
+                true, 
+                function()
+                    ui.Enabled = false
                 end
-            end
+            )
+        else
+            uitoggled = false
+            ui.Enabled = true
+            Main:TweenSize(
+                UDim2.new(0, 560, 0, 319),
+                Enum.EasingDirection.Out,
+                Enum.EasingStyle.Quart,
+                .6,
+                true
+            )
         end
-    )
+    end
+
+    ToggleButton.MouseButton1Click:Connect(ToggleUI)
 
     TabFolder.Name = "TabFolder"
     TabFolder.Parent = Main
