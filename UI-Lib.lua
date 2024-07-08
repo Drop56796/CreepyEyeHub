@@ -106,6 +106,16 @@ function lib:Window(text, preset, closebind)
     Main.ClipsDescendants = true
     Main.Visible = true
 
+    -- Set the background image
+    local BackgroundImage = Instance.new("ImageLabel")
+    BackgroundImage.Name = "BackgroundImage"
+    BackgroundImage.Parent = Main
+    BackgroundImage.AnchorPoint = Vector2.new(0.5, 0.5)
+    BackgroundImage.BackgroundTransparency = 1
+    BackgroundImage.Position = UDim2.new(0.5, 0, 0.5, 0)
+    BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
+    BackgroundImage.Image = "rbxassetid://18394059300"
+
     TabHold.Name = "TabHold"
     TabHold.Parent = Main
     TabHold.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -129,12 +139,6 @@ function lib:Window(text, preset, closebind)
     Title.TextColor3 = Color3.fromRGB(68, 68, 68)
     Title.TextSize = 12.000
     Title.TextXAlignment = Enum.TextXAlignment.Left
-
-    DragFrame.Name = "DragFrame"
-    DragFrame.Parent = Main
-    DragFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    DragFrame.BackgroundTransparency = 1.000
-    DragFrame.Size = UDim2.new(0, 560, 0, 41)
 
     Main:TweenSize(UDim2.new(0, 560, 0, 319), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, .6, true)
 
