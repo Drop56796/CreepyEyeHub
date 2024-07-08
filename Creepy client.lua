@@ -10,8 +10,9 @@ assert(tab1, "Failed to create tab1")
 local tab2 = win:Tab("Here>>>")
 assert(tab2, "Failed to create tab2")
 
--- 自动跳跃
 local autoJumpEnabled = false
+local noClipEnabled = false
+
 tab2:Toggle("Auto-Jump", false, function(state)
     autoJumpEnabled = state
     if autoJumpEnabled then
@@ -20,9 +21,43 @@ tab2:Toggle("Auto-Jump", false, function(state)
             game.Players.LocalPlayer.Character.Humanoid.Jump = true
             wait(0.1) -- 根据需要调整延迟
         end
+    end
+end)
+
+tab2:Toggle("No-Clip", false, function(state)
+    noClipEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local PhysicsService = game:GetService("PhysicsService")
+
+    -- Create collision groups
+    PhysicsService:CreateCollisionGroup("NoClipGroup")
+    PhysicsService:CreateCollisionGroup("IgnoreGroup")
+
+    -- Set collision rules
+    PhysicsService:CollisionGroupSetCollidable("NoClipGroup", "IgnoreGroup", false)
+
+    -- Assign player to NoClipGroup
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then
+            PhysicsService:SetPartCollisionGroup(part, "NoClipGroup")
+        end
+    end
+
+    if noClipEnabled then
+        game:GetService('RunService').Stepped:Connect(function()
+            if noClipEnabled then
+                character.Humanoid:ChangeState(11) -- No-clip state
+            end
+        end)
     else
-        -- 停止跳跃操作
-        autoJumpEnabled = false
+        -- Reset collision group to default
+        for _, part in pairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                PhysicsService:SetPartCollisionGroup(part, "Default")
+            end
+        end
+        character.Humanoid:ChangeState(0) -- Normal state
     end
 end)
 
