@@ -1,7 +1,7 @@
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/Vape.txt"))()
 assert(lib, "Failed to load library")
 
-local win = lib:Window("Creepy client", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
+local win = lib:Window("Creepy client v1", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
 assert(win, "Failed to create window")
 
 local tab1 = win:Tab("Here>>>")
@@ -27,15 +27,14 @@ tab2:Toggle("Auto-Jump", false, function(state)
 end)
 
 local esp = false
+
 tab1:Toggle("esp", false, function(state)
     esp = state
     if esp then
-        while esp do
+        repeat
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/UILibs/main/ESP/Arrows/Example"))()
             wait(5)
-        end
-    else
-        esp = false
+        until not esp
     end
 end)
 
