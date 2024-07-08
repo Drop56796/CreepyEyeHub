@@ -187,9 +187,9 @@ tab2:Toggle("High Light", false, function(state)
 end)
 
 tab1:Textbox("Speed",true, function(t)
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = t
 end)
 
 tab1:Textbox("Textbox",true, function(t)
-game.Workspace.CurrentCamera.FieldOfView = v
+game.Workspace.CurrentCamera.FieldOfView = t
 end)
