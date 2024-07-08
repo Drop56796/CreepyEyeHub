@@ -83,7 +83,7 @@ function lib:Window(text, preset, closebind)
     local Title = Instance.new("TextLabel")
     local TabFolder = Instance.new("Folder")
     local DragFrame = Instance.new("Frame")
-    local ToggleButton = Instance.new("TextButton") -- 新增的按钮
+    local ToggleButton = Instance.new("TextButton")
 
     Main.Name = "Main"
     Main.Parent = ui
@@ -133,12 +133,12 @@ function lib:Window(text, preset, closebind)
 
     MakeDraggable(DragFrame, Main)
 
-    -- 新增的按钮设置
+    -- 创建toggle按钮
     ToggleButton.Name = "ToggleButton"
     ToggleButton.Parent = ui
     ToggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
     ToggleButton.BackgroundColor3 = Color3.fromRGB(44, 120, 224)
-    ToggleButton.Position = UDim2.new(0.5, 0, 0.9, 0)
+    ToggleButton.Position = UDim2.new(0.1, 0, 0.5, 0) -- 将位置设置在屏幕左侧
     ToggleButton.Size = UDim2.new(0, 100, 0, 50)
     ToggleButton.Font = Enum.Font.GothamSemibold
     ToggleButton.Text = "Toggle UI"
@@ -146,8 +146,7 @@ function lib:Window(text, preset, closebind)
     ToggleButton.TextSize = 14.000
 
     local uitoggled = false
-
-    local function ToggleUI()
+    ToggleButton.MouseButton1Click:Connect(function()
         if uitoggled == false then
             uitoggled = true
             Main:TweenSize(
@@ -157,12 +156,12 @@ function lib:Window(text, preset, closebind)
                 .6, 
                 true, 
                 function()
-                    ui.Enabled = false
+                    Main.Visible = false
                 end
             )
         else
             uitoggled = false
-            ui.Enabled = true
+            Main.Visible = true
             Main:TweenSize(
                 UDim2.new(0, 560, 0, 319),
                 Enum.EasingDirection.Out,
@@ -171,9 +170,7 @@ function lib:Window(text, preset, closebind)
                 true
             )
         end
-    end
-
-    ToggleButton.MouseButton1Click:Connect(ToggleUI)
+    end)
 
     TabFolder.Name = "TabFolder"
     TabFolder.Parent = Main
@@ -181,6 +178,7 @@ function lib:Window(text, preset, closebind)
     function lib:ChangePresetColor(toch)
         PresetColor = toch
     end
+end
 
     function lib:Notification(texttitle, textdesc, textbtn)
         local NotificationHold = Instance.new("TextButton")
