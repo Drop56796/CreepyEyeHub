@@ -29,44 +29,31 @@ tab2:Toggle("No-Clip", false, function(state)
     noClipEnabled = state
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
-    local PhysicsService = game:GetService("PhysicsService")
+    local runService = game:GetService("RunService")
 
-    -- Create collision groups
-    PhysicsService:CreateCollisionGroup("NoClipGroup")
-    PhysicsService:CreateCollisionGroup("IgnoreGroup")
-
-    -- Set collision rules
-    PhysicsService:CollisionGroupSetCollidable("NoClipGroup", "IgnoreGroup", false)
-
-    -- Assign player to NoClipGroup
-    for _, part in pairs(character:GetChildren()) do
-        if part:IsA("BasePart") then
-            PhysicsService:SetPartCollisionGroup(part, "NoClipGroup")
+    local function setNoClip(enabled)
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not enabled
+            end
+        end
+        if enabled then
+            character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        else
+            character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
         end
     end
 
-    local connection
     if noClipEnabled then
-        connection = game:GetService('RunService').Stepped:Connect(function()
-            if noClipEnabled then
-                for _, part in pairs(character:GetChildren()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-                character.Humanoid:ChangeState(11) -- No-clip state
-            end
+        _G.NoClip = runService.Stepped:Connect(function()
+            setNoClip(true)
         end)
     else
-        -- Reset collision group to default
-        for _, part in pairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                PhysicsService:SetPartCollisionGroup(part, "Default")
-                part.CanCollide = true
-            end
+        if _G.NoClip then
+            _G.NoClip:Disconnect()
+            _G.NoClip = nil
         end
-        character.Humanoid:ChangeState(0) -- Normal state
-        if connection then connection:Disconnect() end
+        setNoClip(false)
     end
 end)
 
