@@ -172,15 +172,12 @@ function lib:Window(text, preset, closebind)
         end
     end)
 
-    ToggleButton.MouseButton1Click:Connect(ToggleUI)
-
     TabFolder.Name = "TabFolder"
     TabFolder.Parent = Main
 
     function lib:ChangePresetColor(toch)
         PresetColor = toch
     end
-end
 
     function lib:Notification(texttitle, textdesc, textbtn)
         local NotificationHold = Instance.new("TextButton")
