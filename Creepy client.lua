@@ -186,10 +186,10 @@ tab2:Toggle("High Light", false, function(state)
     end
 end)
 
-tab1:Slider("Speed",0,100,0, function(v)
+tab:Textbox("Speed",true, function(t)
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
 end)
 
-tab1:Slider("FOV [70-120]",0,100,30, function(v)
+tab:Textbox("Textbox",true, function(t)
 game.Workspace.CurrentCamera.FieldOfView = v
 end)
