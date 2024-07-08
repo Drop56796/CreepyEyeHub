@@ -179,9 +179,17 @@ tab2:Toggle("High Light", false, function(state)
     if state then  
         while state do
             dofullbright()
-            wait(100000)
+            wait(1000000000)
         end
     else
         resetLighting()
     end
+end)
+
+tab1:Slider("Speed",0,100,0, function(v)
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
+end)
+
+tab1:Slider("FOV [70-120]",0,100,30, function(v)
+game.Workspace.CurrentCamera.FieldOfView = v
 end)
