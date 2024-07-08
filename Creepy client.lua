@@ -24,6 +24,7 @@ tab2:Toggle("Auto-Jump", false, function(state)
     end
 end)
 
+-- No-Clip Function
 tab2:Toggle("No-Clip", false, function(state)
     noClipEnabled = state
     local player = game.Players.LocalPlayer
@@ -44,9 +45,15 @@ tab2:Toggle("No-Clip", false, function(state)
         end
     end
 
+    local connection
     if noClipEnabled then
-        game:GetService('RunService').Stepped:Connect(function()
+        connection = game:GetService('RunService').Stepped:Connect(function()
             if noClipEnabled then
+                for _, part in pairs(character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
                 character.Humanoid:ChangeState(11) -- No-clip state
             end
         end)
@@ -55,9 +62,11 @@ tab2:Toggle("No-Clip", false, function(state)
         for _, part in pairs(character:GetChildren()) do
             if part:IsA("BasePart") then
                 PhysicsService:SetPartCollisionGroup(part, "Default")
+                part.CanCollide = true
             end
         end
         character.Humanoid:ChangeState(0) -- Normal state
+        if connection then connection:Disconnect() end
     end
 end)
 
