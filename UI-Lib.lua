@@ -102,7 +102,7 @@ function lib:Window(text, preset, closebind)
     BackgroundImage.BackgroundTransparency = 1
     BackgroundImage.Position = UDim2.new(0.5, 0, 0.5, 0)
     BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
-    BackgroundImage.Image = "rbxassetid://18394059300"
+    BackgroundImage.Image = "rbxassetid://18394425047"
 
     TabHold.Name = "TabHold"
     TabHold.Parent = Main
