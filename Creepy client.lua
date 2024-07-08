@@ -70,17 +70,82 @@ tab2:Toggle("No-Clip", false, function(state)
     end
 end)
 
-local esp = false
+-- Custom ESP Function
+local espEnabled = false
 
-tab1:Toggle("esp", false, function(state)
-    esp = state
-    if esp then
-        repeat
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/UILibs/main/ESP/Arrows/Example"))()
-            wait(5)
-        until not esp
+tab1:Toggle("Player ESP", false, function(state)
+    espEnabled = state
+    if espEnabled then
+        -- Enable ESP
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer then
+                if player.Character then
+                    createESP(player)
+                end
+            end
+        end
+
+        game.Players.PlayerAdded:Connect(function(player)
+            player.CharacterAdded:Connect(function()
+                if espEnabled then
+                    createESP(player)
+                end
+            end)
+        end)
+
+        game.Players.PlayerRemoving:Connect(function(player)
+            if player.Character and player.Character:FindFirstChildOfClass("Highlight") then
+                player.Character:FindFirstChildOfClass("Highlight"):Destroy()
+            end
+            if player.Character and player.Character:FindFirstChildOfClass("BillboardGui") then
+                player.Character:FindFirstChildOfClass("BillboardGui"):Destroy()
+            end
+        end)
+    else
+        -- Disable ESP
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChildOfClass("Highlight") then
+                player.Character:FindFirstChildOfClass("Highlight"):Destroy()
+            end
+            if player.Character and player.Character:FindFirstChildOfClass("BillboardGui") then
+                player.Character:FindFirstChildOfClass("BillboardGui"):Destroy()
+            end
+        end
     end
 end)
+
+function createESP(player)
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = player.Character
+    highlight.Parent = player.Character
+    highlight.FillColor = Color3.new(1, 0, 0) -- Red color
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = Color3.new(1, 1, 1) -- White outline
+    highlight.OutlineTransparency = 0
+
+    -- Create BillboardGui for name and distance
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = player.Character:FindFirstChild("Head")
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.Parent = player.Character
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextStrokeTransparency = 0
+    textLabel.Text = player.Name
+    textLabel.Parent = billboard
+
+    -- Update distance
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            textLabel.Text = player.Name .. " (" .. math.floor(distance) .. " studs)"
+        end
+    end)
+end
 
 -- 自动治疗
 local autoHealEnabled = false
