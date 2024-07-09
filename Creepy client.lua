@@ -198,54 +198,54 @@ tab2:Toggle("High Light", false, function(state)
     end
 end)
 
-tab1:Textbox("Speed",true, function(t)
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = t
+tab1:Textbox("Speed", true, function(t)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = t
 end)
 
-tab1:Textbox("FOV",true, function(t)
-game.Workspace.CurrentCamera.FieldOfView = t
+tab1:Textbox("FOV", true, function(t)
+    game.Workspace.CurrentCamera.FieldOfView = t
 end)
 
-tab1:Textbox("Gravity",true, function(t)
-game.Workspace.Gravity = t
+tab1:Textbox("Gravity", true, function(t)
+    game.Workspace.Gravity = t
 end)
 
-tab1:Textbox("JumpPower",true, function(t)
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
+tab1:Textbox("JumpPower", true, function(t)
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
 end)
 
 tab3:Button("Bobhub", function()
-loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\54\53\84\119\84\56\106\97"))()
+    loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\54\53\84\119\84\56\106\97"))()
 end)
 
 tab3:Button("Slience Hub V2", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Moonsec/moonsec/moonsec.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Moonsec/moonsec/moonsec.lua"))()
 end)
 
 tab3:Button("Super Script", function()
-loadstring(game: HttpGet("https://raw.githubusercontent.com/Fazedrab/EntitySpawner/main/doors(orionlib).lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Fazedrab/EntitySpawner/main/doors(orionlib).lua"))()
 end)
 
 tab3:Button("心跳永远胜利", function()
-firesignal(game.ReplicatedStorage.Bricks.ClutchHeartbeat.OnClientEvent)
+    firesignal(game.ReplicatedStorage.Bricks.ClutchHeartbeat.OnClientEvent)
 end)
 
 tab4:Button("1", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/zerpqe/script/main/NinjaLegends.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/zerpqe/script/main/NinjaLegends.lua"))()
 end)
 
 tab4:Button("2", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/5repo/main/script4.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/5repo/main/script4.lua"))()
 end)
 
 tab5:Button("1", function()
-loadstring(game:HttpGet(('https://raw.githubusercontent.com/Unknownkellymc1/Unknownscripts/main/slap-battles'))
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/Unknownkellymc1/Unknownscripts/main/slap-battles'))()
 end)
 
-tab6:Button("导管🥵", function()
-loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\117\115\101\114\97\110\101\119\114\102\102\47\114\111\98\108\111\120\45\47\109\97\105\110\47\37\69\54\37\57\68\37\65\49\37\69\54\37\65\67\37\66\69\37\69\53\37\56\68\37\56\70\37\69\56\37\65\69\37\65\69\34\41\41\40\41\10")()
+tab6:Button("导管", function()
+    loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\117\115\101\114\97\110\101\119\114\102\102\47\114\111\98\108\111\120\45\47\109\97\105\110\47\37\69\54\37\57\68\37\65\49\37\69\54\37\65\67\37\66\69\37\69\53\37\56\68\37\56\70\37\69\56\37\65\69\37\65\69\34\41\41\40\41\10")()
 end) 
 
 tab6:Button("XC", function()
-loadstring(game:HttpGet("https://pastebin.com/raw/PAFzYx0F"))()
+    loadstring(game:HttpGet("https://pastebin.com/raw/PAFzYx0F"))()
 end)
