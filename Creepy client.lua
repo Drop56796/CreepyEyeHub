@@ -1,7 +1,7 @@
 local CoreGui = game:GetService("StarterGui")
 CoreGui:SetCore("SendNotification", {
     Title = "Creepy Client Welcome",
-    Text = "V1",
+    Text = "V1.2",
     Duration = 3, 
 })
 wait(3)
@@ -12,11 +12,17 @@ assert(lib, "Failed to load library")
 local win = lib:Window("Creepy client Welcome ["..game.Players.LocalPlayer.Name.."] Executor:"..identifyexecutor"", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
 assert(win, "Failed to create window")
 
-local tab1 = win:Tab("Here>>>")
+local tab1 = win:Tab("Player1")
 assert(tab1, "Failed to create tab1")
 
-local tab2 = win:Tab("Here>>>")
+local tab2 = win:Tab("Player2")
 assert(tab2, "Failed to create tab2")
+
+local tab3 = win:Tab("Doors")
+assert(tab3, "Failed to create tab3")
+
+local tab4 = win:Tab("忍者传奇")
+assert(tab4, "Failed to create tab4")
 
 local autoJumpEnabled = false
 local noClipEnabled = false
@@ -190,6 +196,38 @@ tab1:Textbox("Speed",true, function(t)
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = t
 end)
 
-tab1:Textbox("Textbox",true, function(t)
+tab1:Textbox("FOV",true, function(t)
 game.Workspace.CurrentCamera.FieldOfView = t
+end)
+
+tab1:Textbox("Gravity",true, function(t)
+game.Workspace.Gravity = t
+end)
+
+tab1:Textbox("JumpPower",true, function(t)
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
+end)
+
+tab3:Button("Bobhub", function()
+loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\54\53\84\119\84\56\106\97"))()
+end)
+
+tab3:Button("Slience Hub V2", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Moonsec/moonsec/moonsec.lua"))()
+end)
+
+tab3:Button("Super Script", function()
+loadstring(game: HttpGet("https://raw.githubusercontent.com/Fazedrab/EntitySpawner/main/doors(orionlib).lua"))()
+end)
+
+tab3:Button("心跳永远胜利", function()
+firesignal(game.ReplicatedStorage.Bricks.ClutchHeartbeat.OnClientEvent)
+end)
+
+tab4:Button("1", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/zerpqe/script/main/NinjaLegends.lua"))()
+end)
+
+tab4:Button("2", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/5repo/main/script4.lua"))()
 end)
