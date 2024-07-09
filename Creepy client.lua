@@ -24,6 +24,12 @@ assert(tab3, "Failed to create tab3")
 local tab4 = win:Tab("忍者传奇")
 assert(tab4, "Failed to create tab4")
 
+local tab5 = win:Tab("巴掌")
+assert(tab5, "Failed to create tab5")
+
+local tab6 = win:Tab("其他脚本🥵")
+assert(tab6, "Failed to create tab6")
+
 local autoJumpEnabled = false
 local noClipEnabled = false
 
@@ -230,4 +236,16 @@ end)
 
 tab4:Button("2", function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/harisiskandar178/5repo/main/script4.lua"))()
+end)
+
+tab5:Button("1", function()
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/Unknownkellymc1/Unknownscripts/main/slap-battles'))
+end)
+
+tab6:Button("导管🥵", function()
+loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\117\115\101\114\97\110\101\119\114\102\102\47\114\111\98\108\111\120\45\47\109\97\105\110\47\37\69\54\37\57\68\37\65\49\37\69\54\37\65\67\37\66\69\37\69\53\37\56\68\37\56\70\37\69\56\37\65\69\37\65\69\34\41\41\40\41\10")()
+end) 
+
+tab6:Button("XC", function()
+loadstring(game:HttpGet("https://pastebin.com/raw/PAFzYx0F"))()
 end)
