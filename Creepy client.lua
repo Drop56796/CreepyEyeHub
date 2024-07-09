@@ -30,6 +30,12 @@ assert(tab5, "Failed to create tab5")
 local tab6 = win:Tab("其他脚本🥵")
 assert(tab6, "Failed to create tab6")
 
+local tab7 = win:Tab("bedwars")
+assert(tab7, "Failed to create tab7")
+
+local tab8 = win:Tab("Setting")
+assert(tab8, "Failed to create tab8")
+
 local autoJumpEnabled = false
 local noClipEnabled = false
 
@@ -198,6 +204,10 @@ tab2:Toggle("High Light", false, function(state)
     end
 end)
 
+tab1:Button("Vape V4", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Vape-V4/main/%E7%94%B5%E5%AD%90%E7%83%9FV4.lua"))()
+end)
+
 tab1:Textbox("Speed", true, function(t)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = t
 end)
@@ -248,4 +258,79 @@ end)
 
 tab6:Button("XC", function()
     loadstring(game:HttpGet("https://pastebin.com/raw/PAFzYx0F"))()
+end)
+
+tab7:Button("vape v4", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Vape-V4/main/%E7%94%B5%E5%AD%90%E7%83%9FV4.lua"))()
+end)
+
+tab8:Toggle("Show Time", false, function(state)
+    if state then
+        local LBLG = Instance.new("ScreenGui", getParent)
+        local LBL = Instance.new("TextLabel", getParent)
+        local player = game.Players.LocalPlayer
+
+        LBLG.Name = "LBLG"
+        LBLG.Parent = game.CoreGui
+        LBLG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        LBLG.Enabled = true
+
+        LBL.Name = "LBL"
+        LBL.Parent = LBLG
+        LBL.BackgroundColor3 = Color3.new(1, 1, 1)
+        LBL.BackgroundTransparency = 1
+        LBL.BorderColor3 = Color3.new(0, 0, 0)
+        LBL.Position = UDim2.new(0.75, 0, 0.010, 0)
+        LBL.Size = UDim2.new(0, 133, 0, 30)
+        LBL.Font = Enum.Font.GothamSemibold
+        LBL.Text = "TextLabel"
+        LBL.TextColor3 = Color3.new(1, 1, 1)
+        LBL.TextScaled = true
+        LBL.TextSize = 14
+        LBL.TextWrapped = true
+        LBL.Visible = true
+
+        local FpsLabel = LBL
+        local Heartbeat = game:GetService("RunService").Heartbeat
+        local LastIteration, Start
+        local FrameUpdateTable = {}
+
+        local function HeartbeatUpdate()
+            LastIteration = tick()
+            for Index = #FrameUpdateTable, 1, -1 do
+                FrameUpdateTable[Index + 1] = (FrameUpdateTable[Index] >= LastIteration - 1) and FrameUpdateTable[Index] or nil
+            end
+            FrameUpdateTable[1] = LastIteration
+            local CurrentFPS = (tick() - Start >= 1 and #FrameUpdateTable) or (#FrameUpdateTable / (tick() - Start))
+            CurrentFPS = CurrentFPS - CurrentFPS % 1
+            FpsLabel.Text = ("China time" .. os.date("%H") .. "H" .. os.date("%M") .. "M" .. os.date("%S"))
+        end
+
+        Start = tick()
+        Heartbeat:Connect(HeartbeatUpdate)
+    else
+        LBLG.Name = "5"
+        LBLG.Parent = game.CoreGui
+        LBLG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        LBLG.Enabled = true
+
+        LBL.Name = "5"
+        LBL.Parent = LBLG
+        LBL.BackgroundColor3 = Color3.new(1, 1, 1)
+        LBL.BackgroundTransparency = 1
+        LBL.BorderColor3 = Color3.new(0, 0, 0)
+        LBL.Position = UDim2.new(100, 0, 10, 20)
+        LBL.Size = UDim2.new(0.5, 0, 0.5, 30)
+        LBL.Font = Enum.Font.GothamSemibold
+        LBL.Text = "0"
+        LBL.TextColor3 = Color3.new(155, 155, 155)
+        LBL.TextScaled = true
+        LBL.TextSize = 14
+        LBL.TextWrapped = true
+        LBL.Visible = true
+    end
+end)
+
+tab8:Colorpicker("Setting UI Color",Color3.fromRGB(44, 120, 224), function(t)
+lib:ChangePresetColor(Color3.fromRGB(t.R * 255, t.G * 255, t.B * 255))
 end)
