@@ -50,7 +50,10 @@ tab2:Toggle("Auto-Jump", false, function(state)
     end
 end)
 
--- No-Clip Function
+tab2:Button("Infinite Yield", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+end)
+
 tab2:Toggle("No-Clip", false, function(state)
     noClipEnabled = state
     local player = game.Players.LocalPlayer
@@ -258,6 +261,10 @@ end)
 
 tab6:Button("XC", function()
     loadstring(game:HttpGet("https://pastebin.com/raw/PAFzYx0F"))()
+end)
+
+tab6:Button("hoho hub(15+ Game)", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ascn123/HOHO_H/main/Loading_UI'))()
 end)
 
 tab7:Button("vape v4", function()
