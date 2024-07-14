@@ -9,7 +9,7 @@ wait(3)
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/CreepyEyeHub/main/UI-Lib.lua"))()
 assert(lib, "Failed to load library")
 
-local win = lib:Window("Creepy client Welcome ["..game.Players.LocalPlayer.Name.."] Executor:"..identifyexecutor"", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
+local win = lib:Window("Welcome ["..game.Players.LocalPlayer.Name.."] Executor:"..identifyexecutor"", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
 assert(win, "Failed to create window")
 
 local tab1 = win:Tab("Player Setting")
@@ -266,7 +266,7 @@ tab6:Button("XC", function()
 end)
 
 tab6:Button("Rooms＆Doors {NB}", function()
-    loadstring(game:HttpGet("https://github.com/DocYogurt/Main/raw/main/Scripts/Rooms&Doors"))()
+    loadstring(game:HttpGet("https://github.com/DocYogurt/Main/raw/main/Scripts/Rooms&Doors?raw=true"))()
 end)
 
 tab6:Button("hoho hub(15+ Game)", function()
