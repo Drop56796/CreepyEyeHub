@@ -12,7 +12,7 @@ assert(lib, "Failed to load library")
 local win = lib:Window("Creepy client Welcome ["..game.Players.LocalPlayer.Name.."] Executor:"..identifyexecutor"", Color3.fromRGB(1, 0, 0), Enum.KeyCode.RightControl)
 assert(win, "Failed to create window")
 
-local tab1 = win:Tab("Player1")
+local tab1 = win:Tab("Player Setting")
 assert(tab1, "Failed to create tab1")
 
 local tab3 = win:Tab("Doors")
@@ -30,8 +30,13 @@ assert(tab6, "Failed to create tab6")
 local tab7 = win:Tab("bedwars")
 assert(tab7, "Failed to create tab7")
 
-local tab8 = win:Tab("Setting")
+local op1 = win:Tab("⭐😡人生")
 assert(tab8, "Failed to create tab8")
+
+local tab9 = win:Tab("Setting")
+assert(tab8, "Failed to create tab8")
+
+
 
 local autoJumpEnabled = false
 local noClipEnabled = false
@@ -268,7 +273,7 @@ tab7:Button("vape v4", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Vape-V4/main/%E7%94%B5%E5%AD%90%E7%83%9FV4.lua"))()
 end)
 
-tab8:Toggle("Show Time", false, function(state)
+tab9:Toggle("Show Time", false, function(state)
     if state then
         local LBLG = Instance.new("ScreenGui", getParent)
         local LBL = Instance.new("TextLabel", getParent)
@@ -335,6 +340,147 @@ tab8:Toggle("Show Time", false, function(state)
     end
 end)
 
-tab8:Colorpicker("Setting UI Color",Color3.fromRGB(44, 120, 224), function(t)
+local player = game.Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local runService = game:GetService("RunService")
+
+local aimbotEnabled = false
+local targetPart = "Head" -- 锁定目标的部位
+local connection -- 用于存储RenderStepped连接
+
+-- 查找最近的目标
+local function getClosestTarget()
+    local closestTarget = nil
+    local shortestDistance = math.huge
+
+    for _, target in pairs(game.Players:GetPlayers()) do
+        if target ~= player and target.Team ~= player.Team then
+            local targetCharacter = target.Character
+            if targetCharacter and targetCharacter:FindFirstChild(targetPart) then
+                local distance = (targetCharacter[targetPart].Position - camera.CFrame.Position).Magnitude
+                if distance < shortestDistance then
+                    closestTarget = targetCharacter[targetPart]
+                    shortestDistance = distance
+                end
+            end
+        end
+    end
+
+    return closestTarget
+end
+
+-- 启动/关闭自瞄
+op1:Toggle("自瞄(有些老爷😡)", false, function(state)
+    if state then
+        print("开启自瞄")
+        aimbotEnabled = true
+
+        -- 自瞄功能
+        connection = runService.RenderStepped:Connect(function()
+            if aimbotEnabled then
+                local closestTarget = getClosestTarget()
+                if closestTarget then
+                    camera.CFrame = CFrame.new(camera.CFrame.Position, closestTarget.Position)
+                end
+            end
+        end)
+    else
+        print("关闭自瞄")
+        aimbotEnabled = false
+        if connection then
+            connection:Disconnect()
+        end
+    end
+end)
+
+op1:Button("警察team", function()
+    local Player = game.Players.LocalPlayer
+local PlayerName = Player.Name
+
+local function switchTeam(teamColor)
+    local args = {
+        [1] = teamColor
+    }
+    workspace.Remote.TeamEvent:FireServer(unpack(args))
+    local args = {
+        [1] = PlayerName
+    }
+    workspace.Remote.loadchar:InvokeServer(unpack(args))
+end
+
+-- 切换到警卫团队
+switchTeam("Bright blue")
+end)
+
+op1:Button("犯人team", function()
+    local Player = game.Players.LocalPlayer
+local PlayerName = Player.Name
+
+local function switchTeam(teamColor)
+    local args = {
+        [1] = teamColor
+    }
+    workspace.Remote.TeamEvent:FireServer(unpack(args))
+    local args = {
+        [1] = PlayerName
+    }
+    workspace.Remote.loadchar:InvokeServer(unpack(args))
+end
+
+-- 切换到囚犯团队
+switchTeam("Bright orange")
+end)
+
+op1:Button("犯罪分子team", function()
+    local player = game.Players.LocalPlayer
+    if player then
+        player.Team = CriminalsTeam
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(100, 10, 100)) -- 传送到犯罪分子基地
+        end
+end)
+
+op1:Button("扔小石子(可能无效😡)", function()
+    local function throwShuriken()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local shuriken = Instance.new("Part")
+    shuriken.Size = Vector3.new(1, 1, 1)
+    shuriken.Shape = Enum.PartType.Block
+    shuriken.Position = character.Head.Position
+    shuriken.Parent = workspace
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0) -- 初始速度为零
+    bodyVelocity.Parent = shuriken
+
+    shuriken.Touched:Connect(function(hit)
+        local hitPlayer = game.Players:GetPlayerFromCharacter(hit.Parent)
+        if hitPlayer and hitPlayer ~= player then
+            local humanoid = hit.Parent:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid:TakeDamage(100)
+                humanoid.Health = 0 -- 设置健康值为零
+                humanoid.BreakJointsOnDeath = true -- 确保BreakJointsOnDeath为true
+                shuriken:Destroy()
+            end
+        end
+    end)
+
+    -- 监听触摸事件
+    local userInputService = game:GetService("UserInputService")
+    userInputService.TouchTap:Connect(function(touchPositions)
+        local touchPosition = touchPositions[1]
+        local targetPosition = workspace.CurrentCamera:ScreenPointToRay(touchPosition.X, touchPosition.Y).Origin
+        bodyVelocity.Velocity = (targetPosition - shuriken.Position).unit * 9999
+    end)
+end
+
+-- 绑定触摸事件
+game:GetService("UserInputService").TouchTap:Connect(function()
+    throwShuriken()
+end)
+end)
+
+tab9:Colorpicker("Setting UI Color",Color3.fromRGB(44, 120, 224), function(t)
 lib:ChangePresetColor(Color3.fromRGB(t.R * 255, t.G * 255, t.B * 255))
 end)
