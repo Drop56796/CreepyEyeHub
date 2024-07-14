@@ -30,7 +30,7 @@ assert(tab6, "Failed to create tab6")
 local tab7 = win:Tab("bedwars")
 assert(tab7, "Failed to create tab7")
 
-local op1 = win:Tab("⭐😡人生")
+local tab8 = win:Tab("⭐😡人生")
 assert(tab8, "Failed to create tab8")
 
 local tab9 = win:Tab("Setting")
@@ -370,7 +370,7 @@ local function getClosestTarget()
 end
 
 -- 启动/关闭自瞄
-op1:Toggle("自瞄(有些老爷😡)", false, function(state)
+tab8:Toggle("自瞄(有些老爷😡)", false, function(state)
     if state then
         print("开启自瞄")
         aimbotEnabled = true
@@ -393,7 +393,7 @@ op1:Toggle("自瞄(有些老爷😡)", false, function(state)
     end
 end)
 
-op1:Button("警察team", function()
+tab8:Button("警察team", function()
     local Player = game.Players.LocalPlayer
 local PlayerName = Player.Name
 
@@ -412,7 +412,7 @@ end
 switchTeam("Bright blue")
 end)
 
-op1:Button("犯人team", function()
+tab8:Button("犯人team", function()
     local Player = game.Players.LocalPlayer
 local PlayerName = Player.Name
 
@@ -431,7 +431,7 @@ end
 switchTeam("Bright orange")
 end)
 
-op1:Button("犯罪分子team", function()
+tab8:Button("犯罪分子team", function()
     local player = game.Players.LocalPlayer
     if player then
         player.Team = CriminalsTeam
@@ -439,7 +439,7 @@ op1:Button("犯罪分子team", function()
         end
 end)
 
-op1:Button("扔小石子(可能无效😡)", function()
+tab8:Button("扔小石子(可能无效😡)", function()
     local function throwShuriken()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
