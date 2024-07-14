@@ -15,9 +15,6 @@ assert(win, "Failed to create window")
 local tab1 = win:Tab("Player1")
 assert(tab1, "Failed to create tab1")
 
-local tab2 = win:Tab("Player2")
-assert(tab2, "Failed to create tab2")
-
 local tab3 = win:Tab("Doors")
 assert(tab3, "Failed to create tab3")
 
@@ -39,7 +36,7 @@ assert(tab8, "Failed to create tab8")
 local autoJumpEnabled = false
 local noClipEnabled = false
 
-tab2:Toggle("Auto-Jump", false, function(state)
+tab1:Toggle("Auto-Jump", false, function(state)
     autoJumpEnabled = state
     if autoJumpEnabled then
         while autoJumpEnabled do
@@ -50,11 +47,11 @@ tab2:Toggle("Auto-Jump", false, function(state)
     end
 end)
 
-tab2:Button("Infinite Yield", function()
+tab1:Button("Infinite Yield", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 end)
 
-tab2:Toggle("No-Clip", false, function(state)
+tab1:Toggle("No-Clip", false, function(state)
     noClipEnabled = state
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
@@ -182,7 +179,7 @@ tab1:Toggle("Auto-Heal", false, function(state)
     end
 end)
 
-tab2:Toggle("High Light", false, function(state)
+tab1:Toggle("High Light", false, function(state)
     local Light = game:GetService("Lighting")
 
     function dofullbright()
