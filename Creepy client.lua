@@ -229,6 +229,10 @@ tab1:Textbox("JumpPower", true, function(t)
     game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
 end)
 
+tab3:Button("WeShan old {MrWhite独家制作}", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/MSHUB-old-/main/We%20shan%20Doors%20Old.lua"))()
+end)
+
 tab3:Button("Bobhub", function()
     loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\54\53\84\119\84\56\106\97"))()
 end)
