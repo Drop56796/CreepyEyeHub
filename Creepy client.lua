@@ -397,6 +397,42 @@ tab8:Toggle("自瞄(有些老爷😡)", false, function(state)
     end
 end)
 
+tab8:Button("美化{自瞄}", function()
+    local ScreenGui = Instance.new("ScreenGui")
+local OuterFrame = Instance.new("Frame")
+local OuterUICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- 外圆
+OuterFrame.Parent = ScreenGui
+OuterFrame.BackgroundTransparency = 1 -- 使背景透明
+OuterFrame.Size = UDim2.new(0, 220, 0, 220) -- 调整外圆的大小
+OuterFrame.Position = UDim2.new(0.5, -110, 0.5, -110)
+
+OuterUICorner.Parent = OuterFrame
+OuterUICorner.CornerRadius = UDim.new(1, 0) -- 使外圆变成圆形
+
+UIStroke.Parent = OuterFrame
+UIStroke.Thickness = 10 -- 设置边框宽度为10
+UIStroke.Color = Color3.new(1, 1, 1) -- 初始颜色
+
+local TweenService = game:GetService("TweenService")
+
+local function createRainbowTween(uiElement, duration)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+    local goal = {Color = Color3.new(math.random(), math.random(), math.random())}
+    local tween = TweenService:Create(uiElement, tweenInfo, goal)
+    tween:Play()
+end
+
+while true do
+    createRainbowTween(UIStroke, 1)
+    wait(1)
+end
+end)
+
 tab8:Button("警察team", function()
     local Player = game.Players.LocalPlayer
 local PlayerName = Player.Name
