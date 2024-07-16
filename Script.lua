@@ -9,7 +9,7 @@ if not success then
 end
 
 local GUIWindow = Library:CreateWindow({
-    Name = "Creepy Client V2",
+    Name = "Creepy Client V2 (Beta)",
     Themeable = false
 })
 
@@ -120,6 +120,46 @@ for location, cframe in pairs(teleportLocations) do
     })
 end
 
+-- Adding buttons to switch teams
+prison:AddButton({
+    Name = "Switch to Inmate",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        workspace.Remote.TeamEvent:FireServer("Bright orange")
+        workspace.Remote.loadchar:InvokeServer(player.Name)
+    end
+})
+
+prison:AddButton({
+    Name = "Switch to Guards",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        workspace.Remote.TeamEvent:FireServer("Bright blue")
+        workspace.Remote.loadchar:InvokeServer(player.Name)
+    end
+})
+
+prison:AddButton({
+    Name = "Switch to Neutral",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        workspace.Remote.TeamEvent:FireServer("Medium stone grey")
+        workspace.Remote.loadchar:InvokeServer(player.Name)
+    end
+})
+
+-- Adding button to switch to Criminal
+prison:AddButton({
+    Name = "Switch to Criminal",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(500, 10, 500)
+        wait(1)
+        workspace.Remote.TeamEvent:FireServer("Bright red")
+        workspace.Remote.loadchar:InvokeServer(player.Name)
+    end
+})
+
 local killAuraToggle = prison:AddToggle({
     Name = "Kill Aura",
     Default = false,
@@ -193,6 +233,9 @@ local playerESP = prison:AddToggle({
 local doorESPEnabled = false
 local itemESPEnabled = false
 local lookAuraEnabled = false
+local KeyESPEnable = false
+local wardrobeESPEnabled = false
+local goldESPEnabled = false
 
 local function toggleDoorESP(state)
     doorESPEnabled = state
@@ -281,8 +324,6 @@ local lookauraToggle = Doors:AddToggle({
     end
 })
 
-local goldESPEnabled = false
-
 local function toggleGoldESP(state)
     goldESPEnabled = state
     for _, room in pairs(game:GetService("Workspace").CurrentRooms:GetChildren()) do
@@ -309,8 +350,6 @@ local goldESPToggle = window_player:AddToggle({
     end
 })
 
-local wardrobeESPEnabled = false
-
 local function toggleWardrobeESP(state)
     wardrobeESPEnabled = state
     for _, wardrobe in pairs(game:GetService("Workspace").Assets.Wardrobe:GetChildren()) do
@@ -336,8 +375,6 @@ local WardrobeToggle = window_player:AddToggle({
         toggleWardrobeESP(state)
     end
 })
-
-local KeyESPEnable = false
 
 local function createLabel(part, text, color)
     local billboardGui = Instance.new("BillboardGui")
