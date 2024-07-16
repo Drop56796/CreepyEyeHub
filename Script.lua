@@ -1,8 +1,15 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 
+local success, Library = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
+end)
+
+if not success then
+    warn("Failed to load UI library")
+    return
+end
 
 local GUIWindow = Library:CreateWindow({
-    Name = "监狱人生/口渴吸血鬼",
+    Name = "Creepy Client V2",
     Themeable = false
 })
 
@@ -11,107 +18,380 @@ local GUI = GUIWindow:CreateTab({
 })
 
 local window_player = GUI:CreateSection({
-	Name = "玩家"
+    Name = "玩家"
 })
 
 local camfovslider = window_player:AddSlider({
-	Name = "FOV",
-	Value = 70,
-	Min = 50,
-	Max = 120,
-	Callback = function(FOV)
-		game:GetService("Workspace").CurrentCamera.FieldOfView = FOV
-	end
+    Name = "FOV",
+    Value = 70,
+    Min = 50,
+    Max = 120,
+    Callback = function(Value)
+        game:GetService("Workspace").CurrentCamera.FieldOfView = Value
+    end
 })
 
 local PlayerWalkSpeedSlider = window_player:AddSlider({
-	Name = "Speed",
-	Value = 20,
-	Min = 1,
-	Max = 75,
-
-	Callback = function(WalkSpeed)
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeed
-	end
+    Name = "Speed",
+    Value = 20,
+    Min = 1,
+    Max = 75,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
 })
 
-local PlayerGravitySlier = window_player:AddSlider({
-	Name = "Gravity",
-	Value = 1,
-	Min = 1,
-	Max = 100,
-
-	Callback = function(Gravity)
-		game.Workspace.Gravity = Gravity
-	end
+local PlayerGravitySlider = window_player:AddSlider({
+    Name = "Gravity",
+    Value = 1,
+    Min = 1,
+    Max = 100,
+    Callback = function(Value)
+        game.Workspace.Gravity = Value
+    end
 })
 
-local camfovslider = window_player:AddSlider({
-	Name = "JunpPower",
-	Value = 1,
-	Min = 1,
-	Max = 50,
-
-	Callback = function(JP)
-		game.Players.LocalPlayer.Character.Humanoid.JumpPower = JP
-	end
+local PlayerJumpPowerSlider = window_player:AddSlider({
+    Name = "JumpPower",
+    Value = 1,
+    Min = 1,
+    Max = 50,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end
 })
 
-local esphumansbtn = window_player:AddToggle({
-	Name = "Player ESP",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.esphumans = val
-
-		if val then
-			local function personesp(v)
-				if v:IsA("Player") then
-					v.CharacterAdded:Connect(function(vc)
-						local vh = vc:WaitForChild("Humanoid")
-						local torso = vc:WaitForChild("UpperTorso")
-						task.wait(0.1)
-
-						local h = esp(vc,Color3.fromRGB(255,255,255),torso,v.DisplayName)
-						table.insert(esptable.people,h) 
-					end)
-
-					if v.Character then
-						local vc = v.Character
-						local vh = vc:WaitForChild("Humanoid")
-						local torso = vc:WaitForChild("UpperTorso")
-						task.wait(0.1)
-
-						local h = esp(vc,Color3.fromRGB(255,255,255),torso,v.DisplayName)
-						table.insert(esptable.people,h) 
-					end
-				end
-			end
-
-			local addconnect
-			addconnect = game.Players.PlayerAdded:Connect(function(v)
-				if v ~= plr then
-					personesp(v)
-				end
-			end)
-
-			for i,v in pairs(game.Players:GetPlayers()) do
-				if v ~= plr then
-					personesp(v) 
-				end
-				task.wait()
-			end
-
-			if workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:FindFirstChild("Assets") then
-				personesp(workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)])
-			end
-
-			repeat task.wait() until NUNEZSCRIPTSLOADED == false or not flags.esphumans
-			addconnect:Disconnect()
-
-			for i,v in pairs(esptable.people) do
-				v.delete()
-			end 
-		end
-	end
+local vampire = GUI:CreateSection({
+    Name = "thirsy Vampire"
 })
-buttons.esphumans = esphumansbtn
+
+local invisibilityToggle = vampire:AddToggle({
+    Name = "Invisibility",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if state then
+                humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+                player.Character.Head.Transparency = 1
+                player.Character.Torso.Transparency = 1
+                for _, part in pairs(player.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.Transparency = 1
+                        part.CanCollide = false
+                    end
+                end
+            else
+                humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                player.Character.Head.Transparency = 0
+                player.Character.Torso.Transparency = 0
+                for _, part in pairs(player.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.Transparency = 0
+                        part.CanCollide = true
+                    end
+                end
+            end
+        else
+            warn("Humanoid not found!")
+        end
+    end
+})
+
+local prison = GUI:CreateSection({
+    Name = "Prison life"
+})
+
+local teleportLocations = {
+    ["Yard"] = CFrame.new(50, 10, 50),
+    ["Cafeteria"] = CFrame.new(100, 10, 100),
+    ["Cells"] = CFrame.new(150, 10, 150),
+    ["Armory"] = CFrame.new(200, 10, 200)
+}
+
+for location, cframe in pairs(teleportLocations) do
+    prison:AddButton({
+        Name = "Teleport to " .. location,
+        Callback = function()
+            local player = game.Players.LocalPlayer
+            player.Character.HumanoidRootPart.CFrame = cframe
+        end
+    })
+end
+
+local killAuraToggle = prison:AddToggle({
+    Name = "Kill Aura",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            while state do
+                for _, target in pairs(game.Players:GetPlayers()) do
+                    if target ~= player and target.Character and target.Character:FindFirstChildOfClass("Humanoid") then
+                        local distance = (player.Character.HumanoidRootPart.Position - target.Character.HumanoidRootPart.Position).magnitude
+                        if distance < 10 then
+                            target.Character:FindFirstChildOfClass("Humanoid"):TakeDamage(10)
+                        end
+                    end
+                end
+                wait(0.1)
+            end
+        else
+            warn("Humanoid not found!")
+        end
+    end
+})
+
+local playerESP = prison:AddToggle({
+    Name = "Player ESP",
+    Default = false,
+    Callback = function(state)
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer then
+                if state then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Parent = player.Character
+                    highlight.Adornee = player.Character
+
+                    local billboard = Instance.new("BillboardGui")
+                    billboard.Parent = player.Character
+                    billboard.Adornee = player.Character
+                    billboard.Size = UDim2.new(0, 100, 0, 100)
+                    billboard.StudsOffset = Vector3.new(0, 3, 0)
+                    billboard.AlwaysOnTop = true
+
+                    local nameLabel = Instance.new("TextLabel")
+                    nameLabel.Parent = billboard
+                    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+                    nameLabel.BackgroundTransparency = 1
+                    nameLabel.Text = player.Name
+                    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+                    nameLabel.TextStrokeTransparency = 0.5
+                    nameLabel.TextScaled = true
+
+                    local circle = Instance.new("ImageLabel")
+                    circle.Parent = billboard
+                    circle.Size = UDim2.new(0, 50, 0, 50)
+                    circle.Position = UDim2.new(0.5, -25, 0, -25)
+                    circle.BackgroundTransparency = 1
+                    circle.Image = "rbxassetid://2200552246" -- Replace with your circle image asset ID
+                else
+                    if player.Character:FindFirstChildOfClass("Highlight") then
+                        player.Character:FindFirstChildOfClass("Highlight"):Destroy()
+                    end
+                    if player.Character:FindFirstChildOfClass("BillboardGui") then
+                        player.Character:FindFirstChildOfClass("BillboardGui"):Destroy()
+                    end
+                end
+            end
+        end
+    end
+})
+
+local doorESPEnabled = false
+local itemESPEnabled = false
+local lookAuraEnabled = false
+
+local function toggleDoorESP(state)
+    doorESPEnabled = state
+    for _, door in pairs(workspace:GetDescendants()) do
+        if door.Name == "Door" then
+            if state then
+                local highlight = Instance.new("Highlight")
+                highlight.Parent = door
+                highlight.Adornee = door
+            else
+                if door:FindFirstChildOfClass("Highlight") then
+                    door:FindFirstChildOfClass("Highlight"):Destroy()
+                end
+            end
+        end
+    end
+end
+
+local function toggleItemESP(state)
+    itemESPEnabled = state
+    for _, item in pairs(workspace:GetDescendants()) do
+        if item:IsA("Tool") or item:IsA("Part") then
+            if state then
+                local highlight = Instance.new("Highlight")
+                highlight.Parent = item
+                highlight.Adornee = item
+            else
+                if item:FindFirstChildOfClass("Highlight") then
+                    item:FindFirstChildOfClass("Highlight"):Destroy()
+                end
+            end
+        end
+    end
+end
+
+local function toggleLookAura(state)
+    lookAuraEnabled = state
+    local player = game.Players.LocalPlayer
+    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        while state do
+            for _, target in pairs(workspace:GetDescendants()) do
+                if target:IsA("Model") and target:FindFirstChild("ClickDetector") then
+                    local distance = (player.Character.HumanoidRootPart.Position - target.PrimaryPart.Position).magnitude
+                    if distance < 10 then
+                        fireclickdetector(target.ClickDetector)
+                    end
+                end
+            end
+            wait(0.1)
+        end
+    else
+        warn("Humanoid not found!")
+    end
+end
+
+local GUI = GUIWindow:CreateTab({
+    Name = "Doors"
+})
+
+local Doors = GUI:CreateSection({
+    Name = "Function"
+})
+
+local lookauraToggle = Doors:AddToggle({
+    Name = "Door ESP",
+    Default = false,
+    Callback = function(state)
+        toggleDoorESP(state)
+    end
+})
+
+local lookauraToggle = Doors:AddToggle({
+    Name = "Item ESP",
+    Default = false,
+    Callback = function(state)
+        toggleItemESP(state)
+    end
+})
+
+local lookauraToggle = Doors:AddToggle({
+    Name = "Look Aura",
+    Default = false,
+    Callback = function(state)
+        toggleLookAura(state)
+    end
+})
+
+local goldESPEnabled = false
+
+local function toggleGoldESP(state)
+    goldESPEnabled = state
+    for _, room in pairs(game:GetService("Workspace").CurrentRooms:GetChildren()) do
+        local goldPile = room:FindFirstChild("Assets") and room.Assets:FindFirstChild("Dresser") and room.Assets.Dresser:FindFirstChild("DrawerContainer") and room.Assets.Dresser.DrawerContainer:FindFirstChild("GoldPile") and room.Assets.Dresser.DrawerContainer.GoldPile:FindFirstChild("Hitbox")
+        if goldPile then
+            if state then
+                local highlight = Instance.new("Highlight")
+                highlight.Parent = goldPile
+                highlight.Adornee = goldPile
+            else
+                if goldPile:FindFirstChildOfClass("Highlight") then
+                    goldPile:FindFirstChildOfClass("Highlight"):Destroy()
+                end
+            end
+        end
+    end
+end
+
+local goldESPToggle = window_player:AddToggle({
+    Name = "Gold ESP",
+    Default = false,
+    Callback = function(state)
+        toggleGoldESP(state)
+    end
+})
+
+local wardrobeESPEnabled = false
+
+local function toggleWardrobeESP(state)
+    wardrobeESPEnabled = state
+    for _, wardrobe in pairs(game:GetService("Workspace").Assets.Wardrobe:GetChildren()) do
+        local mainPart = wardrobe:FindFirstChild("Main")
+        if mainPart then
+            if state then
+                local highlight = Instance.new("Highlight")
+                highlight.Parent = mainPart
+                highlight.Adornee = mainPart
+            else
+                if mainPart:FindFirstChildOfClass("Highlight") then
+                    mainPart:FindFirstChildOfClass("Highlight"):Destroy()
+                end
+            end
+        end
+    end
+end
+
+local WardrobeToggle = window_player:AddToggle({
+    Name = "Wardrobe ESP",
+    Default = false,
+    Callback = function(state)
+        toggleWardrobeESP(state)
+    end
+})
+
+local KeyESPEnable = false
+
+local function createLabel(part, text, color)
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Size = UDim2.new(0, 100, 0, 50)
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+    billboardGui.Adornee = part
+    billboardGui.Parent = part
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = text
+    textLabel.TextColor3 = color or Color3.new(1, 1, 1)
+    textLabel.TextScaled = true
+    textLabel.Parent = billboardGui
+end
+
+local function monitorRoomAssets()
+    for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+        if room:FindFirstChild("Assets") then
+            for _, asset in pairs(room.Assets:GetChildren()) do
+                if asset.Name:find("Key") then
+                    createLabel(asset, "Key", Color3.new(1, 0, 0)) -- Red color for keys
+                else
+                    createLabel(asset, asset.Name, Color3.new(1, 1, 1)) -- White color for other assets
+                end
+            end
+        end
+    end
+end
+
+local function toggleKeyESP(state)
+    KeyESPEnable = state
+    if state then
+        monitorRoomAssets()
+    else
+        -- Optionally, you can add code here to remove the labels when the toggle is turning off
+        for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+            if room:FindFirstChild("Assets") then
+                for _, asset in pairs(room.Assets:GetChildren()) do
+                    local billboardGui = asset:FindFirstChildOfClass("BillboardGui")
+                    if billboardGui then
+                        billboardGui:Destroy()
+                    end
+                end
+            end
+        end
+    end
+end
+
+local keyESPToggle = window_player:AddToggle({
+    Name = "Key ESP",
+    Default = false,
+    Callback = function(state)
+        toggleKeyESP(state)
+    end
+})
