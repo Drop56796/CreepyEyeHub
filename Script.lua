@@ -161,7 +161,7 @@ prison:AddButton({
 })
 
 local killAuraToggle = prison:AddToggle({
-    Name = "Kill Aura",
+    Name = "Kill Aura(May be invalid)",
     Default = false,
     Callback = function(state)
         local player = game.Players.LocalPlayer
@@ -214,7 +214,8 @@ local playerESP = prison:AddToggle({
                     local circle = Instance.new("ImageLabel")
                     circle.Parent = billboard
                     circle.Size = UDim2.new(0, 50, 0, 50)
-                    circle.Position = UDim2.new(0.5, -25, 0, -25)
+                    circle.Position = UDim2.new(0.5, 0, 0.5, 0) -- Center the circle
+                    circle.AnchorPoint = Vector2.new(0.5, 0.5) -- Set the anchor point to the center
                     circle.BackgroundTransparency = 1
                     circle.Image = "rbxassetid://2200552246" -- Replace with your circle image asset ID
                 else
