@@ -8,7 +8,7 @@ if not success then
 end
 
 local GUIWindow = Library:CreateWindow({
-    Name = "Creepy Client V2 (Beta)",
+    Name = "Creepy Client V2.01 Welcome  ["..game.Players.LocalPlayer.Name.."] Executor:"..identifyexecutor"  "..game.GameId.."",
     Themeable = false
 })
 
@@ -613,3 +613,10 @@ local playerESP = Doors:AddToggle({
         end
     end
 })
+
+local window_credits_tab = GUIWindow:CreateTab({ Name = "创作者" })
+local window_credits = window_credits_tab:CreateSection({
+	Name = "创作"
+})
+window_credits:AddLabel({ Name = "UI:MrWhite" })
+window_credits:AddLabel({ Name = "QQ:3756646428" })
