@@ -8,7 +8,7 @@ if not success then
 end
 
 local GUIWindow = Library:CreateWindow({
-    Name = "Creepy Client V2.01 Welcome  ["..game.Players.LocalPlayer.Name.."] Executor:"..identifyexecutor"  "..game.GameId.."",
+    Name = "Creepy Client V2.01",
     Themeable = false
 })
 
@@ -57,6 +57,99 @@ local PlayerJumpPowerSlider = window_player:AddSlider({
     Max = 50,
     Callback = function(Value)
         game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end
+})
+
+local playerESP = window_player:AddToggle({
+    Name = "Freecam",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        local camera = workspace.CurrentCamera
+        local speed = 1
+        local touchControls = {}
+
+        local function isMobile()
+            return UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+        end
+
+        if state then
+            camera.CameraType = Enum.CameraType.Scriptable
+            if isMobile() then
+                _G.Freecam = runService.RenderStepped:Connect(function()
+                    local moveDirection = Vector3.new()
+                    if touchControls["MoveForward"] then
+                        moveDirection = moveDirection + camera.CFrame.LookVector
+                    end
+                    if touchControls["MoveBackward"] then
+                        moveDirection = moveDirection - camera.CFrame.LookVector
+                    end
+                    if touchControls["MoveLeft"] then
+                        moveDirection = moveDirection - camera.CFrame.RightVector
+                    end
+                    if touchControls["MoveRight"] then
+                        moveDirection = moveDirection + camera.CFrame.RightVector
+                    end
+                    if touchControls["MoveUp"] then
+                        moveDirection = moveDirection + camera.CFrame.UpVector
+                    end
+                    if touchControls["MoveDown"] then
+                        moveDirection = moveDirection - camera.CFrame.UpVector
+                    end
+
+                    camera.CFrame = camera.CFrame + moveDirection * speed
+                end)
+
+                UserInputService.TouchStarted:Connect(function(touch, gameProcessedEvent)
+                    if not gameProcessedEvent then
+                        if touch.Position.Y < workspace.CurrentCamera.ViewportSize.Y / 2 then
+                            touchControls["MoveForward"] = true
+                        else
+                            touchControls["MoveBackward"] = true
+                        end
+                    end
+                end)
+
+                UserInputService.TouchEnded:Connect(function(touch, gameProcessedEvent)
+                    if not gameProcessedEvent then
+                        touchControls["MoveForward"] = false
+                        touchControls["MoveBackward"] = false
+                    end
+                end)
+            else
+                _G.Freecam = runService.RenderStepped:Connect(function()
+                    local moveDirection = Vector3.new()
+                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                        moveDirection = moveDirection + camera.CFrame.LookVector
+                    end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                        moveDirection = moveDirection - camera.CFrame.LookVector
+                    end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                        moveDirection = moveDirection - camera.CFrame.RightVector
+                    end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                        moveDirection = moveDirection + camera.CFrame.RightVector
+                    end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
+                        moveDirection = moveDirection - camera.CFrame.UpVector
+                    end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.E) then
+                        moveDirection = moveDirection + camera.CFrame.UpVector
+                    end
+
+                    camera.CFrame = camera.CFrame + moveDirection * speed
+                end)
+            end
+        else
+            if _G.Freecam then
+                _G.Freecam:Disconnect()
+                _G.Freecam = nil
+            end
+            camera.CameraType = Enum.CameraType.Custom
+        end
     end
 })
 
@@ -501,7 +594,7 @@ local function monitorRoomAssets()
     for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
         if room:FindFirstChild("Assets") then
             for _, asset in pairs(room.Assets:GetChildren()) do
-                if asset.Name:find("Key") then
+                if asset.Name:find("keyObtain") then
                     createLabel(asset, "Key", Color3.new(1, 0, 0)) -- Red color for keys
                 else
                     createLabel(asset, asset.Name, Color3.new(1, 1, 1)) -- White color for other assets
@@ -614,9 +707,22 @@ local playerESP = Doors:AddToggle({
     end
 })
 
+vampire:AddLabel({ Name = "Tip:开的时候不要开演都不带演" })
+Doors:AddLabel({ Name = "Tip:有些功能可能失效" })
+
 local window_credits_tab = GUIWindow:CreateTab({ Name = "创作者" })
 local window_credits = window_credits_tab:CreateSection({
 	Name = "创作"
 })
 window_credits:AddLabel({ Name = "UI:MrWhite" })
 window_credits:AddLabel({ Name = "QQ:3756646428" })
+
+local GUI = GUIWindow:CreateTab({ Name = "公告" })
+local version = version_tab:CreateSection({
+	Name = "↓↓↓↓↓"
+})
+
+version:AddLabel({ Name = "目前版本2.01 正式" })
+version:AddLabel({ Name = "欢迎使用我的朋友:"..game.Players.LocalPlayer.Name.."" })
+version:AddLabel({ Name = "注入器:"..identifyexecutor"" })
+version:AddLabel({ Name = "你正处在游戏:"..game.GameId.."" })
