@@ -230,7 +230,7 @@ tab1:Textbox("JumpPower", true, function(t)
 end)
 
 tab3:Button("WeShan old {MrWhite独家制作}", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/MSHUB-old-/main/We%20shan%20Doors%20Old.lua"))()
+    loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/DoorsFixed.lua?raw=true"))()
 end)
 
 tab3:Button("Bobhub", function()
