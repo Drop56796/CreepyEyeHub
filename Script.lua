@@ -469,27 +469,6 @@ local function toggleItemESP(state)
     end
 end
 
-local function toggleLookAura(state)
-    lookAuraEnabled = state
-    local player = game.Players.LocalPlayer
-    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        while state do
-            for _, target in pairs(workspace:GetDescendants()) do
-                if target:IsA("Model") and target:FindFirstChild("ClickDetector") then
-                    local distance = (player.Character.HumanoidRootPart.Position - target.PrimaryPart.Position).magnitude
-                    if distance < 10 then
-                        fireclickdetector(target.ClickDetector)
-                    end
-                end
-            end
-            wait(0.1)
-        end
-    else
-        warn("Humanoid not found!")
-    end
-end
-
 local GUI = GUIWindow:CreateTab({
     Name = "Doors"
 })
@@ -498,11 +477,116 @@ local Doors = GUI:CreateSection({
     Name = "Function"
 })
 
-local lookauraToggle = Doors:AddToggle({
-    Name = "Door ESP",
+local CoreGui = game:GetService("CoreGui")
+local workspace = game:GetService("Workspace")
+local espEnabled = false
+local espTable = {}
+
+function createESP(object, name)
+    local primaryPart = object:FindFirstChild("PrimaryPart") or object:FindFirstChildWhichIsA("BasePart")
+    
+    if not primaryPart then return end
+    
+    local bill = Instance.new("BillboardGui", CoreGui)
+    bill.AlwaysOnTop = true
+    bill.Size = UDim2.new(0, 100, 0, 50)
+    bill.Adornee = primaryPart
+    bill.MaxDistance = 2000
+    
+    local textLabel = Instance.new("TextLabel", bill)
+    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Position = UDim2.new(0.5, 0, -0.5, 0) -- Move the name above the object
+    textLabel.Text = name
+    
+    -- Adding the outer circle effect as a border
+    local outerCircle = Instance.new("Frame", bill)
+    outerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+    outerCircle.BackgroundTransparency = 1
+    outerCircle.Size = UDim2.new(0, 12, 0, 12) -- Slightly larger outer circle
+    outerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+    
+    local outerCircleBorder = Instance.new("UIStroke", outerCircle)
+    outerCircleBorder.Color = Color3.fromRGB(0, 0, 0) -- Black border
+    outerCircleBorder.Thickness = 1 -- Thin border
+    outerCircleBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    
+    local outerCircleCorner = Instance.new("UICorner", outerCircle)
+    outerCircleCorner.CornerRadius = UDim.new(1, 0) -- Make it a circle
+    
+    -- Adding the inner circle effect
+    local innerCircle = Instance.new("Frame", outerCircle)
+    innerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+    innerCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White inner circle
+    innerCircle.Size = UDim2.new(0, 10, 0, 10) -- Slightly smaller inner circle
+    innerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", innerCircle).CornerRadius = UDim.new(1, 0) -- Make it a circle
+    
+    task.spawn(function()
+        while bill do
+            if not primaryPart:IsDescendantOf(workspace) then
+                bill:Destroy()
+                break
+            end
+            task.wait()
+        end
+    end)
+    
+    return {bill = bill}
+end
+
+function monitorObjects(objectName)
+    local function onObjectAdded(object)
+        if espEnabled then
+            espTable[object] = createESP(object, objectName)
+        end
+    end
+    
+    workspace.ChildAdded:Connect(function(child)
+        if child:IsA("Model") and child.Name == objectName then
+            onObjectAdded(child)
+        end
+    end)
+    
+    for _, child in pairs(workspace:GetChildren()) do
+        if child:IsA("Model") and child.Name == objectName then
+            onObjectAdded(child)
+        end
+    end
+    
+    workspace.ChildRemoved:Connect(function(child)
+        if espTable[child] then
+            espTable[child].bill:Destroy()
+            espTable[child] = nil
+        end
+    end)
+end
+
+function startESP()
+    espEnabled = true
+    monitorObjects("Door")
+    monitorObjects("Wardrobe")
+end
+
+function stopESP()
+    espEnabled = false
+    for _, esp in pairs(espTable) do
+        esp.bill:Destroy()
+    end
+    espTable = {}
+end
+
+local playerESP = Doors:AddToggle({
+    Name = "Door/Wardrobe ESP",
     Default = false,
     Callback = function(state)
-        toggleDoorESP(state)
+        if state then
+            startESP()
+        else
+            stopESP()
+        end
     end
 })
 
@@ -511,14 +595,6 @@ local lookauraToggle = Doors:AddToggle({
     Default = false,
     Callback = function(state)
         toggleItemESP(state)
-    end
-})
-
-local lookauraToggle = Doors:AddToggle({
-    Name = "Look Aura",
-    Default = false,
-    Callback = function(state)
-        toggleLookAura(state)
     end
 })
 
@@ -548,88 +624,7 @@ local goldESPToggle = Doors:AddToggle({
     end
 })
 
-local function toggleWardrobeESP(state)
-    wardrobeESPEnabled = state
-    for _, wardrobe in pairs(game:GetService("Workspace").Assets.Wardrobe:GetChildren()) do
-        local mainPart = wardrobe:FindFirstChild("Main")
-        if mainPart then
-            if state then
-                local highlight = Instance.new("Highlight")
-                highlight.Parent = mainPart
-                highlight.Adornee = mainPart
-            else
-                if mainPart:FindFirstChildOfClass("Highlight") then
-                    mainPart:FindFirstChildOfClass("Highlight"):Destroy()
-                end
-            end
-        end
-    end
-end
 
-local WardrobeToggle = Doors:AddToggle({
-    Name = "Wardrobe ESP",
-    Default = false,
-    Callback = function(state)
-        toggleWardrobeESP(state)
-    end
-})
-
-local function createLabel(part, text, color)
-    local billboardGui = Instance.new("BillboardGui")
-    billboardGui.Size = UDim2.new(0, 100, 0, 50)
-    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
-    billboardGui.Adornee = part
-    billboardGui.Parent = part
-
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.Text = text
-    textLabel.TextColor3 = color or Color3.new(1, 1, 1)
-    textLabel.TextScaled = true
-    textLabel.Parent = billboardGui
-end
-
-local function monitorRoomAssets()
-    for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
-        if room:FindFirstChild("Assets") then
-            for _, asset in pairs(room.Assets:GetChildren()) do
-                if asset.Name:find("keyObtain") then
-                    createLabel(asset, "Key", Color3.new(1, 0, 0)) -- Red color for keys
-                else
-                    createLabel(asset, asset.Name, Color3.new(1, 1, 1)) -- White color for other assets
-                end
-            end
-        end
-    end
-end
-
-local function toggleKeyESP(state)
-    KeyESPEnable = state
-    if state then
-        monitorRoomAssets()
-    else
-        -- Optionally, you can add code here to remove the labels when the toggle is turning off
-        for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
-            if room:FindFirstChild("Assets") then
-                for _, asset in pairs(room.Assets:GetChildren()) do
-                    local billboardGui = asset:FindFirstChildOfClass("BillboardGui")
-                    if billboardGui then
-                        billboardGui:Destroy()
-                    end
-                end
-            end
-        end
-    end
-end
-
-local keyESPToggle = Doors:AddToggle({
-    Name = "Key ESP",
-    Default = false,
-    Callback = function(state)
-        toggleKeyESP(state)
-    end
-})
 
 local playerESP = prison:AddToggle({
     Name = "Player ESP",
