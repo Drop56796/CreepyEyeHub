@@ -428,29 +428,8 @@ local playerESP = prison:AddToggle({
     end
 })
 
-local doorESPEnabled = false
 local itemESPEnabled = false
-local lookAuraEnabled = false
-local KeyESPEnable = false
-local wardrobeESPEnabled = false
 local goldESPEnabled = false
-
-local function toggleDoorESP(state)
-    doorESPEnabled = state
-    for _, door in pairs(workspace:GetDescendants()) do
-        if door.Name == "Door" then
-            if state then
-                local highlight = Instance.new("Highlight")
-                highlight.Parent = door
-                highlight.Adornee = door
-            else
-                if door:FindFirstChildOfClass("Highlight") then
-                    door:FindFirstChildOfClass("Highlight"):Destroy()
-                end
-            end
-        end
-    end
-end
 
 local function toggleItemESP(state)
     itemESPEnabled = state
