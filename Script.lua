@@ -603,51 +603,114 @@ local goldESPToggle = Doors:AddToggle({
     end
 })
 
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local workspace = game:GetService("Workspace")
+local PespEnabled = false
+local espTable = {}
 
+function createESP(player)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local rootPart = char:WaitForChild("HumanoidRootPart")
+    
+    local bill = Instance.new("BillboardGui", CoreGui)
+    bill.AlwaysOnTop = true
+    bill.Size = UDim2.new(0, 100, 0, 50)
+    bill.Adornee = rootPart
+    bill.MaxDistance = 2000
+    
+    local textLabel = Instance.new("TextLabel", bill)
+    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Position = UDim2.new(0.5, 0, -0.5, 0) -- Move the name above the player
+    textLabel.Text = player.Name
+    
+    -- Adding the outer circle effect as a border
+    local outerCircle = Instance.new("Frame", bill)
+    outerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+    outerCircle.BackgroundTransparency = 1
+    outerCircle.Size = UDim2.new(0, 12, 0, 12) -- Slightly larger outer circle
+    outerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+    
+    local outerCircleBorder = Instance.new("UIStroke", outerCircle)
+    outerCircleBorder.Color = Color3.fromRGB(0, 0, 0) -- Black border
+    outerCircleBorder.Thickness = 1 -- Thin border
+    outerCircleBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    
+    local outerCircleCorner = Instance.new("UICorner", outerCircle)
+    outerCircleCorner.CornerRadius = UDim.new(1, 0) -- Make it a circle
+    
+    -- Adding the inner circle effect
+    local innerCircle = Instance.new("Frame", outerCircle)
+    innerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+    innerCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White inner circle
+    innerCircle.Size = UDim2.new(0, 10, 0, 10) -- Slightly smaller inner circle
+    innerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", innerCircle).CornerRadius = UDim.new(1, 0) -- Make it a circle
+    
+    task.spawn(function()
+        while bill do
+            if not rootPart:IsDescendantOf(workspace) then
+                bill:Destroy()
+                break
+            end
+            task.wait()
+        end
+    end)
+    
+    return {bill = bill}
+end
 
-local playerESP = prison:AddToggle({
+function monitorPlayers()
+    local function onPlayerAdded(player)
+        player.CharacterAdded:Connect(function()
+            if espEnabled then
+                espTable[player] = createESP(player)
+            end
+        end)
+        
+        if player.Character and espEnabled then
+            espTable[player] = createESP(player)
+        end
+    end
+    
+    Players.PlayerAdded:Connect(onPlayerAdded)
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        onPlayerAdded(player)
+    end
+    
+    Players.PlayerRemoving:Connect(function(player)
+        if espTable[player] then
+            espTable[player].bill:Destroy()
+            espTable[player] = nil
+        end
+    end)
+end
+
+function startESP()
+    PespEnabled = true
+    monitorPlayers()
+end
+
+function stopESP()
+    PespEnabled = false
+    for _, esp in pairs(espTable) do
+        esp.bill:Destroy()
+    end
+    espTable = {}
+end
+
+local playerESP = Doors:AddToggle({
     Name = "Player ESP",
     Default = false,
     Callback = function(state)
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player ~= game.Players.LocalPlayer then
-                if state then
-                    local highlight = Instance.new("Highlight")
-                    highlight.Parent = player.Character
-                    highlight.Adornee = player.Character
-
-                    local billboard = Instance.new("BillboardGui")
-                    billboard.Parent = player.Character
-                    billboard.Adornee = player.Character
-                    billboard.Size = UDim2.new(0, 100, 0, 100)
-                    billboard.StudsOffset = Vector3.new(0, 3, 0)
-                    billboard.AlwaysOnTop = true
-
-                    local nameLabel = Instance.new("TextLabel")
-                    nameLabel.Parent = billboard
-                    nameLabel.Size = UDim2.new(1, 0, 1, 0)
-                    nameLabel.BackgroundTransparency = 1
-                    nameLabel.Text = player.Name
-                    nameLabel.TextColor3 = Color3.new(1, 1, 1)
-                    nameLabel.TextStrokeTransparency = 0.5
-                    nameLabel.TextScaled = true
-
-                    local circle = Instance.new("ImageLabel")
-                    circle.Parent = billboard
-                    circle.Size = UDim2.new(0, 50, 0, 50)
-                    circle.Position = UDim2.new(0.5, 0, 0.5, 0) -- Center the circle
-                    circle.AnchorPoint = Vector2.new(0.5, 0.5) -- Set the anchor point to the center
-                    circle.BackgroundTransparency = 1
-                    circle.Image = "rbxassetid://2200552246" -- Replace with your circle image asset ID
-                else
-                    if player.Character:FindFirstChildOfClass("Highlight") then
-                        player.Character:FindFirstChildOfClass("Highlight"):Destroy()
-                    end
-                    if player.Character:FindFirstChildOfClass("BillboardGui") then
-                        player.Character:FindFirstChildOfClass("BillboardGui"):Destroy()
-                    end
-                end
-            end
+        if state then
+            startESP()
+        else
+            stopESP()
         end
     end
 })
