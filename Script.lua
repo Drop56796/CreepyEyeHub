@@ -456,13 +456,22 @@ local Doors = GUI:CreateSection({
     Name = "Function"
 })
 
+local lookauraToggle = Doors:AddToggle({
+    Name = "Item ESP",
+    Default = false,
+    Callback = function(state)
+        toggleItemESP(state)
+    end
+})
+
+local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local workspace = game:GetService("Workspace")
 local espEnabled = false
 local espTable = {}
 
 function createESP(object, name)
-    local primaryPart = object:FindFirstChild("PrimaryPart") or object:FindFirstChildWhichIsA("BasePart")
+    local primaryPart = object:FindFirstChild("HumanoidRootPart") or object:FindFirstChild("PrimaryPart") or object:FindFirstChildWhichIsA("BasePart")
     
     if not primaryPart then return end
     
@@ -477,31 +486,29 @@ function createESP(object, name)
     textLabel.BackgroundTransparency = 1
     textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Position = UDim2.new(0.5, 0, -0.5, 0) -- Move the name above the object
+    textLabel.Position = UDim2.new(0.5, 0, -0.5, 0)
     textLabel.Text = name
     
-    -- Adding the outer circle effect as a border
     local outerCircle = Instance.new("Frame", bill)
     outerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
     outerCircle.BackgroundTransparency = 1
-    outerCircle.Size = UDim2.new(0, 12, 0, 12) -- Slightly larger outer circle
+    outerCircle.Size = UDim2.new(0, 12, 0, 12)
     outerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
     
     local outerCircleBorder = Instance.new("UIStroke", outerCircle)
-    outerCircleBorder.Color = Color3.fromRGB(0, 0, 0) -- Black border
-    outerCircleBorder.Thickness = 1 -- Thin border
+    outerCircleBorder.Color = Color3.fromRGB(0, 0, 0)
+    outerCircleBorder.Thickness = 1
     outerCircleBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     
     local outerCircleCorner = Instance.new("UICorner", outerCircle)
-    outerCircleCorner.CornerRadius = UDim.new(1, 0) -- Make it a circle
+    outerCircleCorner.CornerRadius = UDim.new(1, 0)
     
-    -- Adding the inner circle effect
     local innerCircle = Instance.new("Frame", outerCircle)
     innerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-    innerCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White inner circle
-    innerCircle.Size = UDim2.new(0, 10, 0, 10) -- Slightly smaller inner circle
+    innerCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    innerCircle.Size = UDim2.new(0, 10, 0, 10)
     innerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", innerCircle).CornerRadius = UDim.new(1, 0) -- Make it a circle
+    Instance.new("UICorner", innerCircle).CornerRadius = UDim.new(1, 0)
     
     task.spawn(function()
         while bill do
@@ -514,6 +521,33 @@ function createESP(object, name)
     end)
     
     return {bill = bill}
+end
+
+function monitorPlayers()
+    local function onPlayerAdded(player)
+        player.CharacterAdded:Connect(function()
+            if espEnabled then
+                espTable[player] = createESP(player.Character, player.Name)
+            end
+        end)
+        
+        if player.Character and espEnabled then
+            espTable[player] = createESP(player.Character, player.Name)
+        end
+    end
+    
+    Players.PlayerAdded:Connect(onPlayerAdded)
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        onPlayerAdded(player)
+    end
+    
+    Players.PlayerRemoving:Connect(function(player)
+        if espTable[player] then
+            espTable[player].bill:Destroy()
+            espTable[player] = nil
+        end
+    end)
 end
 
 function monitorObjects(objectName)
@@ -545,6 +579,7 @@ end
 
 function startESP()
     espEnabled = true
+    monitorPlayers()
     monitorObjects("Door")
     monitorObjects("Wardrobe")
 end
@@ -558,153 +593,7 @@ function stopESP()
 end
 
 local playerESP = Doors:AddToggle({
-    Name = "Door/Wardrobe ESP",
-    Default = false,
-    Callback = function(state)
-        if state then
-            startESP()
-        else
-            stopESP()
-        end
-    end
-})
-
-local lookauraToggle = Doors:AddToggle({
-    Name = "Item ESP",
-    Default = false,
-    Callback = function(state)
-        toggleItemESP(state)
-    end
-})
-
-local function toggleGoldESP(state)
-    goldESPEnabled = state
-    for _, room in pairs(game:GetService("Workspace").CurrentRooms:GetChildren()) do
-        local goldPile = room:FindFirstChild("Assets") and room.Assets:FindFirstChild("Dresser") and room.Assets.Dresser:FindFirstChild("DrawerContainer") and room.Assets.Dresser.DrawerContainer:FindFirstChild("GoldPile") and room.Assets.Dresser.DrawerContainer.GoldPile:FindFirstChild("Hitbox")
-        if goldPile then
-            if state then
-                local highlight = Instance.new("Highlight")
-                highlight.Parent = goldPile
-                highlight.Adornee = goldPile
-            else
-                if goldPile:FindFirstChildOfClass("Highlight") then
-                    goldPile:FindFirstChildOfClass("Highlight"):Destroy()
-                end
-            end
-        end
-    end
-end
-
-local goldESPToggle = Doors:AddToggle({
-    Name = "Gold ESP",
-    Default = false,
-    Callback = function(state)
-        toggleGoldESP(state)
-    end
-})
-
-local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-local workspace = game:GetService("Workspace")
-local PespEnabled = false
-local espTable = {}
-
-function createESP(player)
-    local char = player.Character or player.CharacterAdded:Wait()
-    local rootPart = char:WaitForChild("HumanoidRootPart")
-    
-    local bill = Instance.new("BillboardGui", CoreGui)
-    bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 100, 0, 50)
-    bill.Adornee = rootPart
-    bill.MaxDistance = 2000
-    
-    local textLabel = Instance.new("TextLabel", bill)
-    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Position = UDim2.new(0.5, 0, -0.5, 0) -- Move the name above the player
-    textLabel.Text = player.Name
-    
-    -- Adding the outer circle effect as a border
-    local outerCircle = Instance.new("Frame", bill)
-    outerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-    outerCircle.BackgroundTransparency = 1
-    outerCircle.Size = UDim2.new(0, 12, 0, 12) -- Slightly larger outer circle
-    outerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    
-    local outerCircleBorder = Instance.new("UIStroke", outerCircle)
-    outerCircleBorder.Color = Color3.fromRGB(0, 0, 0) -- Black border
-    outerCircleBorder.Thickness = 1 -- Thin border
-    outerCircleBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    
-    local outerCircleCorner = Instance.new("UICorner", outerCircle)
-    outerCircleCorner.CornerRadius = UDim.new(1, 0) -- Make it a circle
-    
-    -- Adding the inner circle effect
-    local innerCircle = Instance.new("Frame", outerCircle)
-    innerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-    innerCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White inner circle
-    innerCircle.Size = UDim2.new(0, 10, 0, 10) -- Slightly smaller inner circle
-    innerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", innerCircle).CornerRadius = UDim.new(1, 0) -- Make it a circle
-    
-    task.spawn(function()
-        while bill do
-            if not rootPart:IsDescendantOf(workspace) then
-                bill:Destroy()
-                break
-            end
-            task.wait()
-        end
-    end)
-    
-    return {bill = bill}
-end
-
-function monitorPlayers()
-    local function onPlayerAdded(player)
-        player.CharacterAdded:Connect(function()
-            if espEnabled then
-                espTable[player] = createESP(player)
-            end
-        end)
-        
-        if player.Character and espEnabled then
-            espTable[player] = createESP(player)
-        end
-    end
-    
-    Players.PlayerAdded:Connect(onPlayerAdded)
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        onPlayerAdded(player)
-    end
-    
-    Players.PlayerRemoving:Connect(function(player)
-        if espTable[player] then
-            espTable[player].bill:Destroy()
-            espTable[player] = nil
-        end
-    end)
-end
-
-function startESP()
-    PespEnabled = true
-    monitorPlayers()
-end
-
-function stopESP()
-    PespEnabled = false
-    for _, esp in pairs(espTable) do
-        esp.bill:Destroy()
-    end
-    espTable = {}
-end
-
-local playerESP = Doors:AddToggle({
-    Name = "Player ESP",
+    Name = "ESP(player/door/wardrobe)",
     Default = false,
     Callback = function(state)
         if state then
