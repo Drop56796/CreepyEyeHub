@@ -1,8 +1,8 @@
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/KINGHUB01/KING-HUB-NO-1/main/Ui", true))()
-local entitynames = {"RushMoving","AmbushMoving","Snare","A60","A120"}
+local entitynames = {"RushMoving","AmbushMoving","Snare","A60","A120","A90"}
 
 local PepsiUi = library:CreateWindow({
-    Name = "KING HUB | DOORS",
+    Name = "Creepy Client HUB / ["..game.Players.LocalPlayer.Name.."] ",
     Theme = {
         Image = "rbxassetid://7483871523",
         Info = "Info",
