@@ -464,142 +464,34 @@ local lookauraToggle = Doors:AddToggle({
     end
 })
 
-local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-local workspace = game:GetService("Workspace")
-local espEnabled = false
-local espTable = {}
-
-function createESP(object, name)
-    local primaryPart = object:FindFirstChild("HumanoidRootPart") or object:FindFirstChild("PrimaryPart") or object:FindFirstChildWhichIsA("BasePart")
-    
-    if not primaryPart then return end
-    
-    local bill = Instance.new("BillboardGui", CoreGui)
-    bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 100, 0, 50)
-    bill.Adornee = primaryPart
-    bill.MaxDistance = 2000
-    
-    local textLabel = Instance.new("TextLabel", bill)
-    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Position = UDim2.new(0.5, 0, -0.5, 0)
-    textLabel.Text = name
-    
-    local outerCircle = Instance.new("Frame", bill)
-    outerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-    outerCircle.BackgroundTransparency = 1
-    outerCircle.Size = UDim2.new(0, 12, 0, 12)
-    outerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    
-    local outerCircleBorder = Instance.new("UIStroke", outerCircle)
-    outerCircleBorder.Color = Color3.fromRGB(0, 0, 0)
-    outerCircleBorder.Thickness = 1
-    outerCircleBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    
-    local outerCircleCorner = Instance.new("UICorner", outerCircle)
-    outerCircleCorner.CornerRadius = UDim.new(1, 0)
-    
-    local innerCircle = Instance.new("Frame", outerCircle)
-    innerCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-    innerCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    innerCircle.Size = UDim2.new(0, 10, 0, 10)
-    innerCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", innerCircle).CornerRadius = UDim.new(1, 0)
-    
-    task.spawn(function()
-        while bill do
-            if not primaryPart:IsDescendantOf(workspace) then
-                bill:Destroy()
-                break
-            end
-            task.wait()
-        end
-    end)
-    
-    return {bill = bill}
-end
-
-function monitorPlayers()
-    local function onPlayerAdded(player)
-        player.CharacterAdded:Connect(function()
-            if espEnabled then
-                espTable[player] = createESP(player.Character, player.Name)
-            end
-        end)
-        
-        if player.Character and espEnabled then
-            espTable[player] = createESP(player.Character, player.Name)
-        end
-    end
-    
-    Players.PlayerAdded:Connect(onPlayerAdded)
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        onPlayerAdded(player)
-    end
-    
-    Players.PlayerRemoving:Connect(function(player)
-        if espTable[player] then
-            espTable[player].bill:Destroy()
-            espTable[player] = nil
-        end
-    end)
-end
-
-function monitorObjects(objectName)
-    local function onObjectAdded(object)
-        if espEnabled then
-            espTable[object] = createESP(object, objectName)
-        end
-    end
-    
-    workspace.ChildAdded:Connect(function(child)
-        if child:IsA("Model") and child.Name == objectName then
-            onObjectAdded(child)
-        end
-    end)
-    
-    for _, child in pairs(workspace:GetChildren()) do
-        if child:IsA("Model") and child.Name == objectName then
-            onObjectAdded(child)
-        end
-    end
-    
-    workspace.ChildRemoved:Connect(function(child)
-        if espTable[child] then
-            espTable[child].bill:Destroy()
-            espTable[child] = nil
-        end
-    end)
-end
-
-function startESP()
-    espEnabled = true
-    monitorPlayers()
-    monitorObjects("Door")
-    monitorObjects("Wardrobe")
-end
-
-function stopESP()
-    espEnabled = false
-    for _, esp in pairs(espTable) do
-        esp.bill:Destroy()
-    end
-    espTable = {}
-end
-
 local playerESP = Doors:AddToggle({
-    Name = "ESP(player/door/wardrobe)",
+    Name = "Player esp",
     Default = false,
     Callback = function(state)
-        if state then
-            startESP()
+        if state then 
+            loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/player.lua?raw=true"))() 
+            function playerEsp()
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    if player.Character then
+                        local espInstance = esp(player.Character, Color3.new(1, 1, 1), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                        player.Character:SetAttribute("espInstance", espInstance)
+                    end
+                end
+            end
+            playerEsp()
         else
-            stopESP()
+            function unloadEsp()
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    if player.Character then
+                        local espInstance = player.Character:GetAttribute("espInstance")
+                        if espInstance then
+                            espInstance.delete()
+                        end
+                    end
+                end
+            end
+            unloadEsp()
+            print("ESP disabled")
         end
     end
 })
