@@ -708,7 +708,6 @@ local playerESP = Doors:AddToggle({
 })
 
 vampire:AddLabel({ Name = "Tip:开的时候不要开演都不带演" })
-Doors:AddLabel({ Name = "Tip:有些功能可能失效" })
 
 local window_credits_tab = GUIWindow:CreateTab({ Name = "创作者" })
 local window_credits = window_credits_tab:CreateSection({
@@ -797,3 +796,59 @@ local playerESP = Doors:AddToggle({
         end
     end
 })
+
+local playerESP = Doors:AddToggle({
+    Name = "Enity Message",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90"}  --enity
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+
+            -- Ensure flags and plr are defined
+            local flags = flags or {} --Prevent Error
+            local plr = game.Players.LocalPlayer --Prevent Error2
+
+            local function notifyEntitySpawn(entity)
+                Notification:Notify(
+                    {Title = "Creepy client V2", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- Infinite loop to keep the script running and check for hintrush flag
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- Adjust the wait time as needed
+                until not flags.hintrush or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- Close message or any other cleanup if needed
+            running = false
+        end
+    end
+})
+Doors:AddLabel({ Name = "Can send Message enity:" })
+Doors:AddLabel({ Name = "Rush Ambush" })
+Doors:AddLabel({ Name = "Snare A60" })
+Doors:AddLabel({ Name = "A90 A120" })
+Doors:AddLabel({ Name = "Tip:有些功能可能失效" })
