@@ -2129,3 +2129,34 @@ local chestESPToggle = Doors:AddToggle({
         end
     end
 })
+
+local removeObstructionsToggle = Doors:AddToggle({
+    Name = "Remove Obstructions",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.removeObstructionsEnabled = true
+
+            local function removeObstructions()
+                game:GetService("ReplicatedStorage").GameData.LatestRoom:GetPropertyChangedSignal("Value"):Connect(function()
+                    task.wait(0.1)
+                    for _, descendant in pairs(game:GetService("Workspace").CurrentRooms:GetDescendants()) do
+                        if descendant.Name == "Seek_Arm" or descendant.Name == "ChandelierObstruction" then
+                            descendant.Parent = nil
+                            descendant:Destroy()
+                        end
+                    end
+                end)
+            end
+
+            task.spawn(function()
+                while _G.removeObstructionsEnabled do
+                    removeObstructions()
+                    task.wait(1)  -- 每秒检查一次
+                end
+            end)
+        else
+            _G.removeObstructionsEnabled = false
+        end
+    end
+})
