@@ -702,7 +702,7 @@ local playerESP = Doors:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes"}  --enity
+            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  --enity
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 
@@ -1461,7 +1461,7 @@ local entityESPToggle = Doors:AddToggle({
             _G.entityESPInstances = {}
             local esptable = {entity = {}}
             local flags = {esprush = true}
-            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Eyes"} 
+            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Eyes", "JeffTheKiller"} 
 
             local function esp(what, color, core, name)
                 local parts
@@ -1720,7 +1720,7 @@ gui:AddButton({
 })
 
 local keyESPToggle = Doors:AddToggle({
-    Name = "Lever ESP",
+    Name = "Key/Lever ESP",
     Default = false,
     Callback = function(state)
         if state then
@@ -1918,6 +1918,7 @@ local removeObstructionsToggle = Doors:AddToggle({
     end
 })
 
+Doors:AddLabel({ Name = "-------------------------" })
 Doors:AddLabel({ Name = "Can send Message enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
@@ -1927,4 +1928,10 @@ Doors:AddLabel({ Name = "Can esp enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
 Doors:AddLabel({ Name = "A120 Eyes" })
-Doors:AddLabel({ Name = "Tip:有些功能可能失效" })
+Doors:AddLabel({ Name = "-------------------------" })
+Doors:AddLabel({ Name = "April Fools:" })
+Doors:AddLabel({ Name = "Jeff" })
+Doors:AddLabel({ Name = "-------------------------" })
+Doors:AddLabel({ Name = "Tip:有些功能not work" })
+Doors:AddLabel({ Name = "Tip:In April Fools Key esp is work" })
+Doors:AddLabel({ Name = "-------------------------" })
