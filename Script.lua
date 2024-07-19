@@ -1,3 +1,14 @@
+---====== Load achievement giver ======---
+local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
+
+---====== Display achievement ======---
+achievementGiver({
+    Title = "Creepy client V2.01",
+    Desc = "Hi "..game.Players.LocalPlayer.Name.."",
+    Reason = "Have fun. Bye!",
+    Image = "rbxassetid://10802751252"
+})
+
 local success, Library = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 end)
@@ -691,7 +702,7 @@ local playerESP = Doors:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90"}  --enity
+            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes"}  --enity
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 
@@ -1450,7 +1461,7 @@ local entityESPToggle = Doors:AddToggle({
             _G.entityESPInstances = {}
             local esptable = {entity = {}}
             local flags = {esprush = true}
-            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120"} 
+            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Eyes"} 
 
             local function esp(what, color, core, name)
                 local parts
@@ -1692,13 +1703,29 @@ script:AddButton({
         loadstring(game:HttpGet('https://raw.githubusercontent.com/acsu123/HohoHub/main/Loader'))()
     end
 })
+
+local GUI = GUIWindow:CreateTab({
+    Name = "Gui Setting"
+})
+
+local gui = GUI:CreateSection({
+    Name = "Gui"
+})
+
+gui:AddButton({
+    Name = "gui close",
+    Callback = function()
+        Library.unload()
+    end
+})
+
 Doors:AddLabel({ Name = "Can send Message enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
-Doors:AddLabel({ Name = "A90 A120" })
+Doors:AddLabel({ Name = "A90 A120 Eyes" })
 Doors:AddLabel({ Name = "-------------------------" })
 Doors:AddLabel({ Name = "Can esp enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
-Doors:AddLabel({ Name = "A120" })
+Doors:AddLabel({ Name = "A120 Eyes" })
 Doors:AddLabel({ Name = "Tip:有些功能可能失效" })
