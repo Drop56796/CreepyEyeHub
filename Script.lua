@@ -1,3 +1,12 @@
+loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/player.lua?raw=true"))()
+
+local flags = {
+    espdoors = false
+}
+
+local esptable = {
+    doors = {}
+}
 local success, Library = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 end)
@@ -465,11 +474,13 @@ local lookauraToggle = Doors:AddToggle({
 })
 
 local playerESP = Doors:AddToggle({
-    Name = "Player esp",
+    Name = "Entity Message",
     Default = false,
     Callback = function(state)
         if state then 
-            loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/player.lua?raw=true"))() 
+            flags.espdoors = true
+
+            -- open ESP
             function playerEsp()
                 for _, player in pairs(game.Players:GetPlayers()) do
                     if player.Character then
@@ -479,13 +490,52 @@ local playerESP = Doors:AddToggle({
                 end
             end
             playerEsp()
+
+            -- setting ESP
+            local function setup(room)
+                local door = room:WaitForChild("Door"):WaitForChild("Door")
+                
+                task.wait(0.1)
+                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door")
+                table.insert(esptable.doors, h)
+                
+                door:WaitForChild("Open").Played:Connect(function()
+                    h.delete()
+                end)
+                
+                door.AncestryChanged:Connect(function()
+                    h.delete()
+                end)
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+            
+            repeat task.wait() until not flags.espdoors
+            addconnect:Disconnect()
+            
+            for i, v in pairs(esptable.doors) do
+                v.delete()
+            end 
         else
+            flags.espdoors = false
+
+            -- close
             function unloadEsp()
                 for _, player in pairs(game.Players:GetPlayers()) do
                     if player.Character then
                         local espInstance = player.Character:GetAttribute("espInstance")
                         if espInstance then
                             espInstance.delete()
+                            player.Character:SetAttribute("espInstance", nil) -- clear
                         end
                     end
                 end
@@ -495,6 +545,7 @@ local playerESP = Doors:AddToggle({
         end
     end
 })
+
 
 local playerESP = Doors:AddToggle({
     Name = "No cilp",
