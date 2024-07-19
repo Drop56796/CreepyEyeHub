@@ -1,4 +1,3 @@
-loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/player.lua?raw=true"))()
 local success, Library = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 end)
@@ -429,55 +428,145 @@ local playerESP = prison:AddToggle({
     end
 })
 
-local itemESPEnabled = false
 local goldESPEnabled = false
-
-local function toggleItemESP(state)
-    itemESPEnabled = state
-    for _, item in pairs(workspace:GetDescendants()) do
-        if item:IsA("Tool") or item:IsA("Part") then
-            if state then
-                local highlight = Instance.new("Highlight")
-                highlight.Parent = item
-                highlight.Adornee = item
-            else
-                if item:FindFirstChildOfClass("Highlight") then
-                    item:FindFirstChildOfClass("Highlight"):Destroy()
-                end
-            end
-        end
-    end
-end
-
 local GUI = GUIWindow:CreateTab({
     Name = "Doors"
 })
 
 local Doors = GUI:CreateSection({
     Name = "Function"
-})
+})      
 
-local lookauraToggle = Doors:AddToggle({
-    Name = "Item ESP",
+local playerESP = Doors:AddToggle({
+    Name = "Player ESP",
     Default = false,
     Callback = function(state)
-        toggleItemESP(state)
-    end
-})            
-
-Doors:AddButton({
-    Name = "Player name (Lazy XD)",
-    Callback = function()
-        function playerEsp()
-           for _, player in pairs(game.Players:GetPlayers()) do
+        if state then
+            _G.espInstances = {}
+            for _, player in pairs(game.Players:GetPlayers()) do
                 if player.Character then
-                  esp(player.Character, Color3.new(0, 1, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
-		  playerEsp()
-	       end
-	   end
-       end
-   end
-})			
+                    local espInstance = esp(player.Character, Color3.new(0, 1, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                    table.insert(_G.espInstances, espInstance)
+                end
+            end
+        else
+            if _G.espInstances then
+                for _, espInstance in pairs(_G.espInstances) do
+                    espInstance.delete()
+                end
+                _G.espInstances = nil
+            end
+        end
+    end
+})
+
+-- ESP function definition (assuming it already exists)
+function esp(what, color, core, name)
+    local parts
+    if typeof(what) == "Instance" then
+        if what:IsA("Model") then
+            parts = what:GetChildren()
+        elseif what:IsA("BasePart") then
+            parts = {what, table.unpack(what:GetChildren())}
+        end
+    elseif typeof(what) == "table" then
+        parts = what
+    end
+
+    local bill
+    local boxes = {}
+
+    for i, v in pairs(parts) do
+        if v:IsA("BasePart") then
+            local box = Instance.new("BoxHandleAdornment")
+            box.Size = v.Size
+            box.AlwaysOnTop = true
+            box.ZIndex = 1
+            box.AdornCullingMode = Enum.AdornCullingMode.Never
+            box.Color3 = color
+            box.Transparency = 0.7
+            box.Adornee = v
+            box.Parent = game.CoreGui
+
+            table.insert(boxes, box)
+
+            task.spawn(function()
+                while box do
+                    if box.Adornee == nil or not box.Adornee:IsDescendantOf(workspace) then
+                        box.Adornee = nil
+                        box.Visible = false
+                        box:Destroy()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+
+    if core and name then
+        bill = Instance.new("BillboardGui", game.CoreGui)
+        bill.AlwaysOnTop = true
+        bill.Size = UDim2.new(0, 100, 0, 50)
+        bill.Adornee = core
+        bill.MaxDistance = 2000
+
+        local mid = Instance.new("Frame", bill)
+        mid.AnchorPoint = Vector2.new(0.5, 0.5)
+        mid.BackgroundColor3 = color
+        mid.Size = UDim2.new(0, 8, 0, 8)
+        mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+        Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+        Instance.new("UIStroke", mid)
+
+        local txt = Instance.new("TextLabel", bill)
+        txt.AnchorPoint = Vector2.new(0.5, 0.5)
+        txt.BackgroundTransparency = 1
+        txt.BackgroundColor3 = color
+        txt.TextColor3 = color
+        txt.Size = UDim2.new(1, 0, 0, 20)
+        txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+        txt.Text = name
+        Instance.new("UIStroke", txt)
+
+        task.spawn(function()
+            while bill do
+                if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                    bill.Enabled = false
+                    bill.Adornee = nil
+                    bill:Destroy()
+                end
+                task.wait()
+            end
+        end)
+    end
+
+    local ret = {}
+
+    ret.delete = function()
+        for i, v in pairs(boxes) do
+            v.Adornee = nil
+            v.Visible = false
+            v:Destroy()
+        end
+
+        if bill then
+            bill.Enabled = false
+            bill.Adornee = nil
+            bill:Destroy()
+        end
+    end
+
+    return ret
+end
+
+-- Define Player ESP function
+function playerEsp()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character then
+            esp(player.Character, Color3.new(0, 1, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+        end
+    end
+end	
 
 local playerESP = Doors:AddToggle({
     Name = "No cilp",
