@@ -428,7 +428,6 @@ local playerESP = prison:AddToggle({
     end
 })
 
-local goldESPEnabled = false
 local GUI = GUIWindow:CreateTab({
     Name = "Doors"
 })
@@ -978,7 +977,7 @@ local entityESPToggle = Doors:AddToggle({
             _G.espInstances = {}
             local esptable = {entity = {}}
             local flags = {esprush = true}
-            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120"}  -- 请根据实际情况替换
+            local entitynames = {*RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Figure"}  -- 请根据实际情况替换
 
             local function esp(what, color, core, name)
                 local parts
@@ -1091,7 +1090,7 @@ local entityESPToggle = Doors:AddToggle({
 
             for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
                 if room.Name == "50" or room.Name == "100" then
-                    local figuresetup = room:WaitForChild("FigureSetup")
+                    cal figuresetup = room:WaitForChild("FigureSetup")
                 
                     if figuresetup then
                         local fig = figuresetup:WaitForChild("FigureRagdoll")
@@ -1169,6 +1168,7 @@ local entityESPToggle = Doors:AddToggle({
         end
     end
 })
+
 Doors:AddLabel({ Name = "Can send Message enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
