@@ -958,6 +958,7 @@ local libraryCodeToggle = Doors:AddToggle({
             end)
 
             table.insert(_G.codeInstances, addconnect)
+	
         else
             if _G.codeInstances then
                 for _, instance in pairs(_G.codeInstances) do
@@ -977,7 +978,7 @@ local entityESPToggle = Doors:AddToggle({
             _G.espInstances = {}
             local esptable = {entity = {}}
             local flags = {esprush = true}
-            local entitynames = {*RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Figure"}  -- 请根据实际情况替换
+            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Figure"}  -- 请根据实际情况替换
 
             local function esp(what, color, core, name)
                 local parts
@@ -1168,7 +1169,6 @@ local entityESPToggle = Doors:AddToggle({
         end
     end
 })
-
 Doors:AddLabel({ Name = "Can send Message enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
