@@ -1719,48 +1719,6 @@ gui:AddButton({
     end
 })
 
-local a90remote = game.ReplicatedStorage:WaitForChild("EntityInfo"):WaitForChild("A90")
-local plr = game.Players.LocalPlayer
-local flags = {noa90 = false}
-
-local function bypassA90()
-    local jumpscare = plr.PlayerGui:WaitForChild("MainUI"):WaitForChild("Jumpscare"):FindFirstChild("Jumpscare_A90")
-    
-    if jumpscare then
-        jumpscare.Parent = nil
-        a90remote.Parent = nil
-        
-        task.spawn(function()
-            while flags.noa90 do
-                game.SoundService.Main.Volume = 1
-                task.wait()
-            end
-        end)
-    end
-end
-
-local function resetA90()
-    local jumpscare = plr.PlayerGui:WaitForChild("MainUI"):WaitForChild("Jumpscare"):FindFirstChild("Jumpscare_A90")
-    
-    if jumpscare then
-        jumpscare.Parent = plr.PlayerGui.MainUI.Jumpscare
-        a90remote.Parent = game.ReplicatedStorage.EntityInfo
-    end
-end
-
-local a90BypassToggle = TestTab:AddToggle({
-    Name = "Bypass A-90 [The Rooms]",
-    Default = false,
-    Callback = function(state)
-        flags.noa90 = state
-        if state then
-            bypassA90()
-        else
-            resetA90()
-        end
-    end
-})
-
 local keyESPToggle = Doors:AddToggle({
     Name = "Lever ESP",
     Default = false,
@@ -1930,7 +1888,7 @@ local keyESPToggle = Doors:AddToggle({
 })
 
 local removeObstructionsToggle = Doors:AddToggle({
-    Name = "Remove Obstructions",
+    Name = "Remove SeekArm/Chandelier",
     Default = false,
     Callback = function(state)
         if state then
