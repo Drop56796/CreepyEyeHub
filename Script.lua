@@ -1637,8 +1637,15 @@ local brightnessToggle = Doors:AddToggle({
         end
 
         if state then
-            dofullbright()
+            _G.fullBrightEnabled = true
+            task.spawn(function()
+                while _G.fullBrightEnabled do
+                    dofullbright()
+                    task.wait(0)  -- 每秒检查一次
+                end
+            end)
         else
+            _G.fullBrightEnabled = false
             resetLighting()
         end
     end
