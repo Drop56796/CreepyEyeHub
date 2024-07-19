@@ -1442,6 +1442,249 @@ local itemESPToggle = Doors:AddToggle({
     end
 })
 
+local entityESPToggle = Doors:AddToggle({
+    Name = "Entity ESP",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.entityESPInstances = {}
+            local esptable = {entity = {}}
+            local flags = {esprush = true}
+            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120"} 
+
+            local function esp(what, color, core, name)
+                local parts
+                
+                if typeof(what) == "Instance" then
+                    if what:IsA("Model") then
+                        parts = what:GetChildren()
+                    elseif what:IsA("BasePart") then
+                        parts = {what, table.unpack(what:GetChildren())}
+                    end
+                elseif typeof(what) == "table" then
+                    parts = what
+                end
+                
+                local bill
+                local boxes = {}
+                
+                for i, v in pairs(parts) do
+                    if v:IsA("BasePart") then
+                        local box = Instance.new("BoxHandleAdornment")
+                        box.Size = v.Size
+                        box.AlwaysOnTop = true
+                        box.ZIndex = 1
+                        box.AdornCullingMode = Enum.AdornCullingMode.Never
+                        box.Color3 = color
+                        box.Transparency = 1
+                        box.Adornee = v
+                        box.Parent = game.CoreGui
+                        
+                        table.insert(boxes, box)
+                        
+                        task.spawn(function()
+                            while box do
+                                if box.Adornee == nil or not box.Adornee:IsDescendantOf(workspace) then
+                                    box.Adornee = nil
+                                    box.Visible = false
+                                    box:Destroy()
+                                end  
+                                task.wait()
+                            end
+                        end)
+                    end
+                end
+                
+                if core and name then
+                    bill = Instance.new("BillboardGui", game.CoreGui)
+                    bill.AlwaysOnTop = true
+                    bill.Size = UDim2.new(0, 400, 0, 100)
+                    bill.Adornee = core
+                    bill.MaxDistance = 2000
+                    
+                    local mid = Instance.new("Frame", bill)
+                    mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                    mid.BackgroundColor3 = color
+                    mid.Size = UDim2.new(0, 8, 0, 8)
+                    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                    Instance.new("UIStroke", mid)
+                    
+                    local txt = Instance.new("TextLabel", bill)
+                    txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                    txt.BackgroundTransparency = 1
+                    txt.BackgroundColor3 = color
+                    txt.TextColor3 = color
+                    txt.Size = UDim2.new(1, 0, 0, 20)
+                    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                    txt.Text = name
+                    Instance.new("UIStroke", txt)
+                    
+                    task.spawn(function()
+                        while bill do
+                            if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                                bill.Enabled = false
+                                bill.Adornee = nil
+                                bill:Destroy() 
+                            end  
+                            task.wait()
+                        end
+                    end)
+                end
+                
+                local ret = {}
+                
+                ret.delete = function()
+                    for i, v in pairs(boxes) do
+                        v.Adornee = nil
+                        v.Visible = false
+                        v:Destroy()
+                    end
+                    
+                    if bill then
+                        bill.Enabled = false
+                        bill.Adornee = nil
+                        bill:Destroy() 
+                    end
+                end
+                
+                return ret 
+            end
+
+            local addconnect
+            addconnect = workspace.ChildAdded:Connect(function(v)
+                if table.find(entitynames, v.Name) then
+                    task.wait(0.1)
+                    
+                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""))
+                    table.insert(esptable.entity, h)
+                end
+            end)
+
+            local function setup(room)
+                if room.Name == "50" or room.Name == "100" then
+                    local figuresetup = room:WaitForChild("FigureSetup")
+                
+                    if figuresetup then
+                        local fig = figuresetup:WaitForChild("FigureRagdoll")
+                        task.wait(0.1)
+                        
+                        local h = esp(fig, Color3.fromRGB(255, 25, 25), fig.PrimaryPart, "Figure")
+                        table.insert(esptable.entity, h)
+                    end 
+                else
+                    local assets = room:WaitForChild("Assets")
+                    
+                    local function check(v)
+                        if v:IsA("Model") and table.find(entitynames, v.Name) then
+                            task.wait(0.1)
+                            
+                            local h = esp(v:WaitForChild("Base"), Color3.fromRGB(255, 25, 25), v.Base, "Snare")
+                            table.insert(esptable.entity, h)
+                        end
+                    end
+                    
+                    assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                end 
+            end
+            
+            local roomconnect
+            roomconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+	    end
+
+	    table.insert(_G.entityESPInstances, esptable)
+
+        else
+            if _G.entityESPInstances then
+                for _, instance in pairs(_G.entityESPInstances) do
+                    for _, v in pairs(instance.entity) do
+                        v.delete()
+                    end
+                end
+                _G.entityESPInstances = nil
+            end
+        end
+    end
+})
+
+local brightnessToggle = Doors:AddToggle({
+    Name = "Full Bright",
+    Default = false,
+    Callback = function(state)
+        local Light = game:GetService("Lighting")
+
+        local function dofullbright()
+            Light.Ambient = Color3.new(1, 1, 1)
+            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
+            Light.ColorShift_Top = Color3.new(1, 1, 1)
+        end
+
+        local function resetLighting()
+            Light.Ambient = Color3.new(0, 0, 0)
+            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Light.ColorShift_Top = Color3.new(0, 0, 0)
+        end
+
+        if state then
+            dofullbright()
+        else
+            resetLighting()
+        end
+    end
+})
+
+local GUI = GUIWindow:CreateTab({
+    Name = "mod1"
+})
+
+local script = GUI:CreateSection({
+    Name = "script"
+})
+
+script:AddButton({
+    Name = "V.G",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/V.Ghub'))()
+    end
+})
+script:AddButton({
+    Name = "DarkHub",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/RandomAdamYT/DarkHub/master/Init'))()
+    end
+})
+script:AddButton({
+    Name = "OwlHub",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt'))()
+    end
+})
+
+script:AddButton({
+    Name = "GhostHub",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
+    end
+})
+
+
+script:AddButton({
+    Name = "Hohohub",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/acsu123/HohoHub/main/Loader'))()
+    end
+})
 Doors:AddLabel({ Name = "Can send Message enity:" })
 Doors:AddLabel({ Name = "Rush Ambush" })
 Doors:AddLabel({ Name = "Snare A60" })
