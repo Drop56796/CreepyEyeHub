@@ -776,7 +776,7 @@ local window_credits_tab = GUIWindow:CreateTab({ Name = "创作者" })
 local window_credits = window_credits_tab:CreateSection({
 	Name = "创作/公告"
 })
-window_credits:AddLabel({ Name = "UI:MrWhite" })
+window_credits:AddLabel({ Name = "Dev:MrWhite FHOff" })
 window_credits:AddLabel({ Name = "QQ:3756646428" })
 window_credits:AddLabel({ Name = "目前版本2.01 正式" })
 window_credits:AddLabel({ Name = "欢迎使用我的朋友:"..game.Players.LocalPlayer.Name.."" })
