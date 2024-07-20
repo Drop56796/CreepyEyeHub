@@ -31,139 +31,6 @@ local window_player = GUI:CreateSection({
     Name = "玩家"
 })
 
-
-local playerESP = Doors:AddToggle({
-    Name = "Key esp",
-    Default = false,
-    Callback = function(state)
-        local Players = game:GetService("Players")
-        local RunService = game:GetService("RunService")
-        local markedTargets = {}
-
-        local function createCircularUI(parent, color)
-            local mid = Instance.new("Frame", parent)
-            mid.AnchorPoint = Vector2.new(0.5, 0.5)
-            mid.BackgroundColor3 = color
-            mid.Size = UDim2.new(0, 8, 0, 8)
-            mid.Position = UDim2.new(0.5, 0, 0.0001, 0) -- Adjusted position
-            Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-            Instance.new("UIStroke", mid)
-            
-            return mid
-        end
-
-        local function markTarget(target, customName)
-            if not target then return end
-            local oldTag = target:FindFirstChild("Batteries")
-            if oldTag then
-                oldTag:Destroy()
-            end
-            local oldHighlight = target:FindFirstChild("Highlight")
-            if oldHighlight then
-                oldHighlight:Destroy()
-            end
-            local tag = Instance.new("BillboardGui")
-            tag.Name = "Batteries"
-            tag.Size = UDim2.new(0, 200, 0, 50)
-            tag.StudsOffset = Vector3.new(0, 0.7, 0) -- Adjusted offset
-            tag.AlwaysOnTop = true
-            local textLabel = Instance.new("TextLabel")
-            textLabel.Size = UDim2.new(1, 0, 1, 0)
-            textLabel.BackgroundTransparency = 1
-            textLabel.TextStrokeTransparency = 0 
-            textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            textLabel.Font = Enum.Font.Jura
-            textLabel.TextScaled = true
-            textLabel.Text = customName
-            textLabel.Parent = tag
-            tag.Parent = target
-            local highlight = Instance.new("Highlight")
-            highlight.Name = "Highlight"
-            highlight.Adornee = target
-            highlight.FillColor = Color3.fromRGB(255, 255, 255)
-            highlight.OutlineColor = Color3.fromRGB(255, 255, 139)
-            highlight.Parent = target
-            markedTargets[target] = customName
-            
-            -- 添加优质圆圈 UI
-            createCircularUI(tag, Color3.fromRGB(255, 255, 255))
-        end
-
-        local function recursiveFindAll(parent, name, targets)
-            for _, child in ipairs(parent:GetChildren()) do
-                if child.Name == name then
-                    table.insert(targets, child)
-                end
-                recursiveFindAll(child, name, targets)
-            end
-        end
-
-        local function Itemlocationname(name, customName)
-            local targets = {}
-            recursiveFindAll(game, name, targets)
-            for _, target in ipairs(targets) do
-                markTarget(target, customName)
-            end
-        end
-
-        local function Invalidplayername(playerName, customName)
-            for _, player in ipairs(Players:GetPlayers()) do
-                if player.Name == playerName and player.Character then
-                    local head = player.Character:FindFirstChild("Head")
-                    if head then
-                        markTarget(head, customName)
-                    end
-                end
-            end
-        end
-
-        if state then
-            Players.PlayerAdded:Connect(function(player)
-                player.CharacterAdded:Connect(function(character)
-                    local head = character:FindFirstChild("Head")
-                    if head then
-                        markTarget(head, player.Name)
-                    end
-                end)
-            end)
-
-            game.DescendantAdded:Connect(function(descendant)
-                if descendant.Name == "Key" then
-                    markTarget(descendant, "Key")
-                end
-            end)
-
-            RunService.RenderStepped:Connect(function()
-                for target, customName in pairs(markedTargets) do
-                    if target and target:FindFirstChild("Batteries") then
-                        target.Batteries.TextLabel.Text = customName
-                    else
-                        if target then
-                            markTarget(target, customName)
-                        end
-                    end
-                end
-            end)
-
-            Invalidplayername("玩家名称", "玩家")
-            Itemlocationname("Key", "Key")
-        else
-            for target, _ in pairs(markedTargets) do
-                if target:FindFirstChild("Batteries") then
-                    target.Batteries:Destroy()
-                end
-                if target:FindFirstChild("Highlight") then
-                    target.Highlight:Destroy()
-                end
-            end
-            markedTargets = {}
-        end
-    end
-})
-
-
-
 local camfovslider = window_player:AddSlider({
     Name = "FOV",
     Value = 70,
@@ -2047,6 +1914,167 @@ local removeObstructionsToggle = Doors:AddToggle({
             end)
         else
             _G.removeObstructionsEnabled = false
+        end
+    end
+})
+
+local a90BypassToggle = Doors:AddToggle({
+    Name = "Bypass A-90",
+    Default = false,
+    Callback = function(state)
+        local a90remote = game.ReplicatedStorage:WaitForChild("EntityInfo"):WaitForChild("A90")
+        local plr = game.Players.LocalPlayer
+        local flags = {noa90 = state}
+        
+        local jumpscare = plr.PlayerGui:WaitForChild("MainUI"):WaitForChild("Jumpscare"):FindFirstChild("Jumpscare_A90")
+        
+        if state then
+            if jumpscare then
+                jumpscare.Parent = nil
+                a90remote.Parent = nil
+                
+                task.spawn(function()
+                    while flags.noa90 do
+                        game.SoundService.Main.Volume = 1
+                        task.wait()
+                    end
+                end)
+            end
+        else
+            if jumpscare then
+                jumpscare.Parent = plr.PlayerGui.MainUI.Jumpscare
+                a90remote.Parent = game.ReplicatedStorage.EntityInfo
+            end
+        end
+    end
+})
+
+local playerESP = Doors:AddToggle({
+    Name = "Mark Targets",
+    Default = false,
+    Callback = function(state)
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local markedTargets = {}
+
+        local function createCircularUI(parent, color)
+            local mid = Instance.new("Frame", parent)
+            mid.AnchorPoint = Vector2.new(0.5, 0.5)
+            mid.BackgroundColor3 = color
+            mid.Size = UDim2.new(0, 8, 0, 8)
+            mid.Position = UDim2.new(0.5, 0, 0.0001, 0) -- Adjusted position
+            Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+            Instance.new("UIStroke", mid)
+            
+            return mid
+        end
+
+        local function markTarget(target, customName)
+            if not target then return end
+            local oldTag = target:FindFirstChild("Batteries")
+            if oldTag then
+                oldTag:Destroy()
+            end
+            local oldHighlight = target:FindFirstChild("Highlight")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
+            local tag = Instance.new("BillboardGui")
+            tag.Name = "Batteries"
+            tag.Size = UDim2.new(0, 200, 0, 50)
+            tag.StudsOffset = Vector3.new(0, 0.7, 0) -- Adjusted offset
+            tag.AlwaysOnTop = true
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextStrokeTransparency = 0 
+            textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.Font = Enum.Font.Jura
+            textLabel.TextScaled = true
+            textLabel.Text = customName
+            textLabel.Parent = tag
+            tag.Parent = target
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "Highlight"
+            highlight.Adornee = target
+            highlight.FillColor = Color3.fromRGB(255, 255, 255)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 139)
+            highlight.Parent = target
+            markedTargets[target] = customName
+            
+            -- 添加优质圆圈 UI
+            createCircularUI(tag, Color3.fromRGB(255, 255, 255))
+        end
+
+        local function recursiveFindAll(parent, name, targets)
+            for _, child in ipairs(parent:GetChildren()) do
+                if child.Name == name then
+                    table.insert(targets, child)
+                end
+                recursiveFindAll(child, name, targets)
+            end
+        end
+
+        local function Itemlocationname(name, customName)
+            local targets = {}
+            recursiveFindAll(game, name, targets)
+            for _, target in ipairs(targets) do
+                markTarget(target, customName)
+            end
+        end
+
+        local function Invalidplayername(playerName, customName)
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Name == playerName and player.Character then
+                    local head = player.Character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, customName)
+                    end
+                end
+            end
+        end
+
+        if state then
+            Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function(character)
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, player.Name)
+                    end
+                end)
+            end)
+
+            game.DescendantAdded:Connect(function(descendant)
+                if descendant.Name == "Key" then
+                    markTarget(descendant, "Key")
+                end
+            end)
+
+            RunService.RenderStepped:Connect(function()
+                for target, customName in pairs(markedTargets) do
+                    if target and target:FindFirstChild("Batteries") then
+                        target.Batteries.TextLabel.Text = customName
+                    else
+                        if target then
+                            markTarget(target, customName)
+                        end
+                    end
+                end
+            end)
+
+            Invalidplayername("玩家名称", "玩家")
+            Itemlocationname("Key", "Key")
+        else
+            for target, _ in pairs(markedTargets) do
+                if target:FindFirstChild("Batteries") then
+                    target.Batteries:Destroy()
+                end
+                if target:FindFirstChild("Highlight") then
+                    target.Highlight:Destroy()
+                end
+            end
+            markedTargets = {}
         end
     end
 })
