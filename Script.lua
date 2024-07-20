@@ -31,36 +31,6 @@ local window_player = GUI:CreateSection({
     Name = "玩家"
 })
 
-local a90BypassToggle = Doors:AddToggle({
-    Name = "Bypass A-90 [The Rooms]",
-    Default = false,
-    Callback = function(state)
-        local a90remote = game.ReplicatedStorage:WaitForChild("EntityInfo"):WaitForChild("A90")
-        local plr = game.Players.LocalPlayer
-        local flags = {noa90 = state}
-        
-        local jumpscare = plr.PlayerGui:WaitForChild("MainUI"):WaitForChild("Jumpscare"):FindFirstChild("Jumpscare_A90")
-        
-        if state then
-            if jumpscare then
-                jumpscare.Parent = nil
-                a90remote.Parent = nil
-                
-                task.spawn(function()
-                    while flags.noa90 do
-                        game.SoundService.Main.Volume = 1
-                        task.wait()
-                    end
-                end)
-            end
-        else
-            if jumpscare then
-                jumpscare.Parent = plr.PlayerGui.MainUI.Jumpscare
-                a90remote.Parent = game.ReplicatedStorage.EntityInfo
-            end
-        end
-    end
-})
 
 local playerESP = Doors:AddToggle({
     Name = "Key esp",
