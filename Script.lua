@@ -1,13 +1,18 @@
----====== Load achievement giver ======---
-local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
+local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
+local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 
----====== Display achievement ======---
-achievementGiver({
-    Title = "Creepy client V2.02",
-    Desc = "Hi "..game.Players.LocalPlayer.Name.."",
-    Reason = "Have fun. Bye!",
-    Image = "rbxassetid://10802751252"
-})
+Notification:Notify(
+    {Title = "Creepy Client V2", Description = "Hi "..game.Players.LocalPlayer.Name.." you game id is "..game.GameId.." you executor is "..identifyexecutor""},
+    {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"},
+    {Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
+)
+wait(3)
+
+Notification:Notify(
+    {Title = "Creepy Client V2", Description = "Good bye :D"},
+    {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"},
+    {Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
+)
 
 local success, Library = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
