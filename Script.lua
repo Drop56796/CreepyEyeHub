@@ -463,17 +463,6 @@ local PlayerWalkSpeedSlider = Doors:AddSlider({
     end
 })
 
--- Function to update WalkSpeed
-local function updateWalkSpeed()
-    while true do
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = PlayerWalkSpeedSlider.Value
-        wait(0.1) -- Adjust the wait time as needed
-    end
-end
-
--- Start the loops
-spawn(updateWalkSpeed)
-
 local playerESP = Doors:AddToggle({
     Name = "Player ESP",
     Default = false,
