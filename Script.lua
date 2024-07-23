@@ -450,7 +450,73 @@ local GUI = GUIWindow:CreateTab({
 
 local Doors = GUI:CreateSection({
     Name = "Function"
-})      
+})
+
+local flags = {
+    speed = 16,
+    walkspeedtoggle = false,
+    camfov = 70,
+    camfovtoggle = false
+}
+
+-- 创建Walkspeed滑块
+local walkspeedslider = Doors:AddSlider({
+    Name = "Walkspeed",
+    Value = flags.speed,
+    Min = 16,
+    Max = 22,
+    Callback = function(val, oldval)
+        flags.speed = val
+        if flags.walkspeedtoggle then
+            hum.WalkSpeed = val
+        end
+    end
+})
+buttons.speed = walkspeedslider
+
+-- 创建Walkspeed开关
+local walkspeedtglbtn = Doors:AddToggle({
+    Name = "Toggle Walkspeed",
+    Value = flags.walkspeedtoggle,
+    Callback = function(val, oldval)
+        flags.walkspeedtoggle = val
+        if val then
+            hum.WalkSpeed = flags.speed
+        else
+            hum.WalkSpeed = 16
+        end
+    end
+})
+
+-- 创建FOV滑块
+local camfovslider = Doors:AddSlider({
+    Name = "FOV",
+    Value = flags.camfov,
+    Min = 50,
+    Max = 120,
+    Callback = function(val, oldval)
+        flags.camfov = val
+        if flags.camfovtoggle then
+            game:GetService("Workspace").CurrentCamera.FieldOfView = val
+        end
+    end
+})
+buttons.camfov = camfovslider
+
+-- 创建FOV开关
+local togglefovbrn = Doors:AddToggle({
+    Name = "Toggle FOV",
+    Value = flags.camfovtoggle,
+    Callback = function(val, oldval)
+        flags.camfovtoggle = val
+        if val then
+            game:GetService("Workspace").CurrentCamera.FieldOfView = flags.camfov
+        else
+            waitframes(2) -- 
+            game:GetService("Workspace").CurrentCamera.FieldOfView = 70
+        end
+    end
+})
 
 local playerESP = Doors:AddToggle({
     Name = "Player ESP",
