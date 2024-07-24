@@ -387,7 +387,7 @@ RightGroup:AddToggle({
     end
 })
 
-AddToggle({
+RightGroup:AddToggle({
     Name = "Locker/Wardrobe ESP",
     Default = false,
     Callback = function(state)
