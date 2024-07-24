@@ -86,33 +86,53 @@ function Library:CreateWindow(options)
 
 	--300
 	-- Main Frame
-	do
-		GUI["1"] = Instance.new("ScreenGui")
-		GUI["1"]["Name"] = randomString()
-		if get_hidden_gui or gethui then
-			local HIDEUI = get_hidden_gui or gethui
-			GUI["1"]["Parent"] = HIDEUI()
-		elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
-			syn.protect_gui(GUI["1"])
-			GUI["1"]["Parent"] = game:GetService("CoreGui")
-		elseif game:GetService("CoreGui"):FindFirstChild('RobloxGui') then
-			GUI["1"]["Parent"] = game:GetService("CoreGui").RobloxGui
-		else
-			GUI["1"]["Parent"] = game:GetService("CoreGui")
-		end
-		--GUI["1"]["Parent"] = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	-- 获取服务
 
-		GUI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling;
-		GUI["1"]["IgnoreGuiInset"] = true;
+-- 定义函数来计算彩虹颜色
+local function getRainbowColor(frequency, time)
+    local red = math.sin(frequency * time + 0) * 127 + 128
+    local green = math.sin(frequency * time + 2 * math.pi / 3) * 127 + 128
+    local blue = math.sin(frequency * time + 4 * math.pi / 3) * 127 + 128
+    return Color3.fromRGB(red, green, blue)
+end
 
-		-- StarterGui.ML.Main
-		GUI["2"] = Instance.new("Frame", GUI["1"]);
-		GUI["2"]["BackgroundColor3"] = Color3.fromRGB(49, 49, 49);
-		GUI["2"]["AnchorPoint"] = Vector2.new(0, 0);
-		GUI["2"]["Size"] = UDim2.new(0, 400, 0, 300);
-		GUI["2"]["ClipsDescendants"] = true;
-		GUI["2"]["Position"] = UDim2.fromOffset((Viewport.X / 2) - (GUI["2"]["Size"].X.Offset / 2), (Viewport.Y / 2) - (GUI["2"]["Size"].Y.Offset / 2));
-		GUI["2"]["Name"] = [[Main]];
+-- 设置颜色频率
+local frequency = 0.5
+
+-- 添加主框架的代码
+do
+    GUI["1"] = Instance.new("ScreenGui")
+    GUI["1"]["Name"] = randomString()
+    if get_hidden_gui or gethui then
+        local HIDEUI = get_hidden_gui or gethui
+        GUI["1"]["Parent"] = HIDEUI()
+    elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
+        syn.protect_gui(GUI["1"])
+        GUI["1"]["Parent"] = game:GetService("CoreGui")
+    elseif game:GetService("CoreGui"):FindFirstChild('RobloxGui') then
+        GUI["1"]["Parent"] = game:GetService("CoreGui").RobloxGui
+    else
+        GUI["1"]["Parent"] = game:GetService("CoreGui")
+    end
+
+    GUI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
+    GUI["1"]["IgnoreGuiInset"] = true
+
+    -- StarterGui.ML.Main
+    GUI["2"] = Instance.new("Frame", GUI["1"])
+    GUI["2"]["BackgroundColor3"] = Color3.fromRGB(49, 49, 49)
+    GUI["2"]["AnchorPoint"] = Vector2.new(0, 0)
+    GUI["2"]["Size"] = UDim2.new(0, 400, 0, 300)
+    GUI["2"]["ClipsDescendants"] = true
+    GUI["2"]["Position"] = UDim2.fromOffset((Viewport.X / 2) - (GUI["2"]["Size"].X.Offset / 2), (Viewport.Y / 2) - (GUI["2"]["Size"].Y.Offset / 2))
+    GUI["2"]["Name"] = [[Main]]
+
+    -- 添加彩虹颜色变化
+    RunService.RenderStepped:Connect(function(deltaTime)
+        local time = tick()
+        GUI["2"].BackgroundColor3 = getRainbowColor(frequency, time)
+    end)
+end
 
 		-- StarterGui.ML.Main.UICorner
 		GUI["3"] = Instance.new("UICorner", GUI["2"]);
