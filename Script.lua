@@ -25,7 +25,7 @@ end
 
 local GUIWindow = Library:CreateWindow({
     Name = "Creepy Client V2.02",
-    Themeable = true
+    Themeable = false
 })
 
 local GUI = GUIWindow:CreateTab({
