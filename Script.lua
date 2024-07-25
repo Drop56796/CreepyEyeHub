@@ -2,14 +2,14 @@ local NotificationHolder = loadstring(game:HttpGet("https://raw.githubuserconten
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 
 Notification:Notify(
-    {Title = "Creepy Client V2", Description = "Hi "..game.Players.LocalPlayer.Name.." you game id is "..game.GameId.." you executor is "..identifyexecutor""},
+    {Title = "Creepy Client V2.3", Description = "Hi "..game.Players.LocalPlayer.Name.." you game id is "..game.GameId.." you executor is "..identifyexecutor""},
     {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
 wait(3)
 
 Notification:Notify(
-    {Title = "Creepy Client V2", Description = "Good bye :D"},
+    {Title = "Creepy Client V2.3", Description = "Good bye :D"},
     {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
@@ -24,7 +24,7 @@ if not success then
 end
 
 local GUIWindow = Library:CreateWindow({
-    Name = "Creepy Client V2.02",
+    Name = "Creepy Client V2.3",
     Themeable = false
 })
 
@@ -631,7 +631,6 @@ local window_credits = window_credits_tab:CreateSection({
 })
 window_credits:AddLabel({ Name = "Dev:MrWhite FHOff" })
 window_credits:AddLabel({ Name = "QQ:3756646428" })
-window_credits:AddLabel({ Name = "目前版本2.01 正式" })
 window_credits:AddLabel({ Name = "欢迎使用我的朋友:"..game.Players.LocalPlayer.Name.."" })
 window_credits:AddLabel({ Name = "注入器:"..identifyexecutor"" })
 window_credits:AddLabel({ Name = "你正处在游戏:"..game.GameId.."" })
@@ -2112,3 +2111,153 @@ Doors:AddLabel({ Name = "-------------------------" })
 Doors:AddLabel({ Name = "Tip:有些功能not work" })
 Doors:AddLabel({ Name = "Tip:Key esp work" })
 Doors:AddLabel({ Name = "-------------------------" })
+
+local GUI = GUIWindow:CreateTab({
+    Name = "Pressure"
+})
+
+local Doors = GUI:CreateSection({
+    Name = "1"
+})
+
+local keyCardESPToggle = Doors:AddToggle({
+    Name = "KeyCard ESP",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.keyCardESPInstances = {}
+            local esptable = {keyCards = {}}
+            local flags = {espKeyCards = true}
+
+            local function esp(what, color, core, name)
+                local parts
+                
+                if typeof(what) == "Instance" then
+                    if what:IsA("Model") then
+                        parts = what:GetChildren()
+                    elseif what:IsA("BasePart") then
+                        parts = {what, table.unpack(what:GetChildren())}
+                    end
+                elseif typeof(what) == "table" then
+                    parts = what
+                end
+                
+                local bill
+                local boxes = {}
+                
+                for _, v in pairs(parts) do
+                    if v:IsA("BasePart") then
+                        local box = Instance.new("BoxHandleAdornment")
+                        box.Size = v.Size
+                        box.AlwaysOnTop = true
+                        box.ZIndex = 1
+                        box.AdornCullingMode = Enum.AdornCullingMode.Never
+                        box.Color3 = color
+                        box.Transparency = 1
+                        box.Adornee = v
+                        box.Parent = game.CoreGui
+                        
+                        table.insert(boxes, box)
+                        
+                        task.spawn(function()
+                            while box do
+                                if box.Adornee == nil or not box.Adornee:IsDescendantOf(workspace) then
+                                    box.Adornee = nil
+                                    box.Visible = false
+                                    box:Destroy()
+                                end  
+                                task.wait()
+                            end
+                        end)
+                    end
+                end
+                
+                if core and name then
+                    bill = Instance.new("BillboardGui", game.CoreGui)
+                    bill.AlwaysOnTop = true
+                    bill.Size = UDim2.new(0, 400, 0, 100)
+                    bill.Adornee = core
+                    bill.MaxDistance = 2000
+                    
+                    local mid = Instance.new("Frame", bill)
+                    mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                    mid.BackgroundColor3 = color
+                    mid.Size = UDim2.new(0, 8, 0, 8)
+                    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                    Instance.new("UIStroke", mid)
+                    
+                    local txt = Instance.new("TextLabel", bill)
+                    txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                    txt.BackgroundTransparency = 1
+                    txt.TextColor3 = color
+                    txt.Size = UDim2.new(1, 0, 0, 20)
+                    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                    txt.Text = name
+                    Instance.new("UIStroke", txt)
+                    
+                    task.spawn(function()
+                        while bill do
+                            if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                                bill.Enabled = false
+                                bill.Adornee = nil
+                                bill:Destroy() 
+                            end  
+                            task.wait()
+                        end
+                    end)
+                end
+                
+                local ret = {}
+                
+                ret.delete = function()
+                    for _, v in pairs(boxes) do
+                        v.Adornee = nil
+                        v.Visible = false
+                        v:Destroy()
+                    end
+                    
+                    if bill then
+                        bill.Enabled = false
+                        bill.Adornee = nil
+                        bill:Destroy() 
+                    end
+                end
+                
+                return ret 
+            end 
+
+            local function setup(room)
+                local keyCard = room:WaitForChild("NormalKeyCard")
+                
+                task.wait(0.1)
+                local h = esp(keyCard, Color3.fromRGB(255, 255, 255), keyCard, "NormalKeyCard")
+                table.insert(esptable.keyCards, h)
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+
+            table.insert(_G.keyCardESPInstances, esptable)
+
+        else
+            if _G.keyCardESPInstances then
+                for _, instance in pairs(_G.keyCardESPInstances) do
+                    for _, v in pairs(instance.keyCards) do
+                        v.delete()
+                    end
+                end
+                _G.keyCardESPInstances = nil
+            end
+        end
+    end
+})
+
