@@ -2117,91 +2117,473 @@ local GUI = GUIWindow:CreateTab({
 })
 
 local Pressure = GUI:CreateSection({
-    Name = "1"
+    Name = "esp"
 })
-
-local function createESP(instance, color, name)
-    local parts = instance:IsA("Model") and instance:GetChildren() or {instance}
-    local boxes = {}
-    local bill
-
-    for _, part in pairs(parts) do
-        if part:IsA("BasePart") then
-            local box = Instance.new("BoxHandleAdornment")
-            box.Size = part.Size
-            box.AlwaysOnTop = true
-            box.ZIndex = 1
-            box.AdornCullingMode = Enum.AdornCullingMode.Never
-            box.Color3 = color
-            box.Transparency = 0.5
-            box.Adornee = part
-            box.Parent = game.CoreGui
-            table.insert(boxes, box)
-        end
-    end
-
-    if name then
-        bill = Instance.new("BillboardGui", game.CoreGui)
-        bill.AlwaysOnTop = true
-        bill.Size = UDim2.new(0, 100, 0, 50)
-        bill.Adornee = instance
-        bill.MaxDistance = 2000
-
-        local label = Instance.new("TextLabel", bill)
-        label.AnchorPoint = Vector2.new(0.5, 0.5)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = color
-        label.Size = UDim2.new(1, 0, 1, 0)
-        label.Position = UDim2.new(0.5, 0, 0.5, 0)
-        label.Text = name
-    end
-
-    return {
-        delete = function()
-            for _, box in pairs(boxes) do
-                box:Destroy()
-            end
-            if bill then
-                bill:Destroy()
-            end
-        end
-    }
-end
-
-local function monitorKeyCards()
-    local keyCardESPInstances = {}
-
-    local function setup(room)
-        local keyCard = room:WaitForChild("NormalKeyCard", 5)
-        if keyCard then
-            local espInstance = createESP(keyCard, Color3.fromRGB(255, 255, 255), "NormalKeyCard")
-            table.insert(keyCardESPInstances, espInstance)
-        end
-    end
-
-    workspace:WaitForChild("CurrentRooms").ChildAdded:Connect(function(room)
-        setup(room)
-    end)
-
-    for _, room in pairs(workspace:WaitForChild("CurrentRooms"):GetChildren()) do
-        setup(room)
-    end
-
-    return keyCardESPInstances
-end
 
 local keyCardESPToggle = Pressure:AddToggle({
     Name = "KeyCard ESP",
     Default = false,
     Callback = function(state)
         if state then
-            _G.keyCardESPInstances = monitorKeyCards()
+            _G.keyCardESPInstances = {}
+            local esptable = {keyCards = {}}
+
+            local function createBillboard(instance, name, color)
+                local bill = Instance.new("BillboardGui", game.CoreGui)
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(0, 100, 0, 50)
+                bill.Adornee = instance
+                bill.MaxDistance = 2000
+
+                local mid = Instance.new("Frame", bill)
+                mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                mid.BackgroundColor3 = color
+                mid.Size = UDim2.new(0, 8, 0, 8)
+                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                Instance.new("UIStroke", mid)
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                txt.BackgroundTransparency = 1
+                txt.TextColor3 = color
+                txt.Size = UDim2.new(1, 0, 0, 20)
+                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                txt.Text = name
+                Instance.new("UIStroke", txt)
+
+                task.spawn(function()
+                    while bill do
+                        if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                            bill.Enabled = false
+                            bill.Adornee = nil
+                            bill:Destroy()
+                        end
+                        task.wait()
+                    end
+                end)
+            end
+
+            local function monitorNormalKeyCard()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
+                        createBillboard(instance, "NormalKeyCard", Color3.new(255, 255, 255)) -- Change color as needed
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
+                        createBillboard(instance, "NormalKeyCard", Color3.new(255, 255, 255)) -- Change color as needed
+                    end
+                end)
+            end
+
+            monitorNormalKeyCard()
+            table.insert(_G.keyCardESPInstances, esptable) 
+				
         else
             if _G.keyCardESPInstances then
                 for _, instance in pairs(_G.keyCardESPInstances) do
-                    instance.delete()
+                    for _, v in pairs(instance.keyCards) do
+                        v.delete()
+                    end
                 end
                 _G.keyCardESPInstances = nil
+            end
+        end
+    end
+})
+
+local a = GUI:CreateSection({
+    Name = "function"
+})
+
+local playerESP = a:AddToggle({
+    Name = "Enity Message",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local entityNames = {"Angler"}  --enity
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+
+            -- Ensure flags and plr are defined
+            local flags = flags or {} --Prevent Error
+            local plr = game.Players.LocalPlayer --Prevent Error2
+
+            local function notifyEntitySpawn(entity)
+                Notification:Notify(
+                    {Title = "Creepy client V2", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- Infinite loop to keep the script running and check for hintrush flag
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- Adjust the wait time as needed
+                until not flags.hint or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- Close message or any other cleanup if needed
+            running = false
+        end
+    end
+})
+
+local playerESP = Pressure:AddToggle({
+    Name = "Player ESP",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.aespInstances = {}
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player.Character then
+                    local aespInstance = esp(player.Character, Color3.new(255, 255, 255), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                    table.insert(_G.aespInstances, aespInstance)
+                end
+            end
+        else
+            if _G.aespInstances then
+                for _, aespInstance in pairs(_G.aespInstances) do
+                    aespInstance.delete()
+                end
+                _G.aespInstances = nil
+            end
+        end
+    end
+})
+
+-- ESP function definition (assuming it already exists)
+function esp(what, color, core, name)
+    local parts
+    if typeof(what) == "Instance" then
+        if what:IsA("Model") then
+            parts = what:GetChildren()
+        elseif what:IsA("BasePart") then
+            parts = {what, table.unpack(what:GetChildren())}
+        end
+    elseif typeof(what) == "table" then
+        parts = what
+    end
+
+    local bill
+    local boxes = {}
+
+    for i, v in pairs(parts) do
+        if v:IsA("BasePart") then
+            local box = Instance.new("BoxHandleAdornment")
+            box.Size = v.Size
+            box.AlwaysOnTop = true
+            box.ZIndex = 1
+            box.AdornCullingMode = Enum.AdornCullingMode.Never
+            box.Color3 = color
+            box.Transparency = 1
+            box.Adornee = v
+            box.Parent = game.CoreGui
+
+            table.insert(boxes, box)
+
+            task.spawn(function()
+                while box do
+                    if box.Adornee == nil or not box.Adornee:IsDescendantOf(workspace) then
+                        box.Adornee = nil
+                        box.Visible = false
+                        box:Destroy()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+
+    if core and name then
+        bill = Instance.new("BillboardGui", game.CoreGui)
+        bill.AlwaysOnTop = true
+        bill.Size = UDim2.new(0, 100, 0, 50)
+        bill.Adornee = core
+        bill.MaxDistance = 2000
+
+        local mid = Instance.new("Frame", bill)
+        mid.AnchorPoint = Vector2.new(0.5, 0.5)
+        mid.BackgroundColor3 = color
+        mid.Size = UDim2.new(0, 8, 0, 8)
+        mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+        Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+        Instance.new("UIStroke", mid)
+
+        local txt = Instance.new("TextLabel", bill)
+        txt.AnchorPoint = Vector2.new(0.5, 0.5)
+        txt.BackgroundTransparency = 1
+        txt.BackgroundColor3 = color
+        txt.TextColor3 = color
+        txt.Size = UDim2.new(1, 0, 0, 20)
+        txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+        txt.Text = name
+        Instance.new("UIStroke", txt)
+
+        task.spawn(function()
+            while bill do
+                if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                    bill.Enabled = false
+                    bill.Adornee = nil
+                    bill:Destroy()
+                end
+                task.wait()
+            end
+        end)
+    end
+
+    local ret = {}
+
+    ret.delete = function()
+        for i, v in pairs(boxes) do
+            v.Adornee = nil
+            v.Visible = false
+            v:Destroy()
+        end
+
+        if bill then
+            bill.Enabled = false
+            bill.Adornee = nil
+            bill:Destroy()
+        end
+    end
+
+    return ret
+end
+
+-- Define Player ESP function
+function playerEsp()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character then
+            esp(player.Character, Color3.new(255, 255, 255), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+        end
+    end
+end
+
+local brightnessToggle = a:AddToggle({
+    Name = "Full Bright",
+    Default = false,
+    Callback = function(state)
+        local Light = game:GetService("Lighting")
+
+        local function dofullbright()
+            Light.Ambient = Color3.new(1, 1, 1)
+            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
+            Light.ColorShift_Top = Color3.new(1, 1, 1)
+        end
+
+        local function resetLighting()
+            Light.Ambient = Color3.new(0, 0, 0)
+            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Light.ColorShift_Top = Color3.new(0, 0, 0)
+        end
+
+        if state then
+            _G.fullBrightEnabled = true
+            task.spawn(function()
+                while _G.fullBrightEnabled do
+                    dofullbright()
+                    task.wait(0)  -- 每秒检查一次
+                end
+            end)
+        else
+            _G.fullBrightEnabled = false
+            resetLighting()
+        end
+    end
+})
+
+local entityESPToggle = Pressure:AddToggle({
+    Name = "Entity ESP",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.entityInstances = {}
+            local esptable = {entity = {}}
+            local flags = {esprush = true}
+            local entitynames = {"Angler"} 
+
+            local function esp(what, color, core, name)
+                local parts
+                
+                if typeof(what) == "Instance" then
+                    if what:IsA("Model") then
+                        parts = what:GetChildren()
+                    elseif what:IsA("BasePart") then
+                        parts = {what, table.unpack(what:GetChildren())}
+                    end
+                elseif typeof(what) == "table" then
+                    parts = what
+                end
+                
+                local bill
+                local boxes = {}
+                
+                for i, v in pairs(parts) do
+                    if v:IsA("BasePart") then
+                        local box = Instance.new("BoxHandleAdornment")
+                        box.Size = v.Size
+                        box.AlwaysOnTop = true
+                        box.ZIndex = 1
+                        box.AdornCullingMode = Enum.AdornCullingMode.Never
+                        box.Color3 = color
+                        box.Transparency = 1
+                        box.Adornee = v
+                        box.Parent = game.CoreGui
+                        
+                        table.insert(boxes, box)
+                        
+                        task.spawn(function()
+                            while box do
+                                if box.Adornee == nil or not box.Adornee:IsDescendantOf(workspace) then
+                                    box.Adornee = nil
+                                    box.Visible = false
+                                    box:Destroy()
+                                end  
+                                task.wait()
+                            end
+                        end)
+                    end
+                end
+                
+                if core and name then
+                    bill = Instance.new("BillboardGui", game.CoreGui)
+                    bill.AlwaysOnTop = true
+                    bill.Size = UDim2.new(0, 400, 0, 100)
+                    bill.Adornee = core
+                    bill.MaxDistance = 2000
+                    
+                    local mid = Instance.new("Frame", bill)
+                    mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                    mid.BackgroundColor3 = color
+                    mid.Size = UDim2.new(0, 8, 0, 8)
+                    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                    Instance.new("UIStroke", mid)
+                    
+                    local txt = Instance.new("TextLabel", bill)
+                    txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                    txt.BackgroundTransparency = 1
+                    txt.BackgroundColor3 = color
+                    txt.TextColor3 = color
+                    txt.Size = UDim2.new(1, 0, 0, 20)
+                    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                    txt.Text = name
+                    Instance.new("UIStroke", txt)
+                    
+                    task.spawn(function()
+                        while bill do
+                            if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                                bill.Enabled = false
+                                bill.Adornee = nil
+                                bill:Destroy() 
+                            end  
+                            task.wait()
+                        end
+                    end)
+                end
+                
+                local ret = {}
+                
+                ret.delete = function()
+                    for i, v in pairs(boxes) do
+                        v.Adornee = nil
+                        v.Visible = false
+                        v:Destroy()
+                    end
+                    
+                    if bill then
+                        bill.Enabled = false
+                        bill.Adornee = nil
+                        bill:Destroy() 
+                    end
+                end
+                
+                return ret 
+	    end 
+
+	    local addconnect
+            addconnect = workspace.ChildAdded:Connect(function(v)
+                if table.find(entitynames, v.Name) then
+                    task.wait(0.1)
+                    
+                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""))
+                    table.insert(esptable.entity, h)
+                end
+            end)
+
+            local function setup(room)
+                if room.Name == "50" or room.Name == "100" then
+                    local figuresetup = room:WaitForChild("FigureSetup")
+                
+                    if figuresetup then
+                        local fig = figuresetup:WaitForChild("FigureRagdoll")
+                        task.wait(0.1)
+                        
+                        local h = esp(fig, Color3.fromRGB(255, 25, 25), fig.PrimaryPart, "Figure")
+                        table.insert(esptable.entity, h)
+                    end 
+                else
+                    local assets = room:WaitForChild("Assets")
+                    
+                    local function check(v)
+                        if v:IsA("Model") and table.find(entitynames, v.Name) then
+                            task.wait(0.1)
+                            
+                            local h = esp(v:WaitForChild("Base"), Color3.fromRGB(255, 25, 25), v.Base, "Snare")
+                            table.insert(esptable.entity, h)
+                        end
+                    end
+                    
+                    assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                end 
+            end
+            
+            local roomconnect
+            roomconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+	    end
+
+	    table.insert(_G.entityInstances, esptable)
+
+        else
+            if _G.entityInstances then
+                for _, instance in pairs(_G.entityInstances) do
+                    for _, v in pairs(instance.entity) do
+                        v.delete()
+                    end
+                end
+                _G.entityInstances = nil
             end
         end
     end
