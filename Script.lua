@@ -2236,13 +2236,13 @@ local keyCardESPToggle = Pressure:AddToggle({
             end
             
             local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+            addconnect = workspace:WaitForChild("CurrentRooms").ChildAdded:Connect(function(room)
                 setup(room)
             end)
             
-            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+            for _, room in pairs(workspace:WaitForChild("CurrentRooms"):GetChildren()) do
                 if room:FindFirstChild("Assets") then
-                    setup(room) 
+                   setup(room) 
                 end
             end
 
@@ -2260,4 +2260,3 @@ local keyCardESPToggle = Pressure:AddToggle({
         end
     end
 })
-
