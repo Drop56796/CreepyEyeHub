@@ -2588,3 +2588,32 @@ local entityESPToggle = Pressure:AddToggle({
         end
     end
 })
+
+local playerESP = a:AddToggle({
+    Name = "No cilp",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        if state then
+            _G.NoClip = runService.Stepped:Connect(function()
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end)
+        else
+            if _G.NoClip then
+                _G.NoClip:Disconnect()
+                _G.NoClip = nil
+            end
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+        end
+    end
+})
