@@ -2116,11 +2116,11 @@ local GUI = GUIWindow:CreateTab({
     Name = "Pressure"
 })
 
-local Doors = GUI:CreateSection({
+local Pressure = GUI:CreateSection({
     Name = "1"
 })
 
-local keyCardESPToggle = Doors:AddToggle({
+local keyCardESPToggle = Pressure:AddToggle({
     Name = "KeyCard ESP",
     Default = false,
     Callback = function(state)
