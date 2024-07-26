@@ -2751,6 +2751,11 @@ local Character = Player.Character or Player.CharacterAdded:Wait()
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Humanoid = Character:WaitForChild("Humanoid")
 
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
+
 local tpWalkThread
 local flyThread
 local isFlying = false
@@ -2773,10 +2778,29 @@ local function tpWalk(speed)
     end
 end
 
+local function flatFly(speed)
+    BodyVelocity = Instance.new("BodyVelocity")
+    BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    BodyVelocity.MaxForce = Vector3.new(1e4, 0, 1e4)
+    BodyVelocity.Parent = HumanoidRootPart
+
+    while isFlying do
+        task.wait()
+        if Humanoid.MoveDirection.Magnitude > 0 then
+            -- Move the player in the direction they are facing, but only in the horizontal plane
+            local moveDirection = Vector3.new(Humanoid.MoveDirection.X, 0, Humanoid.MoveDirection.Z) * speed
+            BodyVelocity.Velocity = moveDirection
+        else
+            BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        end
+    end
+
+    BodyVelocity:Destroy()
+end
 
 -- Create a slider to adjust tpWalk speed
 local PlayerTPWalkSpeedSlider = a:AddSlider({
-    Name = "TP Walk(下水时别跟穿墙用)",
+    Name = "TP Walk",
     Value = 0,
     Min = 0,
     Max = 2,
@@ -2793,6 +2817,26 @@ local PlayerTPWalkSpeedSlider = a:AddSlider({
     end
 })
 
+-- Create a toggle button for flat flying mode
+local flatFlyToggleBtn = a:AddToggle({
+    Name = "Flat Fly",
+    Value = false,
+    Callback = function(val)
+        isFlying = val
+        if isFlying then
+            -- Start flat flying thread
+            flyThread = coroutine.wrap(function()
+                flatFly(2)  -- Default flat fly speed
+            end)
+            flyThread()
+        else
+            -- Stop flat flying
+            if flyThread then
+                flyThread = nil
+            end
+        end
+    end
+})
 
 -- Ensure player and humanoid references are updated if the character respawns
 Player.CharacterAdded:Connect(function(character)
