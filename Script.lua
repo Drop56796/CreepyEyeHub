@@ -2773,29 +2773,10 @@ local function tpWalk(speed)
     end
 end
 
-local function flatFly(speed)
-    BodyVelocity = Instance.new("BodyVelocity")
-    BodyVelocity.Velocity = Vector3.new(0, 0, 0)
-    BodyVelocity.MaxForce = Vector3.new(1e4, 0, 1e4)
-    BodyVelocity.Parent = HumanoidRootPart
-
-    while isFlying do
-        task.wait()
-        if Humanoid.MoveDirection.Magnitude > 0 then
-            -- Move the player in the direction they are facing, but only in the horizontal plane
-            local moveDirection = Vector3.new(Humanoid.MoveDirection.X, 0, Humanoid.MoveDirection.Z) * speed
-            BodyVelocity.Velocity = moveDirection
-        else
-            BodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        end
-    end
-
-    BodyVelocity:Destroy()
-end
 
 -- Create a slider to adjust tpWalk speed
 local PlayerTPWalkSpeedSlider = a:AddSlider({
-    Name = "TP Walk",
+    Name = "TP Walk(下水时别跟穿墙用)",
     Value = 0,
     Min = 0,
     Max = 2,
@@ -2812,26 +2793,6 @@ local PlayerTPWalkSpeedSlider = a:AddSlider({
     end
 })
 
--- Create a toggle button for flat flying mode
-local flatFlyToggleBtn = a:AddToggle({
-    Name = "Flat Fly",
-    Value = false,
-    Callback = function(val)
-        isFlying = val
-        if isFlying then
-            -- Start flat flying thread
-            flyThread = coroutine.wrap(function()
-                flatFly(2)  -- Default flat fly speed
-            end)
-            flyThread()
-        else
-            -- Stop flat flying
-            if flyThread then
-                flyThread = nil
-            end
-        end
-    end
-})
 
 -- Ensure player and humanoid references are updated if the character respawns
 Player.CharacterAdded:Connect(function(character)
@@ -2858,59 +2819,67 @@ local PlayerFOVSlider = a:AddSlider({
     end
 })
 
-local entityNames = {"Angler", "Froger", "Chainsmoker", "Pinkie"} -- Entities to monitor
-local platformHeight = 250 -- Height for the safe platform
-local platformSize = Vector3.new(100, 1, 100) -- Size of the platform
-local platform -- Variable to hold the created platform
+local playerESP = a:AddToggle({
+    Name = "Entity Bypass(测试可能无效)",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker"} -- List of entities to monitor
+            local platformHeight = 500 -- Height for the safe platform
+            local platformSize = Vector3.new(100, 1, 100) -- Size of the platform
+            local platform -- Variable to hold the created platform
+            local isMonitoring = true
 
--- Function to create a safe platform
-local function createSafePlatform()
-    if platform then
-        platform:Destroy() -- Remove existing platform if any
-    end
-
-    platform = Instance.new("Part")
-    platform.Size = platformSize
-    platform.Position = Vector3.new(0, platformHeight, 0) -- Center position
-    platform.Anchored = true
-    platform.Parent = workspace
-end
-
--- Function to teleport player to the safe platform
-local function teleportPlayerToPlatform(player)
-    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local targetPosition = platform.Position + Vector3.new(0, platform.Size.Y / 2 + 5, 0)
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
-    end
-end
-
--- Function to handle entity defense
-local function entityDefense()
-    while true do
-        task.wait(1) -- Check every second (adjust as needed)
-        for _, instance in pairs(workspace:GetDescendants()) do
-            if instance:IsA("Model") and table.find(entityNames, instance.Name) then
-                -- Entity detected, create platform and teleport players
-                createSafePlatform()
-                for _, player in pairs(game.Players:GetPlayers()) do
-                    teleportPlayerToPlatform(player)
+            -- Function to create or update the safe platform
+            local function createSafePlatform()
+                if platform then
+                    platform:Destroy() -- Remove existing platform if any
                 end
-                break -- Exit loop after handling one entity
-            end
-        end
-    end
-end
 
--- Create a toggle button for entity defense
-local defenseToggleBtn = a:AddToggle({
-    Name = "Entity Bypass (Beta)",
-    Value = false,
-    Callback = function(val)
-        if val then
-            -- Start entity defense monitoring
-            task.spawn(entityDefense)
+                platform = Instance.new("Part")
+                platform.Size = platformSize
+                platform.Position = Vector3.new(0, platformHeight, 0) -- Center position
+                platform.Anchored = true
+                platform.Parent = workspace
+            end
+
+            -- Function to teleport a player to the safe platform
+            local function teleportPlayerToPlatform(player)
+                if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetPosition = platform.Position + Vector3.new(0, platform.Size.Y / 2 + 5, 0)
+                    player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+                end
+            end
+
+            -- Function to handle entity detection
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    -- Create platform and teleport players when entity is detected
+                    createSafePlatform()
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        teleportPlayerToPlatform(player)
+                    end
+                end
+            end
+
+            -- Connect the ChildAdded event to the onChildAdded function
+            local connection = workspace.ChildAdded:Connect(onChildAdded)
+
+            -- Loop to keep the script running based on the toggle state
+            while isMonitoring do
+                task.wait(1) -- Adjust the wait time as needed
+
+                if not state then
+                    -- Cleanup if defense is turned off
+                    if platform then
+                        platform:Destroy()
+                    end
+                    isMonitoring = false
+                    connection:Disconnect() -- Disconnect the event listener
+                end
+            end 
         else
-            -- Stop entity defense (platform will remain until manually removed)
+            -- Cleanup if defense is turned off
             if platform then
                 platform:Destroy()
             end
