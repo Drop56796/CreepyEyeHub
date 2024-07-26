@@ -2747,39 +2747,52 @@ local lockerESPToggle = Pressure:AddToggle({
     end
 })
 local Player = game.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Player.Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Player.Character:WaitForChild("Humanoid")
+
+local tpWalkThread
 
 local function tpWalk(speed)
     while true do
         task.wait()
         if Humanoid.MoveDirection.Magnitude > 0 then
+            -- Move the player in the direction they are facing, including vertical movement
             local moveDirection = Humanoid.MoveDirection * speed
-            local newCFrame = HumanoidRootPart.CFrame + moveDirection
-            HumanoidRootPart.CFrame = newCFrame
+
+            -- Adjust for swimming: add upward movement if the player is in water
+            if Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
+                moveDirection = moveDirection + Vector3.new(0, speed, 0)
+            end
+
+            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
         end
     end
 end
 
--- 创建滑动模块来调整 tpwalk 的速度
+-- Create a slider to adjust tpWalk speed
 local PlayerTPWalkSpeedSlider = a:AddSlider({
     Name = "TP Walk",
     Value = 0,
     Min = 0,
     Max = 2,
     Callback = function(Value)
-        if _G.tpWalkThread then
-            _G.tpWalkThread:Disconnect()
+        if tpWalkThread then
+            tpWalkThread:Disconnect()
         end
 
-        -- 启动新的 tpWalk 线程
-        _G.tpWalkThread = coroutine.wrap(function()
+        -- Start a new tpWalk thread
+        tpWalkThread = coroutine.wrap(function()
             tpWalk(Value)
         end)
-        _G.tpWalkThread()
+        tpWalkThread()
     end
 })
+
+-- Ensure player and humanoid references are updated if the character respawns
+Player.CharacterAdded:Connect(function(character)
+    HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    Humanoid = character:WaitForChild("Humanoid")
+end)
 
 
 local Player = game.Players.LocalPlayer
