@@ -2766,11 +2766,11 @@ local settings = {
 }
 
 -- Create the slider for adjusting walk speed
-local walkspeedslider = window_player:AddSlider({
+local walkspeedslider = a:AddSlider({
     Name = "Walkspeed",
-    Value = settings.speed,
+    Value = 16,
     Min = 16,
-    Max = 22,
+    Max = 100,
     Callback = function(val, oldval)
         settings.speed = val
         -- Update the walk speed immediately when slider value changes
@@ -2781,7 +2781,7 @@ local walkspeedslider = window_player:AddSlider({
 buttons.speed = walkspeedslider
 
 -- Create the toggle button for enabling/disabling walk speed adjustment
-local walkspeedtglbtn = window_player:AddToggle({
+local walkspeedtglbtn = a:AddToggle({
     Name = "Toggle Speed",
     Value = settings.walkspeedtoggle,
     Callback = function(val, oldval)
@@ -2811,10 +2811,10 @@ local settings = {
 }
 
 -- Create the slider for adjusting FOV
-local camfovslider = window_player:AddSlider({
+local camfovslider = a:AddSlider({
     Name = "FOV",
-    Value = settings.camfov,
-    Min = 50,
+    Value = 70,
+    Min = 70,
     Max = 120,
     Callback = function(val, oldval)
         settings.camfov = val
@@ -2824,7 +2824,7 @@ local camfovslider = window_player:AddSlider({
 })
 
 -- Create the toggle button for enabling/disabling FOV adjustment
-local togglefovbrn = window_player:AddToggle({
+local togglefovbrn = a:AddToggle({
     Name = "Toggle FOV",
     Value = settings.camfovtoggle,
     Callback = function(val, oldval)
