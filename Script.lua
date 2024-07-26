@@ -2746,53 +2746,6 @@ local lockerESPToggle = Pressure:AddToggle({
         end
     end
 })
-
--- Initialize the flags and functions table
-local settings = {
-    speed = 16,
-    walkspeedtoggle = false,
-    -- Function to update the player's walk speed based on current flags
-    updateWalkSpeed = function()
-        local player = game.Players.LocalPlayer
-        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-            local hum = player.Character.Humanoid
-            if settings.walkspeedtoggle then
-                hum.WalkSpeed = settings.speed
-            else
-                hum.WalkSpeed = 16
-            end
-        end
-    end
-}
-
--- Create the slider for adjusting walk speed
-local walkspeedslider = a:AddSlider({
-    Name = "Walkspeed",
-    Value = 16,
-    Min = 16,
-    Max = 100,
-    Callback = function(val, oldval)
-        settings.speed = val
-        -- Update the walk speed immediately when slider value changes
-        settings.updateWalkSpeed()
-    end
-})
-
-buttons.speed = walkspeedslider
-
--- Create the toggle button for enabling/disabling walk speed adjustment
-local walkspeedtglbtn = a:AddToggle({
-    Name = "Toggle Speed",
-    Value = settings.walkspeedtoggle,
-    Callback = function(val, oldval)
-        settings.walkspeedtoggle = val
-        -- Update the walk speed immediately based on toggle state
-        settings.updateWalkSpeed()
-    end
-})
-
-buttons.walkspeedtoggle = walkspeedtglbtn
-
 -- Initialize the flags and functions table
 local settings = {
     camfov = 70,
@@ -2833,3 +2786,49 @@ local togglefovbrn = a:AddToggle({
         settings.updateCameraFOV()
     end
 })
+
+-- Initialize the settings table
+local settings = {
+    speed = 16,
+    walkspeedtoggle = false,
+    -- Function to update the player's walk speed based on current flags
+    updateWalkSpeed = function()
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local hum = player.Character.Humanoid
+            if settings.walkspeedtoggle then
+                hum.WalkSpeed = settings.speed
+            else
+                hum.WalkSpeed = 16
+            end
+        end
+    end
+}
+
+-- Create the slider for adjusting walk speed
+local walkspeedslider = a:AddSlider({
+    Name = "Walkspeed",
+    Value = settings.speed,
+    Min = 16,
+    Max = 22,
+    Callback = function(val, oldval)
+        settings.speed = val
+        -- Update the walk speed immediately when slider value changes
+        settings.updateWalkSpeed()
+    end
+})
+
+buttons.speed = walkspeedslider
+
+-- Create the toggle button for enabling/disabling walk speed adjustment
+local walkspeedtglbtn = a:AddToggle({
+    Name = "Toggle Walkspeed",
+    Value = settings.walkspeedtoggle,
+    Callback = function(val, oldval)
+        settings.walkspeedtoggle = val
+        -- Update the walk speed immediately based on toggle state
+        settings.updateWalkSpeed()
+    end
+})
+
+buttons.walkspeedtoggle = walkspeedtglbtn
