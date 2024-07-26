@@ -2868,8 +2868,8 @@ local playerESP = a:AddToggle({
     Callback = function(state)
         if state then
             local entityNames = {"Angler", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"} -- List of entities to monitor
-            local platformHeight = 500 -- Height for the safe platform
-            local platformSize = Vector3.new(100, 1, 100) -- Size of the platform
+            local platformHeight = 900 -- Height for the safe platform
+            local platformSize = Vector3.new(1000, 1, 1000) -- Size of the platform
             local platform -- Variable to hold the created platform
             local entityTriggerMap = {} -- Map to keep track of which entities triggered the platform
             local playerOriginalPositions = {} -- Table to store original positions of players
@@ -2966,6 +2966,7 @@ local b = GUI:CreateSection({
     Name = "使用提示"
 })
 
-b:AddLabel({ Name = "用enity bypass遇实体被传平台等待7-9秒从平台下去" })
-b:AddLabel({ Name = "如果enity bypass和enity Message" })
+b:AddLabel({ Name = "用enity bypass遇实体被传平台不要下平台" })
+b:AddLabel({ Name = "不然你会后悔因为实体消失后会自动传送原位" })
+b:AddLabel({ Name = "如果enity bypass和enity Message一起用" })
 b:AddLabel({ Name = "大概率会先执行enity bypass操作" })
