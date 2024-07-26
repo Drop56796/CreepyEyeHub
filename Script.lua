@@ -2218,7 +2218,7 @@ local playerESP = a:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker"}  --enity
+            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"}  --enity
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 
@@ -2436,7 +2436,7 @@ local entityESPToggle = Pressure:AddToggle({
             _G.entityInstances = {}
             local esptable = {entities = {}}
             local flags = {esprush = true}
-            local entitynames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker"}
+            local entitynames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"}
 
             local function esp(what, color, core, name)
                 local parts
@@ -2868,7 +2868,7 @@ local playerESP = a:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker"} -- List of entities to monitor
+            local entityNames = {"Angler", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"} -- List of entities to monitor
             local platformHeight = 500 -- Height for the safe platform
             local platformSize = Vector3.new(100, 1, 100) -- Size of the platform
             local platform -- Variable to hold the created platform
