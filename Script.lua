@@ -2218,7 +2218,7 @@ local playerESP = a:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            local entityNames = {"Angler", "Eyefestation"}  --enity
+            local entityNames = {"Angler", "Eyefestation", "Blitz"}  --enity
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 
@@ -2311,7 +2311,7 @@ function esp(what, color, core, name)
             box.ZIndex = 1
             box.AdornCullingMode = Enum.AdornCullingMode.Never
             box.Color3 = color
-            box.Transparency = 1
+            box.Transparency = 0.75
             box.Adornee = v
             box.Parent = game.CoreGui
 
