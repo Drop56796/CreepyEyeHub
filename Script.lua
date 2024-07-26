@@ -2747,14 +2747,17 @@ local lockerESPToggle = Pressure:AddToggle({
     end
 })
 local Player = game.Players.LocalPlayer
-local HumanoidRootPart = Player.Character:WaitForChild("HumanoidRootPart")
-local Humanoid = Player.Character:WaitForChild("Humanoid")
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
 
 local function tpWalk(speed)
     while true do
         task.wait()
         if Humanoid.MoveDirection.Magnitude > 0 then
-            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame * CFrame.new(0, 0, -speed)
+            local moveDirection = Humanoid.MoveDirection * speed
+            local newCFrame = HumanoidRootPart.CFrame + moveDirection
+            HumanoidRootPart.CFrame = newCFrame
         end
     end
 end
@@ -2777,6 +2780,7 @@ local PlayerTPWalkSpeedSlider = a:AddSlider({
         _G.tpWalkThread()
     end
 })
+
 
 local Player = game.Players.LocalPlayer
 local Camera = workspace.CurrentCamera
