@@ -2167,19 +2167,34 @@ local keyCardESPToggle = Pressure:AddToggle({
             local function monitorNormalKeyCard()
                 for _, instance in pairs(workspace:GetDescendants()) do
                     if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
-                        createBillboard(instance, "NormalKeyCard", Color3.new(255, 255, 255)) -- Change color as needed
+                        createBillboard(instance, "NormalKeyCard", Color3.new(1, 0, 0)) -- Change color as needed
                     end
                 end
 
                 workspace.DescendantAdded:Connect(function(instance)
                     if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
-                        createBillboard(instance, "NormalKeyCard", Color3.new(255, 255, 255)) -- Change color as needed
+                        createBillboard(instance, "NormalKeyCard", Color3.new(1, 0, 0)) -- Change color as needed
+                    end
+                end)
+            end
+
+            local function monitorInnerKeyCard()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "InnerKeyCard" then
+                        createBillboard(instance, "InnerKeyCard", Color3.new(255, 255, 255)) -- Change color as needed
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "InnerKeyCard" then
+                        createBillboard(instance, "InnerKeyCard", Color3.new(255, 255, 255)) -- Change color as needed
                     end
                 end)
             end
 
             monitorNormalKeyCard()
-            table.insert(_G.keyCardESPInstances, esptable) 
+            monitorInnerKeyCard()
+            table.insert(_G.keyCardESPInstances, esptable)
 				
         else
             if _G.keyCardESPInstances then
@@ -2613,6 +2628,82 @@ local playerESP = a:AddToggle({
                 if v:IsA("BasePart") then
                     v.CanCollide = true
                 end
+            end
+        end
+    end
+})
+local lockerESPToggle = Pressure:AddToggle({
+    Name = "Locker ESP",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.espToLocker = {}
+            local esptable = {lockers = {}}
+
+            local function createBillboard(instance, name, color)
+                local bill = Instance.new("BillboardGui", game.CoreGui)
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(0, 100, 0, 50)
+                bill.Adornee = instance
+                bill.MaxDistance = 2000
+
+                local mid = Instance.new("Frame", bill)
+                mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                mid.BackgroundColor3 = color
+                mid.Size = UDim2.new(0, 8, 0, 8)
+                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                Instance.new("UIStroke", mid)
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                txt.BackgroundTransparency = 1
+                txt.TextColor3 = color
+                txt.Size = UDim2.new(1, 0, 0, 20)
+                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                txt.Text = name
+                Instance.new("UIStroke", txt)
+
+                task.spawn(function()
+                    while bill do
+                        if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                            bill.Enabled = false
+                            bill.Adornee = nil
+                            bill:Destroy()
+                        end
+                        task.wait()
+                    end
+                end)
+            end
+
+            local function addLocker(instance)
+                if instance:IsA("Model") and instance.Name == "Locker" then
+                    createBillboard(instance, "Locker", Color3.new(250, 250, 250)) -- Change color as needed
+                    table.insert(esptable.lockers, instance)
+                end
+            end
+
+            local function monitorLockers()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    addLocker(instance)
+                end
+
+                workspace.DescendantAdded:Connect(addLocker)
+            end
+
+            monitorLockers()
+            table.insert(_G.espToLocker, esptable)
+				
+        else
+            if _G.espToLocker then
+                for _, instance in pairs(_G.espToLocker) do
+                    for _, locker in pairs(instance.lockers) do
+                        if locker and locker:FindFirstChildOfClass("BillboardGui") then
+                            locker:FindFirstChildOfClass("BillboardGui"):Destroy()
+                        end
+                    end
+                end
+                _G.espToLocker = nil
             end
         end
     end
