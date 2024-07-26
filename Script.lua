@@ -2747,53 +2747,89 @@ local lockerESPToggle = Pressure:AddToggle({
     end
 })
 
--- Function to update the camera's FOV
-local function updateFOV(Value)
-    game:GetService("Workspace").CurrentCamera.FieldOfView = Value
-end
-
--- Create the slider for adjusting FOV
-local camfovslider = a:AddSlider({
-    Name = "视野",
-    Value = 70,
-    Min = 50,
-    Max = 120,
-    Callback = function(Value)
-        updateFOV(Value)
+-- Initialize the flags and functions table
+local settings = {
+    speed = 16,
+    walkspeedtoggle = false,
+    -- Function to update the player's walk speed based on current flags
+    updateWalkSpeed = function()
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local hum = player.Character.Humanoid
+            if settings.walkspeedtoggle then
+                hum.WalkSpeed = settings.speed
+            else
+                hum.WalkSpeed = 16
+            end
+        end
     end
-})
-
--- Loop to continuously enforce the FOV setting
-task.spawn(function()
-    while true do
-        updateFOV(camfovslider.Value)
-        wait(0.1) -- Adjust the frequency as needed
-    end
-end)
-
--- Function to update the player's walk speed
-local function updateWalkSpeed(Value)
-    local player = game.Players.LocalPlayer
-    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-        player.Character.Humanoid.WalkSpeed = Value
-    end
-end
+}
 
 -- Create the slider for adjusting walk speed
-local PlayerWalkSpeedSlider = a:AddSlider({
-    Name = "速度",
-    Value = 20,
-    Min = 20,
-    Max = 100,
-    Callback = function(Value)
-        updateWalkSpeed(Value)
+local walkspeedslider = window_player:AddSlider({
+    Name = "Walkspeed",
+    Value = settings.speed,
+    Min = 16,
+    Max = 22,
+    Callback = function(val, oldval)
+        settings.speed = val
+        -- Update the walk speed immediately when slider value changes
+        settings.updateWalkSpeed()
     end
 })
 
--- Loop to continuously enforce the walk speed setting
-task.spawn(function()
-    while true do
-        updateWalkSpeed(PlayerWalkSpeedSlider.Value)
-        wait(0.1) -- Adjust the frequency as needed
+buttons.speed = walkspeedslider
+
+-- Create the toggle button for enabling/disabling walk speed adjustment
+local walkspeedtglbtn = window_player:AddToggle({
+    Name = "Toggle Speed",
+    Value = settings.walkspeedtoggle,
+    Callback = function(val, oldval)
+        settings.walkspeedtoggle = val
+        -- Update the walk speed immediately based on toggle state
+        settings.updateWalkSpeed()
     end
-end)
+})
+
+buttons.walkspeedtoggle = walkspeedtglbtn
+
+-- Initialize the flags and functions table
+local settings = {
+    camfov = 70,
+    camfovtoggle = false,
+    -- Function to update the camera FOV based on current flags
+    updateCameraFOV = function()
+        local camera = game:GetService("Workspace").CurrentCamera
+        if camera then
+            if settings.camfovtoggle then
+                camera.FieldOfView = settings.camfov
+            else
+                camera.FieldOfView = 70
+            end
+        end
+    end
+}
+
+-- Create the slider for adjusting FOV
+local camfovslider = window_player:AddSlider({
+    Name = "FOV",
+    Value = settings.camfov,
+    Min = 50,
+    Max = 120,
+    Callback = function(val, oldval)
+        settings.camfov = val
+        -- Update the camera FOV immediately when slider value changes
+        settings.updateCameraFOV()
+    end
+})
+
+-- Create the toggle button for enabling/disabling FOV adjustment
+local togglefovbrn = window_player:AddToggle({
+    Name = "Toggle FOV",
+    Value = settings.camfovtoggle,
+    Callback = function(val, oldval)
+        settings.camfovtoggle = val
+        -- Update the camera FOV immediately based on toggle state
+        settings.updateCameraFOV()
+    end
+})
