@@ -2121,7 +2121,7 @@ local Pressure = GUI:CreateSection({
 })
 
 local keyCardESPToggle = Pressure:AddToggle({
-    Name = "KeyCard ESP",
+    Name = "KeyCard ESP(钥匙卡ESP)",
     Default = false,
     Callback = function(state)
         if state then
@@ -2214,7 +2214,7 @@ local a = GUI:CreateSection({
 })
 
 local playerESP = a:AddToggle({
-    Name = "Enity Message",
+    Name = "Enity Message(实体消息)",
     Default = false,
     Callback = function(state)
         if state then
@@ -2265,7 +2265,7 @@ local playerESP = a:AddToggle({
 })
 
 local playerESP = Pressure:AddToggle({
-    Name = "Player ESP",
+    Name = "Player ESP(玩家ESP)",
     Default = false,
     Callback = function(state)
         if state then
@@ -2396,7 +2396,7 @@ function playerEsp()
 end
 
 local brightnessToggle = a:AddToggle({
-    Name = "Full Bright",
+    Name = "Full Bright(高亮)",
     Default = false,
     Callback = function(state)
         local Light = game:GetService("Lighting")
@@ -2429,7 +2429,7 @@ local brightnessToggle = a:AddToggle({
 })
 
 local entityESPToggle = Pressure:AddToggle({
-    Name = "Entity ESP",
+    Name = "Entity ESP(实体ESP)",
     Default = false,
     Callback = function(state)
         if state then
@@ -2569,7 +2569,7 @@ local entityESPToggle = Pressure:AddToggle({
 })
 
 local playerESP = a:AddToggle({
-    Name = "No cilp",
+    Name = "No cilp(穿墙)",
     Default = false,
     Callback = function(state)
         local player = game.Players.LocalPlayer
@@ -2597,7 +2597,7 @@ local playerESP = a:AddToggle({
     end
 })
 local lockerESPToggle = Pressure:AddToggle({
-    Name = "Locker ESP",
+    Name = "Locker ESP(柜子ESP)",
     Default = false,
     Callback = function(state)
         if state then
@@ -2674,7 +2674,7 @@ local lockerESPToggle = Pressure:AddToggle({
 })
 
 local lockerESPToggle = Pressure:AddToggle({
-    Name = "NormalDoor ESP",
+    Name = "NormalDoor ESP(门ESP)",
     Default = false,
     Callback = function(state)
         if state then
@@ -2746,89 +2746,54 @@ local lockerESPToggle = Pressure:AddToggle({
         end
     end
 })
-local test = GUI:CreateSection({
-    Name = "Beta Function"
-})
 
-local monsterNames = {"Chainsmoker", "Froger", "Pinkie", "Angler"}
-local platformHeight = 250
-local platformSize = Vector3.new(100, 1, 100)
-local originalPositions = {}
-local platforms = {}
-
-local function createPlatform(position)
-    local platform = Instance.new("Part")
-    platform.Size = platformSize
-    platform.Position = position
-    platform.Anchored = true
-    platform.Parent = workspace
-    return platform
+-- Function to update the camera's FOV
+local function updateFOV(Value)
+    game:GetService("Workspace").CurrentCamera.FieldOfView = Value
 end
 
-local function teleportPlayerToPlatform(player, platform)
-    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        originalPositions[player.UserId] = player.Character.HumanoidRootPart.CFrame
-        player.Character.HumanoidRootPart.CFrame = platform.CFrame + Vector3.new(0, platform.Size.Y / 2 + 5, 0)
-    end
-end
-
-local function teleportPlayerBack(player)
-    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local originalPosition = originalPositions[player.UserId]
-        if originalPosition then
-            player.Character.HumanoidRootPart.CFrame = originalPosition
-            originalPositions[player.UserId] = nil
-        end
-    end
-end
-
-local function monitorMonsters()
-    while _G.monitoringMonsters do
-        local monstersPresent = false
-        for _, instance in pairs(workspace:GetDescendants()) do
-            if instance:IsA("Model") and table.find(monsterNames, instance.Name) and instance.PrimaryPart then
-                monstersPresent = true
-                local monsterName = instance.Name
-                if not platforms[monsterName] then
-                    local platformPosition = instance.PrimaryPart.Position + Vector3.new(0, platformHeight, 0)
-                    platforms[monsterName] = createPlatform(platformPosition)
-                end
-                for _, player in pairs(game.Players:GetPlayers()) do
-                    teleportPlayerToPlatform(player, platforms[monsterName])
-                end
-            end
-        end
-
-        if not monstersPresent then
-            for _, player in pairs(game.Players:GetPlayers()) do
-                teleportPlayerBack(player)
-            end
-            for _, platform in pairs(platforms) do
-                platform:Destroy()
-            end
-            platforms = {}
-        end
-
-        wait(1)
-    end
-end
-
-local lockerESPToggle = test:AddToggle({
-    Name = "Auto survive entity[Beta]",
-    Default = false,
-    Callback = function(state)
-        if state then
-            _G.monitoringMonsters = true
-            task.spawn(monitorMonsters)
-        else
-            _G.monitoringMonsters = false
-            for _, player in pairs(game.Players:GetPlayers()) do
-                teleportPlayerBack(player)
-            end
-            for _, platform in pairs(platforms) do
-                platform:Destroy()
-            end
-            platforms = {}
-        end
+-- Create the slider for adjusting FOV
+local camfovslider = a:AddSlider({
+    Name = "视野",
+    Value = 70,
+    Min = 50,
+    Max = 120,
+    Callback = function(Value)
+        updateFOV(Value)
     end
 })
+
+-- Loop to continuously enforce the FOV setting
+task.spawn(function()
+    while true do
+        updateFOV(camfovslider.Value)
+        wait(0.1) -- Adjust the frequency as needed
+    end
+end)
+
+-- Function to update the player's walk speed
+local function updateWalkSpeed(Value)
+    local player = game.Players.LocalPlayer
+    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.WalkSpeed = Value
+    end
+end
+
+-- Create the slider for adjusting walk speed
+local PlayerWalkSpeedSlider = a:AddSlider({
+    Name = "速度",
+    Value = 20,
+    Min = 20,
+    Max = 100,
+    Callback = function(Value)
+        updateWalkSpeed(Value)
+    end
+})
+
+-- Loop to continuously enforce the walk speed setting
+task.spawn(function()
+    while true do
+        updateWalkSpeed(PlayerWalkSpeedSlider.Value)
+        wait(0.1) -- Adjust the frequency as needed
+    end
+end)
