@@ -3036,6 +3036,200 @@ local lockerESPToggle = Pressure:AddToggle({
         end
     end
 })
+local keyCardESPToggle = Pressure:AddToggle({
+    Name = "Gold+item esp (Beta)",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.nahInstances = {}
+            local esptable = {nah = {}}
+
+            local function createBillboard(instance, name, color)
+                local bill = Instance.new("BillboardGui", game.CoreGui)
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(0, 100, 0, 50)
+                bill.Adornee = instance
+                bill.MaxDistance = 2000
+
+                local mid = Instance.new("Frame", bill)
+                mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                mid.BackgroundColor3 = color
+                mid.Size = UDim2.new(0, 8, 0, 8)
+                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                Instance.new("UIStroke", mid)
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                txt.BackgroundTransparency = 1
+                txt.TextColor3 = color
+                txt.Size = UDim2.new(1, 0, 0, 20)
+                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                txt.Text = name
+                Instance.new("UIStroke", txt)
+
+                task.spawn(function()
+                    while bill do
+                        if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
+                            bill.Enabled = false
+                            bill.Adornee = nil
+                            bill:Destroy()
+                        end
+                        task.wait()
+                    end
+                end)
+            end
+
+            local function monitorNormalKeyCard()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
+                        createBillboard(instance, "NormalKeyCard", Color3.new(1, 0, 0))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
+                        createBillboard(instance, "NormalKeyCard", Color3.new(1, 0, 0))
+                    end
+                end)
+            end
+
+            local function monitorInnerKeyCard()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "InnerKeyCard" then
+                        createBillboard(instance, "InnerKeyCard", Color3.new(1, 1, 1))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "InnerKeyCard" then
+                        createBillboard(instance, "InnerKeyCard", Color3.new(1, 1, 1))
+                    end
+                end)
+            end
+
+            local function monitorFlashBeacon()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "FlashBeacon" then
+                        createBillboard(instance, "FlashBeacon", Color3.new(0, 1, 0))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "FlashBeacon" then
+                        createBillboard(instance, "FlashBeacon", Color3.new(0, 1, 0))
+                    end
+                end)
+            end
+
+            local function monitorCodeBreacher()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "CodeBreacher" then
+                        createBillboard(instance, "CodeBreacher", Color3.new(0, 0, 1))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "CodeBreacher" then
+                        createBillboard(instance, "CodeBreacher", Color3.new(0, 0, 1))
+                    end
+                end)
+            end
+
+            local function monitor25Currency()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "25Currency" then
+                        createBillboard(instance, "25Currency", Color3.new(1, 1, 0))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "25Currency" then
+                        createBillboard(instance, "25Currency", Color3.new(1, 1, 0))
+                    end
+                end)
+            end
+
+            local function monitor50Currency()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "50Currency" then
+                        createBillboard(instance, "50Currency", Color3.new(1, 0.5, 0))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "50Currency" then
+                        createBillboard(instance, "50Currency", Color3.new(1, 0.5, 0))
+                    end
+                end)
+            end
+
+            local function monitor15Currency()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "15Currency" then
+                        createBillboard(instance, "15Currency", Color3.new(0.5, 0.5, 0.5))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "15Currency" then
+                        createBillboard(instance, "15Currency", Color3.new(0.5, 0.5, 0.5))
+                    end
+                end)
+	    end
+
+            local function monitor100Currency()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "100Currency" then
+                        createBillboard(instance, "100Currency", Color3.new(1, 0, 1))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "100Currency" then
+                        createBillboard(instance, "100Currency", Color3.new(1, 0, 1))
+                    end
+                end)
+            end
+
+            local function monitor200Currency()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "200Currency" then
+                        createBillboard(instance, "200Currency", Color3.new(0, 1, 1))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "200Currency" then
+                        createBillboard(instance, "200Currency", Color3.new(0, 1, 1))
+                    end
+                end)
+	    end
+
+	    monitorNormalKeyCard()
+            monitorInnerKeyCard()
+            monitorFlashBeacon()
+            monitorCodeBreacher()
+            monitor25Currency()
+            monitor50Currency()
+            monitor15Currency()
+            monitor100Currency()
+            monitor200Currency()
+
+            table.insert(_G.nahESPInstances, esptable)
+                
+        else
+            if _G.nahInstances then
+                for _, instance in pairs(_G.nahESPInstances) do
+                    for _, v in pairs(instance.nah) do
+                        v.delete()
+                    end
+                end
+                _G.nahInstances = nil
+            end
+        end
+    end
+})
 
 local b = GUI:CreateSection({
     Name = "使用提示"
