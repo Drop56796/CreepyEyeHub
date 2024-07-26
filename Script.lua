@@ -2857,3 +2857,63 @@ local PlayerFOVSlider = a:AddSlider({
         updateFOV(Value)
     end
 })
+
+local entityNames = {"Angler", "Froger", "Chainsmoker", "Pinkie"} -- Entities to monitor
+local platformHeight = 250 -- Height for the safe platform
+local platformSize = Vector3.new(100, 1, 100) -- Size of the platform
+local platform -- Variable to hold the created platform
+
+-- Function to create a safe platform
+local function createSafePlatform()
+    if platform then
+        platform:Destroy() -- Remove existing platform if any
+    end
+
+    platform = Instance.new("Part")
+    platform.Size = platformSize
+    platform.Position = Vector3.new(0, platformHeight, 0) -- Center position
+    platform.Anchored = true
+    platform.Parent = workspace
+end
+
+-- Function to teleport player to the safe platform
+local function teleportPlayerToPlatform(player)
+    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPosition = platform.Position + Vector3.new(0, platform.Size.Y / 2 + 5, 0)
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+    end
+end
+
+-- Function to handle entity defense
+local function entityDefense()
+    while true do
+        task.wait(1) -- Check every second (adjust as needed)
+        for _, instance in pairs(workspace:GetDescendants()) do
+            if instance:IsA("Model") and table.find(entityNames, instance.Name) then
+                -- Entity detected, create platform and teleport players
+                createSafePlatform()
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    teleportPlayerToPlatform(player)
+                end
+                break -- Exit loop after handling one entity
+            end
+        end
+    end
+end
+
+-- Create a toggle button for entity defense
+local defenseToggleBtn = a:AddToggle({
+    Name = "Entity Bypass (Beta)",
+    Value = false,
+    Callback = function(val)
+        if val then
+            -- Start entity defense monitoring
+            task.spawn(entityDefense)
+        else
+            -- Stop entity defense (platform will remain until manually removed)
+            if platform then
+                platform:Destroy()
+            end
+        end
+    end
+})
