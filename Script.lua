@@ -3080,34 +3080,6 @@ local keyCardESPToggle = Pressure:AddToggle({
                 end)
             end
 
-            local function monitorNormalKeyCard()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
-                        createBillboard(instance, "NormalKeyCard", Color3.new(1, 0, 0))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "NormalKeyCard" then
-                        createBillboard(instance, "NormalKeyCard", Color3.new(1, 0, 0))
-                    end
-                end)
-            end
-
-            local function monitorInnerKeyCard()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "InnerKeyCard" then
-                        createBillboard(instance, "InnerKeyCard", Color3.new(1, 1, 1))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "InnerKeyCard" then
-                        createBillboard(instance, "InnerKeyCard", Color3.new(1, 1, 1))
-                    end
-                end)
-            end
-
             local function monitorFlashBeacon()
                 for _, instance in pairs(workspace:GetDescendants()) do
                     if instance:IsA("Model") and instance.Name == "FlashBeacon" then
@@ -3205,9 +3177,7 @@ local keyCardESPToggle = Pressure:AddToggle({
                     end
                 end)
 	    end
-
-	    monitorNormalKeyCard()
-            monitorInnerKeyCard()
+				
             monitorFlashBeacon()
             monitorCodeBreacher()
             monitor25Currency()
