@@ -2754,6 +2754,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local tpWalkThread
 local flyThread
 local isFlying = false
+local BodyVelocity
 
 local function tpWalk(speed)
     while true do
@@ -2773,14 +2774,23 @@ local function tpWalk(speed)
 end
 
 local function flatFly(speed)
+    BodyVelocity = Instance.new("BodyVelocity")
+    BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    BodyVelocity.MaxForce = Vector3.new(1e4, 0, 1e4)
+    BodyVelocity.Parent = HumanoidRootPart
+
     while isFlying do
         task.wait()
         if Humanoid.MoveDirection.Magnitude > 0 then
             -- Move the player in the direction they are facing, but only in the horizontal plane
             local moveDirection = Vector3.new(Humanoid.MoveDirection.X, 0, Humanoid.MoveDirection.Z) * speed
-            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
+            BodyVelocity.Velocity = moveDirection
+        else
+            BodyVelocity.Velocity = Vector3.new(0, 0, 0)
         end
     end
+
+    BodyVelocity:Destroy()
 end
 
 -- Create a slider to adjust tpWalk speed
@@ -2804,7 +2814,7 @@ local PlayerTPWalkSpeedSlider = a:AddSlider({
 
 -- Create a toggle button for flat flying mode
 local flatFlyToggleBtn = a:AddToggle({
-    Name = "Flat Fly(平飞)",
+    Name = "Flat Fly",
     Value = false,
     Callback = function(val)
         isFlying = val
@@ -2814,15 +2824,11 @@ local flatFlyToggleBtn = a:AddToggle({
                 flatFly(2)  -- Default flat fly speed
             end)
             flyThread()
-            -- Disable gravity effects
-            Humanoid.PlatformStand = true
         else
             -- Stop flat flying
             if flyThread then
                 flyThread = nil
             end
-            -- Enable gravity effects
-            Humanoid.PlatformStand = false
         end
     end
 })
