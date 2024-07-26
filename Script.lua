@@ -2864,7 +2864,7 @@ local PlayerFOVSlider = a:AddSlider({
 })
 
 local playerESP = a:AddToggle({
-    Name = "Entity Bypass(测试可能无效)",
+    Name = "Entity Bypass",
     Default = false,
     Callback = function(state)
         if state then
@@ -2930,3 +2930,10 @@ local playerESP = a:AddToggle({
         end
     end
 })
+local b = GUI:CreateSection({
+    Name = "使用提示"
+})
+
+b:AddLabel({ Name = "用enity bypass遇实体被传平台等待7-9秒从平台下去" })
+b:AddLabel({ Name = "如果enity bypass和enity Message" })
+b:AddLabel({ Name = "大概率会先执行enity bypass操作" })
