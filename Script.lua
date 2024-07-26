@@ -2747,10 +2747,13 @@ local lockerESPToggle = Pressure:AddToggle({
     end
 })
 local Player = game.Players.LocalPlayer
-local HumanoidRootPart = Player.Character:WaitForChild("HumanoidRootPart")
-local Humanoid = Player.Character:WaitForChild("Humanoid")
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
 
 local tpWalkThread
+local flyThread
+local isFlying = false
 
 local function tpWalk(speed)
     while true do
@@ -2764,6 +2767,17 @@ local function tpWalk(speed)
                 moveDirection = moveDirection + Vector3.new(0, speed, 0)
             end
 
+            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
+        end
+    end
+end
+
+local function flatFly(speed)
+    while isFlying do
+        task.wait()
+        if Humanoid.MoveDirection.Magnitude > 0 then
+            -- Move the player in the direction they are facing, but only in the horizontal plane
+            local moveDirection = Vector3.new(Humanoid.MoveDirection.X, 0, Humanoid.MoveDirection.Z) * speed
             HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
         end
     end
@@ -2788,12 +2802,37 @@ local PlayerTPWalkSpeedSlider = a:AddSlider({
     end
 })
 
+-- Create a toggle button for flat flying mode
+local flatFlyToggleBtn = a:AddToggle({
+    Name = "Flat Fly(平飞)",
+    Value = false,
+    Callback = function(val)
+        isFlying = val
+        if isFlying then
+            -- Start flat flying thread
+            flyThread = coroutine.wrap(function()
+                flatFly(2)  -- Default flat fly speed
+            end)
+            flyThread()
+            -- Disable gravity effects
+            Humanoid.PlatformStand = true
+        else
+            -- Stop flat flying
+            if flyThread then
+                flyThread = nil
+            end
+            -- Enable gravity effects
+            Humanoid.PlatformStand = false
+        end
+    end
+})
+
 -- Ensure player and humanoid references are updated if the character respawns
 Player.CharacterAdded:Connect(function(character)
+    Character = character
     HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
     Humanoid = character:WaitForChild("Humanoid")
 end)
-
 
 local Player = game.Players.LocalPlayer
 local Camera = workspace.CurrentCamera
