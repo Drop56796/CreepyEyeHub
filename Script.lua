@@ -2218,7 +2218,7 @@ local playerESP = a:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            local entityNames = {"Angler", "Eyefestation", "Blitz"}  --enity
+            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie"}  --enity
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 
@@ -2436,7 +2436,7 @@ local entityESPToggle = Pressure:AddToggle({
             _G.entityInstances = {}
             local esptable = {entities = {}}
             local flags = {esprush = true}
-            local entitynames = {"Angler", "Eyefestation", "Blitz"}
+            local entitynames = {"Angler", "Eyefestation", "Blitz", "Pinkie"}
 
             local function esp(what, color, core, name)
                 local parts
