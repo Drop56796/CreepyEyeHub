@@ -3037,7 +3037,7 @@ local lockerESPToggle = Pressure:AddToggle({
     end
 })
 local keyCardESPToggle = Pressure:AddToggle({
-    Name = "Gold+item esp (Beta)",
+    Name = "Currency and item esp",
     Default = false,
     Callback = function(state)
         if state then
@@ -3242,11 +3242,54 @@ local keyCardESPToggle = Pressure:AddToggle({
                 end
 
                 workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "DwellerPiece" then
+                    if instance:IsA("Model") and instance.Name == "DwellerPiece" then 
                         createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
                     end
                 end)
 	    end
+
+            local function monitorE()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "Medkit" then
+                        createBillboard(instance, "Medkit", Color3.new(80, 75, 235))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "Medkit" then 
+                        createBillboard(instance, "Medkit", Color3.new(80, 75, 235))
+                    end
+                end)
+	    end
+
+            local function monitorF()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "Splorglight" then
+                        createBillboard(instance, "Splorglight", Color3.new(50, 100, 55))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "Splorglight" then 
+                        createBillboard(instance, "Splorglight", Color3.new(50, 100, 55))
+                    end
+                end)
+	    end
+
+	    local function monitorG()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "WindupLight" then
+                        createBillboard(instance, "WindupLight", Color3.new(85, 100, 66))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "WindupLight" then 
+                        createBillboard(instance, "WindupLight", Color3.new(85, 100, 66))
+                    end
+                end)
+	    end
+
 				
             monitorFlashBeacon()
             monitorCodeBreacher()
@@ -3260,6 +3303,9 @@ local keyCardESPToggle = Pressure:AddToggle({
             monitorB()
 	    monitorC()
 	    monitorD()
+	    monitorE()
+	    monitorF()
+	    monitorG()
 
             table.insert(_G.nahESPInstances, esptable)
                 
