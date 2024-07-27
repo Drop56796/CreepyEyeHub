@@ -3174,6 +3174,76 @@ local keyCardESPToggle = Pressure:AddToggle({
                 workspace.DescendantAdded:Connect(function(instance)
                     if instance:IsA("Model") and instance.Name == "200Currency" then
                         createBillboard(instance, "200Currency", Color3.new(0, 1, 1))
+		    end
+                end)
+	    end
+
+	    local function monitorFlashlight()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "Flashlight" then
+                        createBillboard(instance, "Flashlight", Color3.new(25, 25, 25))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "Flashlight" then
+                        createBillboard(instance, "Flashlight", Color3.new(25, 25, 25))
+                    end
+                end)
+	    end
+
+	    local function monitorA()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "Lantern" then
+                        createBillboard(instance, "Lantern", Color3.new(99, 99, 99))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "Lantern" then
+                        createBillboard(instance, "Lantern", Color3.new(99, 99, 99))
+                    end
+                end)
+	    end
+
+	    local function monitorB()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "Blacklight" then
+                        createBillboard(instance, "Blacklight", Color3.new(5, 1, 1))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "Blacklight" then
+                        createBillboard(instance, "Blacklight", Color3.new(5, 1, 1))
+                    end
+                end)
+	    end
+
+	    local function monitorC()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "Gummylight" then
+                        createBillboard(instance, "Gummylight", Color3.new(5, 55, 5))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "Gummylight" then
+                        createBillboard(instance, "Gummylight", Color3.new(5, 55, 5))
+                    end
+                end)
+	    end
+
+	    local function monitorD()
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    if instance:IsA("Model") and instance.Name == "DwellerPiece" then
+                        createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(instance)
+                    if instance:IsA("Model") and instance.Name == "DwellerPiece" then
+                        createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
                     end
                 end)
 	    end
@@ -3185,6 +3255,11 @@ local keyCardESPToggle = Pressure:AddToggle({
             monitor15Currency()
             monitor100Currency()
             monitor200Currency()
+	    monitorFlashlight()
+            monitorA()
+            monitorB()
+	    monitorC()
+	    monitorD()
 
             table.insert(_G.nahESPInstances, esptable)
                 
