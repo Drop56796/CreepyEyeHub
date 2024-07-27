@@ -17,10 +17,19 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 15) -- 圆角半径
 corner.Parent = mainFrame
 
+-- 创建输入框的滚动框架
+local inputScrollingFrame = Instance.new("ScrollingFrame")
+inputScrollingFrame.Size = UDim2.new(0.94, 0, 0.94, 0)
+inputScrollingFrame.Position = UDim2.new(0.03, 0, 0.03, 0)
+inputScrollingFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- 深灰色背景
+inputScrollingFrame.BorderSizePixel = 0
+inputScrollingFrame.ScrollBarThickness = 12
+inputScrollingFrame.Parent = mainFrame
+
 -- 创建输入框
 local inputBox = Instance.new("TextBox")
-inputBox.Size = UDim2.new(0.7, 0, 0.6, 0)
-inputBox.Position = UDim2.new(0.03, 0, 0.03, 0)
+inputBox.Size = UDim2.new(1, -12, 1, 0) -- 调整宽度以适应滚动条
+inputBox.Position = UDim2.new(0, 0, 0, 0)
 inputBox.Font = Enum.Font.Code
 inputBox.TextSize = 14
 inputBox.MultiLine = true
@@ -32,7 +41,7 @@ inputBox.TextWrapped = true -- 自动换行
 inputBox.RichText = true -- 启用富文本
 inputBox.TextXAlignment = Enum.TextXAlignment.Left -- 文本左对齐
 inputBox.TextYAlignment = Enum.TextYAlignment.Top -- 文本上对齐
-inputBox.Parent = mainFrame
+inputBox.Parent = inputScrollingFrame
 
 -- 创建清除按钮
 local clearButton = Instance.new("TextButton")
@@ -52,18 +61,19 @@ executeButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50) -- 绿色
 executeButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- 白色文本
 executeButton.Parent = mainFrame
 
--- 创建输出台
-local outputFrame = Instance.new("Frame")
-outputFrame.Size = UDim2.new(0.7, 0, 0.3, 0) -- 输出台的大小
-outputFrame.Position = UDim2.new(0.03, 0, 0.65, 0) -- 输出台位置在输入框下方
-outputFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- 深灰色背景
-outputFrame.BorderSizePixel = 0
-outputFrame.Visible = false -- 初始不显示输出台
-outputFrame.Parent = mainFrame
+-- 创建输出台的滚动框架
+local outputScrollingFrame = Instance.new("ScrollingFrame")
+outputScrollingFrame.Size = UDim2.new(0.94, 0, 0.94, 0) -- 输出台的大小
+outputScrollingFrame.Position = UDim2.new(0.03, 0, 0.03, 0) -- 输出台位置
+outputScrollingFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- 深灰色背景
+outputScrollingFrame.BorderSizePixel = 0
+outputScrollingFrame.ScrollBarThickness = 12
+outputScrollingFrame.Visible = false -- 初始不显示输出台
+outputScrollingFrame.Parent = mainFrame
 
 -- 创建输出台文本框
 local outputBox = Instance.new("TextBox")
-outputBox.Size = UDim2.new(1, 0, 1, 0) -- 填满输出台框架
+outputBox.Size = UDim2.new(1, -12, 1, 0) -- 调整宽度以适应滚动条
 outputBox.Position = UDim2.new(0, 0, 0, 0)
 outputBox.Font = Enum.Font.Code
 outputBox.TextSize = 14
@@ -75,7 +85,7 @@ outputBox.TextWrapped = true -- 自动换行
 outputBox.RichText = true -- 启用富文本
 outputBox.TextXAlignment = Enum.TextXAlignment.Left -- 文本左对齐
 outputBox.TextYAlignment = Enum.TextYAlignment.Top -- 文本上对齐
-outputBox.Parent = outputFrame
+outputBox.Parent = outputScrollingFrame
 
 -- 创建开关按钮
 local toggleButton = Instance.new("TextButton")
@@ -137,7 +147,6 @@ local function capturePrint(func)
     local output = {}
     local function newPrint(...)
         table.insert(output, table.concat({...}, " "))
-        oldPrint(...)
     end
     _G.print = newPrint
     func()
@@ -156,33 +165,38 @@ executeButton.MouseButton1Click:Connect(function()
     -- 执行代码并捕捉print输出
     local success, message = pcall(function()
         local function executeCode()
-            local codeFunc, err = loadstring(code)
-            if not codeFunc then
-                error("Failed to compile code: " .. err)
+            local f = loadstring(code)
+            if f then
+                f()
+            else
+                error("Invalid code")
             end
-            local output = capturePrint(function()
-                codeFunc()
-            end)
-            outputBox.Text = output
         end
-        executeCode()
+        return capturePrint(executeCode)
     end)
-
-    -- 显示执行结果
+    
     if success then
-        outputBox.Text = "<font color='#32CD32'>Executed successfully</font>\n" .. outputBox.Text
+        outputBox.Text = message
     else
-        outputBox.Text = "<font color='#FF6347'>Error: " .. message .. "</font>"
+        outputBox.Text = "Error: " .. message
     end
+    
+    -- 显示输出台
+    outputScrollingFrame.Visible = true
 end)
 
 -- 清除按钮功能
 clearButton.MouseButton1Click:Connect(function()
     inputBox.Text = ""
-    outputBox.Text = ""
 end)
 
--- 输出台开关功能
+-- 开关按钮功能
 toggleButton.MouseButton1Click:Connect(function()
-    outputFrame.Visible = not outputFrame.Visible
+    if outputScrollingFrame.Visible then
+        outputScrollingFrame.Visible = false
+        inputScrollingFrame.Visible = true
+    else
+        outputScrollingFrame.Visible = true
+        inputScrollingFrame.Visible = false
+    end
 end)
