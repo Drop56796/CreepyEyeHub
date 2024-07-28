@@ -7,7 +7,8 @@ local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0.6, 0, 0.7, 0)
 mainFrame.Position = UDim2.new(0.2, 0, 0.15, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- 深灰色背景
-mainFrame.BorderSizePixel = 0
+mainFrame.BorderSizePixel = 2 -- 增加边框的粗细
+mainFrame.BorderColor3 = Color3.fromRGB(255, 255, 255) -- 设置边框颜色
 mainFrame.Parent = screenGui
 mainFrame.Draggable = true -- 使框架可拖动
 mainFrame.Active = true -- 使框架可接受输入
@@ -17,19 +18,10 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 15) -- 圆角半径
 corner.Parent = mainFrame
 
--- 创建输入框的滚动框架
-local inputScrollingFrame = Instance.new("ScrollingFrame")
-inputScrollingFrame.Size = UDim2.new(0.94, 0, 0.94, 0)
-inputScrollingFrame.Position = UDim2.new(0.03, 0, 0.03, 0)
-inputScrollingFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- 深灰色背景
-inputScrollingFrame.BorderSizePixel = 0
-inputScrollingFrame.ScrollBarThickness = 12
-inputScrollingFrame.Parent = mainFrame
-
 -- 创建输入框
 local inputBox = Instance.new("TextBox")
-inputBox.Size = UDim2.new(1, -12, 1, 0) -- 调整宽度以适应滚动条
-inputBox.Position = UDim2.new(0, 0, 0, 0)
+inputBox.Size = UDim2.new(0.7, 0, 0.6, 0)
+inputBox.Position = UDim2.new(0.03, 0, 0.03, 0)
 inputBox.Font = Enum.Font.Code
 inputBox.TextSize = 14
 inputBox.MultiLine = true
@@ -41,7 +33,7 @@ inputBox.TextWrapped = true -- 自动换行
 inputBox.RichText = true -- 启用富文本
 inputBox.TextXAlignment = Enum.TextXAlignment.Left -- 文本左对齐
 inputBox.TextYAlignment = Enum.TextYAlignment.Top -- 文本上对齐
-inputBox.Parent = inputScrollingFrame
+inputBox.Parent = mainFrame
 
 -- 创建清除按钮
 local clearButton = Instance.new("TextButton")
@@ -61,19 +53,18 @@ executeButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50) -- 绿色
 executeButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- 白色文本
 executeButton.Parent = mainFrame
 
--- 创建输出台的滚动框架
-local outputScrollingFrame = Instance.new("ScrollingFrame")
-outputScrollingFrame.Size = UDim2.new(0.94, 0, 0.94, 0) -- 输出台的大小
-outputScrollingFrame.Position = UDim2.new(0.03, 0, 0.03, 0) -- 输出台位置
-outputScrollingFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- 深灰色背景
-outputScrollingFrame.BorderSizePixel = 0
-outputScrollingFrame.ScrollBarThickness = 12
-outputScrollingFrame.Visible = false -- 初始不显示输出台
-outputScrollingFrame.Parent = mainFrame
+-- 创建输出台
+local outputFrame = Instance.new("Frame")
+outputFrame.Size = UDim2.new(0.7, 0, 0.3, 0) -- 输出台的大小
+outputFrame.Position = UDim2.new(0.03, 0, 0.65, 0) -- 输出台位置在输入框下方
+outputFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25) -- 深灰色背景
+outputFrame.BorderSizePixel = 0
+outputFrame.Visible = false -- 初始不显示输出台
+outputFrame.Parent = mainFrame
 
 -- 创建输出台文本框
 local outputBox = Instance.new("TextBox")
-outputBox.Size = UDim2.new(1, -12, 1, 0) -- 调整宽度以适应滚动条
+outputBox.Size = UDim2.new(1, 0, 1, 0) -- 填满输出台框架
 outputBox.Position = UDim2.new(0, 0, 0, 0)
 outputBox.Font = Enum.Font.Code
 outputBox.TextSize = 14
@@ -85,7 +76,7 @@ outputBox.TextWrapped = true -- 自动换行
 outputBox.RichText = true -- 启用富文本
 outputBox.TextXAlignment = Enum.TextXAlignment.Left -- 文本左对齐
 outputBox.TextYAlignment = Enum.TextYAlignment.Top -- 文本上对齐
-outputBox.Parent = outputScrollingFrame
+outputBox.Parent = outputFrame
 
 -- 创建开关按钮
 local toggleButton = Instance.new("TextButton")
@@ -95,6 +86,20 @@ toggleButton.Text = "Output"
 toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- 中灰色
 toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- 白色文本
 toggleButton.Parent = mainFrame
+
+-- 创建图标按钮
+local iconButton = Instance.new("TextButton")
+iconButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+iconButton.Position = UDim2.new(0.45, 0, 0.45, 0)
+iconButton.BackgroundColor3 = Color3.fromRGB(50, 150, 250) -- 蓝色背景
+iconButton.Text = ""
+iconButton.Visible = false
+iconButton.Parent = screenGui
+
+-- 创建圆角
+local iconCorner = Instance.new("UICorner")
+iconCorner.CornerRadius = UDim.new(0.5, 0) -- 完全圆形
+iconCorner.Parent = iconButton
 
 -- 高亮和注释处理函数
 local function highlightCode(code)
@@ -147,6 +152,7 @@ local function capturePrint(func)
     local output = {}
     local function newPrint(...)
         table.insert(output, table.concat({...}, " "))
+        oldPrint(...)
     end
     _G.print = newPrint
     func()
@@ -165,38 +171,82 @@ executeButton.MouseButton1Click:Connect(function()
     -- 执行代码并捕捉print输出
     local success, message = pcall(function()
         local function executeCode()
-            local f = loadstring(code)
-            if f then
-                f()
-            else
-                error("Invalid code")
+            local codeFunc, err = loadstring(code)
+            if not codeFunc then
+                error("Failed to compile code: " .. err)
             end
+            local output = capturePrint(function()
+                codeFunc()
+            end)
+            outputBox.Text = output
         end
-        return capturePrint(executeCode)
+        executeCode()
     end)
-    
+
+    -- 显示执行结果
     if success then
-        outputBox.Text = message
+        outputBox.Text = "<font color='#32CD32'>Executed successfully</font>\n" .. outputBox.Text
     else
-        outputBox.Text = "Error: " .. message
+        outputBox.Text = "<font color='#FF6347'>Error: " .. message .. "</font>"
     end
-    
-    -- 显示输出台
-    outputScrollingFrame.Visible = true
 end)
 
 -- 清除按钮功能
 clearButton.MouseButton1Click:Connect(function()
     inputBox.Text = ""
+    outputBox.Text = ""
 end)
 
--- 开关按钮功能
+-- 输出台开关功能
 toggleButton.MouseButton1Click:Connect(function()
-    if outputScrollingFrame.Visible then
-        outputScrollingFrame.Visible = false
-        inputScrollingFrame.Visible = true
-    else
-        outputScrollingFrame.Visible = true
-        inputScrollingFrame.Visible = false
-    end
+    outputFrame.Visible = not outputFrame.Visible
 end)
+
+-- 创建框架显示/隐藏开关按钮
+local frameToggleButton = Instance.new("TextButton")
+frameToggleButton.Size = UDim2.new(0.2, 0, 0.1, 0)
+frameToggleButton.Position = UDim2.new(0.75, 0, 0.35, 0)
+frameToggleButton.Text = "Toggle"
+frameToggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- 中灰色
+frameToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- 白色文本
+frameToggleButton.Parent = mainFrame
+
+-- 框架显示/隐藏开关按钮功能
+frameToggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    iconButton.Visible = not mainFrame.Visible
+end)
+
+-- 图标按钮点击后显示框架
+iconButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = true
+    iconButton.Visible = false
+end)
+
+-- 添加一些示例代码，用于展示print和pcall的使用
+inputBox.Text = [[
+-- print
+print("Hello, world!")
+
+--pcall
+
+local function safeDivide(a, b)
+    return pcall(function()
+        if b == 0 then
+            error("Division by zero!")
+        else
+            return a / b
+        end
+    end)
+end
+
+local success, result = safeDivide(10, 0)
+if success then
+    print("Result: " .. result)
+else
+    print("Error: " .. result)
+end
+]]
+
+-- 为了在打开脚本时显示示例代码的高亮，执行一次高亮处理
+inputBox.Text = highlightCode(inputBox.Text)
