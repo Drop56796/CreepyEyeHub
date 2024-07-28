@@ -229,7 +229,6 @@ inputBox.Text = [[
 print("Hello, world!")
 
 --pcall
-
 local function safeDivide(a, b)
     return pcall(function()
         if b == 0 then
