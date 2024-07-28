@@ -1,5 +1,5 @@
 --弄这个他妈的太累了，我操了，怎么能这么累，他妈的太傻逼了，傻逼呀，我操了，烦死我了，阿米诺斯，阿米诺斯，阿米诺斯，阿米诺斯，阿米诺斯，好好珍惜吧
-
+---↑FHOff
 
 
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
@@ -3337,7 +3337,7 @@ local playerESP = a:AddToggle({
     end
 })
 local lockerESPToggle = Pressure:AddToggle({
-    Name = "BigRoomDoor ESP(大门Esp",
+    Name = "BigRoomDoor ESP(大门Esp)",
     Default = false,
     Callback = function(state)
         if state then
@@ -3412,7 +3412,7 @@ local lockerESPToggle = Pressure:AddToggle({
     end
 })
 local keyCardESPToggle = Pressure:AddToggle({
-    Name = "Currency and item esp(钱esp",
+    Name = "Currency and item esp(钱+物品esp)",
     Default = false,
     Callback = function(state)
         if state then
@@ -3731,6 +3731,52 @@ local playerESP = a:AddToggle({
         end
     end
 })
+local deleteBubblesLow = a:AddToggle({
+    Name = "Delete BubblesLow(Bata)",
+    Default = false,
+    Callback = function(state)
+        local runService = game:GetService("RunService")
+        if state then
+            _G.DeleteBubblesLow = runService.Stepped:Connect(function()
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Model") and v.Name == "BubblesLow" then
+                        v:Destroy()
+                    end
+                end
+            end)
+        else
+            if _G.DeleteBubblesLow then
+                _G.DeleteBubblesLow:Disconnect()
+                _G.DeleteBubblesLow = nil
+            end
+        end
+    end
+})
+
+local playerESP = a:AddToggle({
+    Name = "Delete Eyefestation(Bata)",
+    Default = false,
+    Callback = function(state)
+        local runService = game:GetService("RunService")
+        if state then
+            _G.DeleteEyefestationSpawn = runService.Stepped:Connect(function()
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Model") and v.Name == "EyefestationSpawn" then
+                        v:Destroy()
+                    end
+                end
+            end)
+        else
+            if _G.DeleteEyefestationSpawn then
+                _G.DeleteEyefestationSpawn:Disconnect()
+                _G.DeleteEyefestationSpawn = nil
+            end
+        end
+    end
+})
+
+
+
 local c = GUI:CreateSection({
     Name = "感谢"
 })
