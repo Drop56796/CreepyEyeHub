@@ -3321,6 +3321,45 @@ local keyCardESPToggle = Pressure:AddToggle({
         end
     end
 })
+local autoInteract = false
+
+local function fireAllProximityPrompts()
+    for _, descendant in pairs(workspace:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") then
+            local parentModel = descendant:FindFirstAncestorOfClass("Model")
+            if parentModel and parentModel.Name ~= "MonsterLocker" and parentModel.Name ~= "Locker" then
+                fireproximityprompt(descendant)
+            end
+        end
+    end
+end
+
+local function removeSpecificObjects()
+    for _, descendant in pairs(workspace:GetDescendants()) do
+        if descendant:IsA("Model") and (descendant.Name == "MonsterLocker" or descendant.Name == "Locker" or descendant.Name == "TricksterRoom") then
+            descendant:Destroy()
+        end
+    end
+end
+
+local playerESP = a:AddToggle({
+    Name = "Look aura(水下别用)",
+    Default = false,
+    Callback = function(state)
+        autoInteract = state
+        if autoInteract then
+            while autoInteract do
+                removeSpecificObjects()
+                fireAllProximityPrompts()
+                task.wait(0.25) -- Adjust the wait time as needed
+            end
+        end
+    end
+})
+local c = GUI:CreateSection({
+    Name = "感谢"
+})
+c:AddLabel({ Name = "Lookaura 感谢FHOff" })
 
 local b = GUI:CreateSection({
     Name = "使用提示"
