@@ -3343,7 +3343,7 @@ local function removeSpecificObjects()
 end
 
 local playerESP = a:AddToggle({
-    Name = "Look aura(水下别用)",
+    Name = "Look aura(修电和水下别用)",
     Default = false,
     Callback = function(state)
         autoInteract = state
