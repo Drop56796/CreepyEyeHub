@@ -254,50 +254,15 @@ MainGroup:AddToggle('KillAura', {
     end
 })
 
-local function tpWalk(speed)
-    while true do
-        task.wait()
-        if Humanoid.MoveDirection.Magnitude > 0 then
-            -- Move the player in the direction they are facing, including vertical movement
-            local moveDirection = Humanoid.MoveDirection * speed
-
-            -- Adjust for swimming: add upward movement if the player is in water
-            if Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
-                moveDirection = moveDirection + Vector3.new(0, speed, 0)
-            end
-
-            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
-        end
-    end
-end
-if tpWalkThread then
-            tpWalkThread:Disconnect()
-        end
-
-        -- Start a new tpWalk thread
-        tpWalkThread = coroutine.wrap(function()
-            tpWalk(Value)
-        end)
-        tpWalkThread()
-end
-
 LeftGroupBox:AddSlider('MySlider', {
     Text = 'Speed'
     Default = 1,
     Min = 0,
-    Max = 3,
+    Max = 35,
     Rounding = 1,
     Compact = false,
     Callback = function(Value)
-        if tpWalkThread then
-            tpWalkThread:Disconnect()
-        end
-
-        -- Start a new tpWalk thread
-        tpWalkThread = coroutine.wrap(function()
-            tpWalk(Value)
-        end)
-        tpWalkThread()
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
     end
 })
 
