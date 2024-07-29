@@ -3718,7 +3718,7 @@ local function removeSpecificObjects()
 end
 
 local playerESP = a:AddToggle({
-    Name = "(自动点击物品，或者钱未完善)Look aura(修电和水下别用)",
+    Name = "Look aura(修电和水下别用)",
     Default = false,
     Callback = function(state)
         autoInteract = state
@@ -3731,50 +3731,43 @@ local playerESP = a:AddToggle({
         end
     end
 })
-local deleteBubblesLow = a:AddToggle({
-    Name = "Delete BubblesLow(Bata)",
+
+local runService = game:GetService("RunService")
+
+-- 删除模型的模板函数
+local function deleteModelByName(modelName)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and v.Name == modelName then
+            print("Deleting:", v.Name)
+            v:Destroy()
+        end
+    end
+end
+
+-- 删除多个模型的函数
+local function deleteMultipleModels(modelNames)
+    for _, modelName in ipairs(modelNames) do
+        deleteModelByName(modelName)
+    end
+end
+
+-- 切换功能：删除 BubblesLow 和 EyefestationSpawn 模型
+local deleteModelsToggle = a:AddToggle({
+    Name = "Delete BubblesLow Eyefestation(Bata)",
     Default = false,
     Callback = function(state)
-        local runService = game:GetService("RunService")
         if state then
-            _G.DeleteBubblesLow = runService.Stepped:Connect(function()
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Model") and v.Name == "BubblesLow" then
-                        v:Destroy()
-                    end
-                end
+            _G.DeleteModelsConnection = runService.Stepped:Connect(function()
+                deleteMultipleModels({"BubblesLow", "EyefestationSpawn"})
             end)
         else
-            if _G.DeleteBubblesLow then
-                _G.DeleteBubblesLow:Disconnect()
-                _G.DeleteBubblesLow = nil
+            if _G.DeleteModelsConnection then
+                _G.DeleteModelsConnection:Disconnect()
+                _G.DeleteModelsConnection = nil
             end
         end
     end
 })
-
-local playerESP = a:AddToggle({
-    Name = "Delete Eyefestation(Bata)",
-    Default = false,
-    Callback = function(state)
-        local runService = game:GetService("RunService")
-        if state then
-            _G.DeleteEyefestationSpawn = runService.Stepped:Connect(function()
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Model") and v.Name == "EyefestationSpawn" then
-                        v:Destroy()
-                    end
-                end
-            end)
-        else
-            if _G.DeleteEyefestationSpawn then
-                _G.DeleteEyefestationSpawn:Disconnect()
-                _G.DeleteEyefestationSpawn = nil
-            end
-        end
-    end
-})
-
 
 
 local c = GUI:CreateSection({
