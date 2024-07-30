@@ -255,7 +255,7 @@ MainGroup:AddToggle('KillAura', {
 })
 
 LeftGroupBox:AddSlider('MySlider', {
-    Text = 'Speed'
+    Text = 'Speed',
     Default = 1,
     Min = 0,
     Max = 35,
