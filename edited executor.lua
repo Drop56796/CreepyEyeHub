@@ -223,6 +223,31 @@ iconButton.MouseButton1Click:Connect(function()
     iconButton.Visible = false
 end)
 
+-- 自动补全功能
+local autoCompleteWords = {"function", "local", "end", "if", "then", "else", "elseif", "for", "while", "do", "repeat", "until", "return", "true", "false", "nil"}
+
+local function autoComplete(input)
+    local text = input.Text
+    local words = {}
+    for word in text:gmatch("%S+") do table.insert(words, word) end
+    local lastWord = words[#words]
+
+    if lastWord then
+        for _, keyword in ipairs(autoCompleteWords) do
+            if keyword:sub(1, #lastWord) == lastWord then
+                local startPos = input.CursorPosition - #lastWord
+                input.Text = text:sub(1, startPos - 1) .. keyword .. text:sub(startPos + #lastWord)
+                input.CursorPosition = startPos + #keyword
+                break
+            end
+        end
+    end
+end
+
+inputBox:GetPropertyChangedSignal("Text"):Connect(function()
+    autoComplete(inputBox)
+end)
+
 -- 添加一些示例代码，用于展示print和pcall的使用
 inputBox.Text = [[
 -- print
