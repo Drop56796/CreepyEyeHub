@@ -3734,31 +3734,21 @@ local playerESP = a:AddToggle({
 
 local runService = game:GetService("RunService")
 
--- 删除模型的模板函数
-local function deleteModelByName(modelName)
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and v.Name == modelName then
-            print("Deleting:", v.Name)
-            v:Destroy()
+local function removeSpecificObjects()
+    for _, descendant in pairs(workspace:GetDescendants()) do
+        if descendant:IsA("Model") and (descendant.Name == "BubblesLow" or descendant.Name == "EyefestationSpawn" or descendant.Name == "Electricity" or descendant.Name == "DamagePart") then
+            descendant:Destroy()
         end
     end
 end
 
--- 删除多个模型的函数
-local function deleteMultipleModels(modelNames)
-    for _, modelName in ipairs(modelNames) do
-        deleteModelByName(modelName)
-    end
-end
-
--- 切换功能：删除 BubblesLow 和 EyefestationSpawn 模型
 local deleteModelsToggle = a:AddToggle({
-    Name = "Delete BubblesLow Eyefestation(Bata)",
+    Name = "Delete model(Beta)",
     Default = false,
     Callback = function(state)
         if state then
             _G.DeleteModelsConnection = runService.Stepped:Connect(function()
-                deleteMultipleModels({"BubblesLow", "EyefestationSpawn"})
+                removeSpecificObjects()
             end)
         else
             if _G.DeleteModelsConnection then
@@ -3769,6 +3759,11 @@ local deleteModelsToggle = a:AddToggle({
     end
 })
 
+local ab = GUI:CreateSection({
+    Name = "Delete list"
+})
+ab:AddLabel({ Name = "BubblesLow Eyefestation" })
+ab:AddLabel({ Name = "Electricity Damage Water?" })
 
 local c = GUI:CreateSection({
     Name = "感谢"
@@ -3783,194 +3778,3 @@ b:AddLabel({ Name = "用enity bypass遇实体被传平台不要下平台" })
 b:AddLabel({ Name = "不然你会后悔因为实体消失后会自动传送原位" })
 b:AddLabel({ Name = "如果enity bypass和enity Message一起用" })
 b:AddLabel({ Name = "大概率会先执行enity bypass操作" })
-
-local GUI = GUIWindow:CreateTab({
-    Name = "Granny"
-})
-
-local Granny = GUI:CreateSection({
-    Name = "Part 1"
-})
-
-local grannyPropESPToggle = Granny:AddToggle({
-    Name = "Granny ESP",
-    Default = false,
-    Callback = function(state)
-        if state then
-            _G.grannyPropESPInstances = {}
-            local esptable = {props = {}}
-
-            local function createBillboard(instance, name, color)
-                local bill = Instance.new("BillboardGui", game.CoreGui)
-                bill.AlwaysOnTop = true
-                bill.Size = UDim2.new(0, 100, 0, 50)
-                bill.Adornee = instance
-                bill.MaxDistance = 2000
-
-                local mid = Instance.new("Frame", bill)
-                mid.AnchorPoint = Vector2.new(0.5, 0.5)
-                mid.BackgroundColor3 = color
-                mid.Size = UDim2.new(0, 8, 0, 8)
-                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-                Instance.new("UIStroke", mid)
-
-                local txt = Instance.new("TextLabel", bill)
-                txt.AnchorPoint = Vector2.new(0.5, 0.5)
-                txt.BackgroundTransparency = 1
-                txt.TextColor3 = color
-                txt.Size = UDim2.new(1, 0, 0, 20)
-                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
-                txt.Text = name
-                Instance.new("UIStroke", txt)
-
-                task.spawn(function()
-                    while bill do
-                        if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
-                            bill.Enabled = false
-                            bill.Adornee = nil
-                            bill:Destroy()
-                        end
-                        task.wait()
-                    end
-                end)
-            end
-
-            local function monitorGrannyProp()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "GrannyProp" then
-                        createBillboard(instance, "GrannyProp", Color3.new(255, 0, 0)) -- Change color as needed
-                        table.insert(esptable.props, instance)
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "GrannyProp" then
-                        createBillboard(instance, "GrannyProp", Color3.new(255, 0, 0)) -- Change color as needed
-                        table.insert(esptable.props, instance)
-                    end
-                end)
-            end
-
-            monitorGrannyProp()
-            table.insert(_G.grannyPropESPInstances, esptable)
-                
-        else
-            if _G.grannyPropESPInstances then
-                for _, instance in pairs(_G.grannyPropESPInstances) do
-                    for _, v in pairs(instance.props) do
-                        if v:FindFirstChild("BillboardGui") then
-                            v.BillboardGui:Destroy()
-                        end
-                    end
-                end
-                _G.grannyPropESPInstances = nil
-            end
-        end
-    end
-})
-
-local itemNames = {
-    "Chain cutter", "Pepper spray", "Shotgun", "Remote control", "Book",
-    "A part of a shotgun (3)", "A part of a shotgun (1)", "CrossbowAmmo",
-    "Battery", "Cutting pliers", "Wheel crank", "Master key", "Spider key",
-    "Hammer", "Car key", "Note", "Screwdriver", "Gasoline can", "KeyCard", "Door", "A part of a shotgun (2)"
-}
-
-local itemColors = {
-    ["Chain cutter"] = Color3.new(1, 0, 0),
-    ["Pepper spray"] = Color3.new(0, 1, 0),
-    ["Shotgun"] = Color3.new(0, 0, 1),
-    ["Remote control"] = Color3.new(1, 1, 0),
-    ["Book"] = Color3.new(1, 0, 1),
-    ["A part of a shotgun (3)"] = Color3.new(0, 1, 1), 
-    ["A part of a shotgun (1)"] = Color3.new(0.5, 0.5, 0.5),
-    ["CrossbowAmmo"] = Color3.new(1, 0.5, 0),
-    ["Battery"] = Color3.new(0.5, 0, 1),
-    ["Cutting pliers"] = Color3.new(0.25, 0.75, 0.25),
-    ["Wheel crank"] = Color3.new(0.75, 0.25, 0.25),
-    ["Master key"] = Color3.new(0.25, 0.25, 0.75),
-    ["Spider key"] = Color3.new(0.75, 0.75, 0.25),
-    ["Hammer"] = Color3.new(0.25, 0.75, 0.75),
-    ["Car key"] = Color3.new(0.75, 0.25, 0.75),
-    ["Note"] = Color3.new(0.5, 0.5, 0),
-    ["Screwdriver"] = Color3.new(0, 0.5, 0.5),
-    ["Gasoline can"] = Color3.new(0.5, 0, 0.5),
-    ["KeyCard"] = Color3.new(1, 0.75, 0),
-    ["Door"] = Color3.new(0.75, 0, 1),
-    ["A part of a shotgun (2)"] = Color3.new(10, 0, 1)
-}
-
-local function createBillboard(instance, name, color)
-    local bill = Instance.new("BillboardGui", game.CoreGui)
-    bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 100, 0, 50)
-    bill.Adornee = instance
-    bill.MaxDistance = 2000
-
-    local mid = Instance.new("Frame", bill)
-    mid.AnchorPoint = Vector2.new(0.5, 0.5)
-    mid.BackgroundColor3 = color
-    mid.Size = UDim2.new(0, 8, 0, 8)
-    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-    Instance.new("UIStroke", mid)
-
-    local txt = Instance.new("TextLabel", bill)
-    txt.AnchorPoint = Vector2.new(0.5, 0.5)
-    txt.BackgroundTransparency = 1
-    txt.TextColor3 = color
-    txt.Size = UDim2.new(1, 0, 0, 20)
-    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
-    txt.Text = name
-    Instance.new("UIStroke", txt)
-
-    task.spawn(function()
-        while bill do
-            if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
-                bill.Enabled = false
-                bill.Adornee = nil
-                bill:Destroy()
-            end
-            task.wait()
-        end
-    end)
-end
-
-local function monitorItems()
-    for _, instance in pairs(workspace:GetDescendants()) do
-        if instance:IsA("Model") and itemNames[instance.Name] then
-            createBillboard(instance, instance.Name, itemColors[instance.Name])
-        end
-    end
-
-    workspace.DescendantAdded:Connect(function(instance)
-        if instance:IsA("Model") and itemNames[instance.Name] then
-            createBillboard(instance, instance.Name, itemColors[instance.Name])
-        end
-    end)
-end
-
-local itemsESPToggle = Granny:AddToggle({
-    Name = "Items ESP",
-    Default = false,
-    Callback = function(state)
-        if state then
-            _G.itemsESPInstances = {}
-            local esptable = {items = {}}
-            monitorItems()
-            table.insert(_G.itemsESPInstances, esptable)
-        else
-            if _G.itemsESPInstances then
-                for _, instance in pairs(_G.itemsESPInstances) do
-                    for _, v in pairs(instance.items) do
-                        if v:FindFirstChild("BillboardGui") then
-                            v.BillboardGui:Destroy()
-                        end
-                    end
-                end
-                _G.itemsESPInstances = nil
-            end
-        end
-    end
-})
