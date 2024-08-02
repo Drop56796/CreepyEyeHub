@@ -3802,7 +3802,7 @@ local function fireAllProximityPrompts()
 end
 
 -- 定义玩家的 ESP 切换功能
-local playerESP = a:AddToggle({
+local playerESP = SandBox:AddToggle({
     Name = "Look aura (MulberryBush)",
     Default = false,
     Callback = function(state)
