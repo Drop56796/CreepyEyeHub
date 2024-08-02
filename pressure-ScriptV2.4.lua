@@ -3778,3 +3778,40 @@ b:AddLabel({ Name = "用enity bypass遇实体被传平台不要下平台" })
 b:AddLabel({ Name = "不然你会后悔因为实体消失后会自动传送原位" })
 b:AddLabel({ Name = "如果enity bypass和enity Message一起用" })
 b:AddLabel({ Name = "大概率会先执行enity bypass操作" })
+
+local GUI = GUIWindow:CreateTab({
+    Name = "SandBox"
+})
+
+local SandBox = GUI:CreateSection({
+    Name = "1"
+})
+
+local autoInteract = false
+
+-- 定义一个函数来查找并触发 MulberryBush 的 ProximityPrompt
+local function fireAllProximityPrompts()
+    for _, descendant in pairs(workspace:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") then
+            local parentModel = descendant:FindFirstAncestorOfClass("Model")
+            if parentModel and parentModel.Name == "MulberryBush" then
+                fireproximityprompt(descendant)
+            end
+        end
+    end
+end
+
+-- 定义玩家的 ESP 切换功能
+local playerESP = a:AddToggle({
+    Name = "Look aura (MulberryBush)",
+    Default = false,
+    Callback = function(state)
+        autoInteract = state
+        if autoInteract then
+            while autoInteract do
+                fireAllProximityPrompts()
+                task.wait(0.25) -- 调整等待时间
+            end
+        end
+    end
+})
