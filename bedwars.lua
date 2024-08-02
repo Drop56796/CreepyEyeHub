@@ -254,27 +254,51 @@ MainGroup:AddToggle('KillAura', {
     end
 })
 
-LeftGroupBox:AddSlider('Speed', {
-    Text = 'Speed',
-    Default = 1,
-    Min = 0,
-    Max = 35,
-    Rounding = 1,
-    Compact = false,
-    Callback = function(Value)
+MainGroup:AddSlider('FieldOfView'
+    Text = 'FOV'
+    Default = 70
+    Min = 70
+    Max = 120
+    Rounding = 1
+    Compact = false
+    Callback = function(Value
+        game.Workspace.CurrentCamera.FieldOfView = Value
+    end
+})
+
+MainGroup:AddSlider('WalkSpeed'
+    Text = 'Speed'
+    Default = 0
+    Min = 0
+    Max = 100
+    Rounding = 1
+    Compact = false
+    Callback = function(Value
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
     end
 })
 
-
-LeftGroupBox:AddSlider('FOV', {
-    Text = 'FOV',
-    Default = 0,
-    Min = 0,
-    Max = 120,
-    Rounding = 1,
-    Compact = false,
+MainGroup:AddToggle('Air Jump', {
+    Text = 'Air Jump',
+    Default = false,
+    Tooltip = 'Jump in the air',
     Callback = function(Value)
-        game.Workspace.CurrentCamera.FieldOfView = Value
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        local userInputService = game:GetService("UserInputService")
+
+        if Value then
+            _G.AirJump = userInputService.JumpRequest:Connect(function()
+                if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Seated then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+        else
+            if _G.AirJump then
+                _G.AirJump:Disconnect()
+                _G.AirJump = nil
+            end
+        end
     end
 })
