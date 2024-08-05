@@ -745,65 +745,78 @@ section2:toggle({
     end
 })
 
-local section2 = {} -- Assuming section2 is some library or framework you're using
+-- 自定义通知函数
+local function notifyEntitySpawn(entityName)
+    -- 创建ScreenGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "NotificationGui"
+    screenGui.Parent = game.Players.LocalPlayer.PlayerGui
 
--- Initialization
-local running = false
+    -- 创建通知框
+    local notificationFrame = Instance.new("Frame")
+    notificationFrame.Size = UDim2.new(0, 300, 0, 100)
+    notificationFrame.Position = UDim2.new(0.5, -150, 0, 50)
+    notificationFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    notificationFrame.BackgroundTransparency = 0.5
+    notificationFrame.Parent = screenGui
 
+    -- 创建标题
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 1, 0)
+    titleLabel.Position = UDim2.new(0, 0, 0, 0)
+    titleLabel.Text = entityName .. " is Moving"
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextScaled = true
+    titleLabel.TextStrokeTransparency = 0.5
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Parent = notificationFrame
+
+    -- 自动销毁通知
+    delay(5, function()
+        screenGui:Destroy()
+    end)
+end
+
+-- 检查模型文件是否存在
+local function isModelInWorkspace(modelName)
+    return workspace:FindFirstChild(modelName) ~= nil
+end
+
+-- 需要监听的实体名称
+local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"}
+
+-- 实体生成时的处理函数
+local function onChildAdded(child)
+    if table.find(entityNames, child.Name) then
+        -- 检查模型文件是否存在
+        if isModelInWorkspace(child.Name) then
+            local player = game.Players.LocalPlayer
+            -- 确保实体在视野内
+            repeat
+                task.wait()
+            until player:DistanceFromCharacter(child.Position) < 1000 or not child:IsDescendantOf(workspace)
+
+            if child:IsDescendantOf(workspace) then
+                -- 发出通知
+                notifyEntitySpawn(child.Name)
+            end
+        end
+    end
+end
+
+-- 处理开关状态
 section2:toggle({
-    name = "Entity Message",
+    name = "Entity Notification",
     def = false,
     callback = function(state)
         if state then
-            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium", "Body"} -- Entity names
-            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() -- Lib1
-            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() -- Lib2
-
-            local flags = flags or {} -- Prevent Error
-            local plr = game.Players.LocalPlayer -- Prevent Error2
-
-            local function notifyEntitySpawn(entity)
-                Notification:Notify(
-                    {Title = "Pressure", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
-                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-                    {Image = "http://www.roblox.com/asset/?id=18148044143", ImageColor = Color3.fromRGB(255, 255, 255)}
-                )
-            end
-
-            local function onChildAdded(child)
-                if table.find(entityNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-                    
-                    if child:IsDescendantOf(workspace) then
-                        notifyEntitySpawn(child)
-                    end
-                end
-            end
-
-            -- Start monitoring
-            running = true
-            local connection
-            connection = workspace.ChildAdded:Connect(function(child)
-                if running then
-                    onChildAdded(child)
-                end
-            end)
-
-            -- Stop monitoring when the toggle is turned off
-            while running do
-                task.wait(1) -- Check every second
-                if not section2:GetToggleState("Entity Message") then
-                    running = false
-                    connection:Disconnect()
-                end
-            end
+            -- 开启通知监听
+            _G.NotificationConnection = workspace.ChildAdded:Connect(onChildAdded)
         else
-            -- Stop the notifications if toggle is off
-            running = false
-            if connection then
-                connection:Disconnect()
+            -- 关闭通知监听
+            if _G.NotificationConnection then
+                _G.NotificationConnection:Disconnect()
+                _G.NotificationConnection = nil
             end
         end
     end
