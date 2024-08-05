@@ -429,30 +429,6 @@ section2:slider({
     end
 })
 
-Player.CharacterAdded:Connect(function(character)
-    Character = character
-    HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    Humanoid = character:WaitForChild("Humanoid")
-end)
-
-local Player = game.Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
-local function updateFOV(fov)
-    Camera.FieldOfView = fov
-end
-
--- 创建滑动模块来调整 FOV
-section2:AddSlider({
-    name = "FOV",
-    def = 70,
-    max = 120,
-    min = 70,
-    rounding = true,
-    callback = function(value)
-        updateFOV(Value)
-    end           
-})
 
 section1:toggle({
     name = "Door ESP",
