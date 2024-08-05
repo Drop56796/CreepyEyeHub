@@ -5,12 +5,26 @@
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 
+local Sound = Instance.new("Sound")
+        Sound.Parent = game.SoundService
+        Sound.SoundId = "rbxassetid://4590662766"
+        Sound.Volume = 3
+        Sound.PlayOnRemove = true
+        Sound:Destroy()
+
 Notification:Notify(
     {Title = "Creepy Client V2.4", Description = "Hi "..game.Players.LocalPlayer.Name.." you game id is "..game.GameId.." you executor is "..identifyexecutor""},
     {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 5, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
 wait(3)
+
+local Sound = Instance.new("Sound")
+        Sound.Parent = game.SoundService
+        Sound.SoundId = "rbxassetid://4590662766"
+        Sound.Volume = 3
+        Sound.PlayOnRemove = true
+        Sound:Destroy()
 
 Notification:Notify(
     {Title = "Creepy Client V2.4", Description = "Good bye :D"},
