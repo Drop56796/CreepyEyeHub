@@ -221,7 +221,7 @@ section1:toggle({
                 end)
 	    end
 
-	          local function monitorA()
+	    local function monitorA()
                 for _, instance in pairs(workspace:GetDescendants()) do
                     if instance:IsA("Model") and instance.Name == "Lantern" then
                         createBillboard(instance, "Lantern", Color3.new(99, 99, 99)) 
@@ -249,7 +249,7 @@ section1:toggle({
                 end)
 	    end
 
-	          local function monitorC()
+	    local function monitorC()
                 for _, instance in pairs(workspace:GetDescendants()) do
                     if instance:IsA("Model") and instance.Name == "Gummylight" then
                         createBillboard(instance, "Gummylight", Color3.new(5, 55, 5))
@@ -263,7 +263,7 @@ section1:toggle({
                 end)
 	    end
 
-	          local function monitorD()
+	    local function monitorD()
                 for _, instance in pairs(workspace:GetDescendants()) do
                     if instance:IsA("Model") and instance.Name == "DwellerPiece" then
                         createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
@@ -305,7 +305,7 @@ section1:toggle({
                 end)
 	    end
 
-	          local function monitorG()
+	    local function monitorG()
                 for _, instance in pairs(workspace:GetDescendants()) do
                     if instance:IsA("Model") and instance.Name == "WindupLight" then
                         createBillboard(instance, "WindupLight", Color3.new(85, 100, 66))
