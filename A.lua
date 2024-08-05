@@ -165,106 +165,98 @@ section1:toggle({
         end
     end
 })
-
 section2:toggle({
     name = "Enity Bypass",
     def = false,
     callback = function(state)
-        if state then
-            local entityNames = {"Angler", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"} -- List of entities to monitor
-            local platformHeight = 900 -- Height for the safe platform
-            local platformSize = Vector3.new(1000, 1, 1000) -- Size of the platform
-            local platform -- Variable to hold the created platform
-            local entityTriggerMap = {} -- Map to keep track of which entities triggered the platform
-            local playerOriginalPositions = {} -- Table to store original positions of players
-            local isMonitoring = true
+        local entityNames = {"Angler", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium"}
+        local platformHeight = 900
+        local platformSize = Vector3.new(1000, 1, 1000)
+        local platform
+        local entityTriggerMap = {}
+        local playerOriginalPositions = {}
+        local monitoring = false
+        local addConnection, removeConnection
 
-            -- Function to create or update the safe platform
-            local function createSafePlatform()
-                if platform then
-                    platform:Destroy() -- Remove existing platform if any
-                end
-
-                platform = Instance.new("Part")
-                platform.Size = platformSize
-                platform.Position = Vector3.new(0, platformHeight, 0) -- Center position
-                platform.Anchored = true
-                platform.Parent = workspace
-            end
-
-            -- Function to teleport a player to the safe platform
-            local function teleportPlayerToPlatform(player)
-                if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetPosition = platform.Position + Vector3.new(0, platform.Size.Y / 2 + 5, 0)
-                    playerOriginalPositions[player.UserId] = player.Character.HumanoidRootPart.CFrame -- Store original position
-                    player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
-                end
-            end
-
-            -- Function to teleport a player back to their original position
-            local function teleportPlayerBack(player)
-                if playerOriginalPositions[player.UserId] then
-                    player.Character.HumanoidRootPart.CFrame = playerOriginalPositions[player.UserId]
-                    playerOriginalPositions[player.UserId] = nil -- Clear the stored position
-                end
-            end
-
-            -- Function to handle entity detection
-            local function onChildAdded(child)
-                if table.find(entityNames, child.Name) then
-                    -- Create platform and teleport players when entity is detected
-                    createSafePlatform()
-                    entityTriggerMap[child] = true -- Mark entity as having triggered the platform
-                    for _, player in pairs(game.Players:GetPlayers()) do
-                        teleportPlayerToPlatform(player)
-                    end
-                end
-            end
-
-            -- Function to handle entity removal
-            local function onChildRemoved(child)
-                if entityTriggerMap[child] then
-                    -- Entity was previously responsible for creating the platform
-                    entityTriggerMap[child] = nil -- Remove entity from the map
-                    -- Teleport players back to their original positions
-                    for _, player in pairs(game.Players:GetPlayers()) do
-                        teleportPlayerBack(player)
-                    end
-                end
-            end
-
-            -- Connect the ChildAdded and ChildRemoved events
-            local addConnection = workspace.ChildAdded:Connect(onChildAdded)
-            local removeConnection = workspace.ChildRemoved:Connect(onChildRemoved)
-
-            -- Loop to keep the script running based on the toggle state
-            while isMonitoring do
-                task.wait(1) -- Adjust the wait time as needed
-
-                if not state then
-                    -- Cleanup if defense is turned off
-                    if platform then
-                        -- Keep the platform, but ensure players are teleported back
-                        for _, player in pairs(game.Players:GetPlayers()) do
-                            teleportPlayerBack(player)
-                        end
-                    end
-                    isMonitoring = false
-                    addConnection:Disconnect() -- Disconnect the event listener
-                    removeConnection:Disconnect() -- Disconnect the event listener
-                end
-            end 
-        else
-            -- Cleanup if defense is turned off
+        -- Function to create or update the safe platform
+        local function createSafePlatform()
             if platform then
-                -- Keep the platform, but ensure players are teleported back
+                platform:Destroy()
+            end
+
+            platform = Instance.new("Part")
+            platform.Size = platformSize
+            platform.Position = Vector3.new(0, platformHeight, 0)
+            platform.Anchored = true
+            platform.Parent = workspace
+        end
+
+        -- Function to teleport a player to the safe platform
+        local function teleportPlayerToPlatform(player)
+            if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local targetPosition = platform.Position + Vector3.new(0, platform.Size.Y / 2 + 5, 0)
+                playerOriginalPositions[player.UserId] = player.Character.HumanoidRootPart.CFrame
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+            end
+        end
+
+        -- Function to teleport a player back to their original position
+        local function teleportPlayerBack(player)
+            if playerOriginalPositions[player.UserId] then
+                player.Character.HumanoidRootPart.CFrame = playerOriginalPositions[player.UserId]
+                playerOriginalPositions[player.UserId] = nil
+            end
+        end
+
+        -- Function to handle entity detection
+        local function onChildAdded(child)
+            if table.find(entityNames, child.Name) then
+                createSafePlatform()
+                entityTriggerMap[child] = true
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    teleportPlayerToPlatform(player)
+                end
+            end
+        end
+
+        -- Function to handle entity removal
+        local function onChildRemoved(child)
+            if entityTriggerMap[child] then
+                entityTriggerMap[child] = nil
                 for _, player in pairs(game.Players:GetPlayers()) do
                     teleportPlayerBack(player)
                 end
             end
         end
+
+        -- Start or stop monitoring based on toggle state
+        if state then
+            if not monitoring then
+                monitoring = true
+                addConnection = workspace.ChildAdded:Connect(onChildAdded)
+                removeConnection = workspace.ChildRemoved:Connect(onChildRemoved)
+                
+                -- Initial check for existing entities
+                for _, instance in pairs(workspace:GetDescendants()) do
+                    onChildAdded(instance)
+                end
+            end
+        else
+            if monitoring then
+                monitoring = false
+                if platform then
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        teleportPlayerBack(player)
+                    end
+                    platform:Destroy()
+                end
+                if addConnection then addConnection:Disconnect() end
+                if removeConnection then removeConnection:Disconnect() end
+            end
+        end
     end
 })
+
 section1:toggle({
     name = "Player esp",
     def = false,
