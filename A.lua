@@ -81,7 +81,12 @@ section1:toggle({
                 ["200Currency"] = Color3.new(0, 1, 1),
                 Flashlight = Color3.new(0.1, 0.1, 0.1),
                 Lantern = Color3.new(0.39, 0.39, 0.39),
-                Blacklight = Color3.new(0.02, 0.06, 0.06)
+                Blacklight = Color3.new(0.02, 0.06, 0.06),
+                Gummylight = Color3.new(35, 25, 25),
+                DwellerPiece = Color3.new(2, 6, 0.06),
+                Medkit = Color3.new(0.2, 16, 0.6),
+                WindupLight = Color3.new(0.2, 0.06, 6),
+                Splorglight = Color3.new(12, 6, 56)
             }
 
             local function createBillboard(instance, name, color)
