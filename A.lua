@@ -20,6 +20,7 @@ local section1 = tab:section({
     size = 250
 })
 local autoInteract = false
+local autoInteractConnection
 
 local function fireAllProximityPrompts()
     for _, descendant in pairs(workspace:GetDescendants()) do
@@ -46,10 +47,19 @@ section1:toggle({
     callback = function(state)
         autoInteract = state
         if autoInteract then
-            while autoInteract do
-                removeSpecificObjects()
-                fireAllProximityPrompts()
-                task.wait(0.25) -- Adjust the wait time as needed
+            -- Start the auto-interact process
+            autoInteractConnection = task.spawn(function()
+                while autoInteract do
+                    removeSpecificObjects()
+                    fireAllProximityPrompts()
+                    task.wait(0.25) -- Adjust the wait time as needed
+                end
+            end)
+        else
+            -- Stop the auto-interact process
+            if autoInteractConnection then
+                task.cancel(autoInteractConnection)
+                autoInteractConnection = nil
             end
         end
     end
@@ -193,7 +203,7 @@ section1:toggle({
                 workspace.DescendantAdded:Connect(function(instance)
                     if instance:IsA("Model") and instance.Name == "200Currency" then
                         createBillboard(instance, "200Currency", Color3.new(0, 1, 1))
-		                end
+		    end
                 end)
             end
 
@@ -209,7 +219,7 @@ section1:toggle({
                         createBillboard(instance, "Flashlight", Color3.new(25, 25, 25))
                     end
                 end)
-	          end
+	    end
 
 	          local function monitorA()
                 for _, instance in pairs(workspace:GetDescendants()) do
@@ -237,7 +247,7 @@ section1:toggle({
                         createBillboard(instance, "Blacklight", Color3.new(5, 1, 1))
                     end
                 end)
-	          end
+	    end
 
 	          local function monitorC()
                 for _, instance in pairs(workspace:GetDescendants()) do
@@ -251,7 +261,7 @@ section1:toggle({
                         createBillboard(instance, "Gummylight", Color3.new(5, 55, 5))
                     end
                 end)
-	          end
+	    end
 
 	          local function monitorD()
                 for _, instance in pairs(workspace:GetDescendants()) do
@@ -265,7 +275,7 @@ section1:toggle({
                         createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
                     end
                 end)
-	          end
+	    end
 
             local function monitorE()
                 for _, instance in pairs(workspace:GetDescendants()) do
@@ -293,7 +303,7 @@ section1:toggle({
                         createBillboard(instance, "Splorglight", Color3.new(50, 100, 55))
                     end
                 end)
-	          end
+	    end
 
 	          local function monitorG()
                 for _, instance in pairs(workspace:GetDescendants()) do
