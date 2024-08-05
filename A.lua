@@ -594,56 +594,6 @@ section1:toggle({
     end
 })
 
-section2:toggle({
-    name = "Enity Message",
-    def = false,
-    callback = function(state)
-        if state then
-            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium", "Body"}  --enity
-            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
-            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-
-            -- Ensure flags and plr are defined
-            local flags = flags or {} --Prevent Error
-            local plr = game.Players.LocalPlayer --Prevent Error2
-
-            local function notifyEntitySpawn(entity)
-                Notification:Notify(
-                    {Title = "Pressure", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
-                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-                    {Image = "http://www.roblox.com/asset/?id=18148044143", ImageColor = Color3.fromRGB(255, 255, 255)}
-                )
-            end
-
-            local function onChildAdded(child)
-                if table.find(entityNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-                    
-                    if child:IsDescendantOf(workspace) then
-                        notifyEntitySpawn(child)
-                    end
-                end
-            end
-
-            -- Infinite loop to keep the script running and check for hintrush flag
-            local running = true
-            while running do
-                local connection = workspace.ChildAdded:Connect(onChildAdded)
-                
-                repeat
-                    task.wait(1) -- Adjust the wait time as needed
-                until not flags.hint or not running
-                
-                connection:Disconnect()
-            end 
-        else 
-            -- Close message or any other cleanup if needed
-            running = false
-        end
-    end
-})
 
 section1:toggle({
     name = "Enity ESP",
@@ -790,6 +740,70 @@ section2:toggle({
                 if v:IsA("BasePart") then
                     v.CanCollide = true
                 end
+            end
+        end
+    end
+})
+
+local section2 = {} -- Assuming section2 is some library or framework you're using
+
+-- Initialization
+local running = false
+
+section2:toggle({
+    name = "Entity Message",
+    def = false,
+    callback = function(state)
+        if state then
+            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium", "Body"} -- Entity names
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() -- Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() -- Lib2
+
+            local flags = flags or {} -- Prevent Error
+            local plr = game.Players.LocalPlayer -- Prevent Error2
+
+            local function notifyEntitySpawn(entity)
+                Notification:Notify(
+                    {Title = "Pressure", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=18148044143", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- Start monitoring
+            running = true
+            local connection
+            connection = workspace.ChildAdded:Connect(function(child)
+                if running then
+                    onChildAdded(child)
+                end
+            end)
+
+            -- Stop monitoring when the toggle is turned off
+            while running do
+                task.wait(1) -- Check every second
+                if not section2:GetToggleState("Entity Message") then
+                    running = false
+                    connection:Disconnect()
+                end
+            end
+        else
+            -- Stop the notifications if toggle is off
+            running = false
+            if connection then
+                connection:Disconnect()
             end
         end
     end
