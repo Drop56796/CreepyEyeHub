@@ -70,10 +70,23 @@ section1:toggle({
     def = false,
     callback = function(state)
         if state then
-            _G.nahInstances = {}
-            local esptable = {nah = {}}
+            _G.nahESPInstances = {}
+            local itemTypes = {
+                FlashBeacon = Color3.new(0, 1, 0),
+                CodeBreacher = Color3.new(0, 0, 1),
+                ["25Currency"] = Color3.new(1, 1, 0),
+                ["50Currency"] = Color3.new(1, 0.5, 0),
+                ["15Currency"] = Color3.new(0.5, 0.5, 0.5),
+                ["100Currency"] = Color3.new(1, 0, 1),
+                ["200Currency"] = Color3.new(0, 1, 1),
+                Flashlight = Color3.new(0.1, 0.1, 0.1),
+                Lantern = Color3.new(0.39, 0.39, 0.39),
+                Blacklight = Color3.new(0.02, 0.06, 0.06)
+            }
 
             local function createBillboard(instance, name, color)
+                if not instance or not instance:IsDescendantOf(workspace) then return end
+
                 local bill = Instance.new("BillboardGui", game.CoreGui)
                 bill.AlwaysOnTop = true
                 bill.Size = UDim2.new(0, 100, 0, 50)
@@ -98,257 +111,50 @@ section1:toggle({
                 Instance.new("UIStroke", txt)
 
                 task.spawn(function()
-                    while bill do
-                        if bill.Adornee == nil or not bill.Adornee:IsDescendantOf(workspace) then
-                            bill.Enabled = false
-                            bill.Adornee = nil
+                    while bill and bill.Adornee do
+                        if not bill.Adornee:IsDescendantOf(workspace) then
                             bill:Destroy()
+                            return
                         end
                         task.wait()
                     end
                 end)
             end
 
-            local function monitorFlashBeacon()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "FlashBeacon" then
-                        createBillboard(instance, "FlashBeacon", Color3.new(0, 1, 0))
+            local function monitorItems()
+                for name, color in pairs(itemTypes) do
+                    -- Check existing instances
+                    for _, instance in pairs(workspace:GetDescendants()) do
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
                     end
-                end
 
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "FlashBeacon" then
-                        createBillboard(instance, "FlashBeacon", Color3.new(0, 1, 0))
-                    end
-                end)
+                    -- Monitor for new instances
+                    workspace.DescendantAdded:Connect(function(instance)
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end)
+                end
             end
 
-            local function monitorCodeBreacher()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "CodeBreacher" then
-                        createBillboard(instance, "CodeBreacher", Color3.new(0, 0, 1))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "CodeBreacher" then
-                        createBillboard(instance, "CodeBreacher", Color3.new(0, 0, 1))
-                    end
-                end)
-            end
-
-            local function monitor25Currency()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "25Currency" then
-                        createBillboard(instance, "25Currency", Color3.new(1, 1, 0))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "25Currency" then
-                        createBillboard(instance, "25Currency", Color3.new(1, 1, 0))
-                    end
-                end)
-            end
-
-            local function monitor50Currency()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "50Currency" then
-                        createBillboard(instance, "50Currency", Color3.new(1, 0.5, 0))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "50Currency" then
-                        createBillboard(instance, "50Currency", Color3.new(1, 0.5, 0))
-                    end
-                end)
-            end
-
-            local function monitor15Currency()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "15Currency" then
-                        createBillboard(instance, "15Currency", Color3.new(0.5, 0.5, 0.5))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "15Currency" then
-                        createBillboard(instance, "15Currency", Color3.new(0.5, 0.5, 0.5))
-                    end
-                end)
-            end
-
-            local function monitor100Currency()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "100Currency" then
-                        createBillboard(instance, "100Currency", Color3.new(1, 0, 1))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "100Currency" then
-                        createBillboard(instance, "100Currency", Color3.new(1, 0, 1))
-                    end
-                end)
-            end
-
-            local function monitor200Currency()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "200Currency" then
-                        createBillboard(instance, "200Currency", Color3.new(0, 1, 1))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "200Currency" then
-                        createBillboard(instance, "200Currency", Color3.new(0, 1, 1))
-		    end
-                end)
-            end
-
-            local function monitorFlashlight()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "Flashlight" then
-                        createBillboard(instance, "Flashlight", Color3.new(25, 25, 25))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "Flashlight" then
-                        createBillboard(instance, "Flashlight", Color3.new(25, 25, 25))
-                    end
-                end)
-	    end
-
-	    local function monitorA()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "Lantern" then
-                        createBillboard(instance, "Lantern", Color3.new(99, 99, 99)) 
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "Lantern" then
-                        createBillboard(instance, "Lantern", Color3.new(99, 99, 99))
-                    end
-                end)
-            end
-
-            local function monitorB()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "Blacklight" then
-                        createBillboard(instance, "Blacklight", Color3.new(5, 1, 1))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "Blacklight" then
-                        createBillboard(instance, "Blacklight", Color3.new(5, 1, 1))
-                    end
-                end)
-	    end
-
-	    local function monitorC()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "Gummylight" then
-                        createBillboard(instance, "Gummylight", Color3.new(5, 55, 5))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "Gummylight" then
-                        createBillboard(instance, "Gummylight", Color3.new(5, 55, 5))
-                    end
-                end)
-	    end
-
-	    local function monitorD()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "DwellerPiece" then
-                        createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "DwellerPiece" then 
-                        createBillboard(instance, "DwellerPiece", Color3.new(50, 10, 25))
-                    end
-                end)
-	    end
-
-            local function monitorE()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "Medkit" then
-                        createBillboard(instance, "Medkit", Color3.new(80, 75, 235))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "Medkit" then 
-                        createBillboard(instance, "Medkit", Color3.new(80, 75, 235))
-                    end
-                end)
-            end
-
-            local function monitorF()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "Splorglight" then
-                        createBillboard(instance, "Splorglight", Color3.new(50, 100, 55))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "Splorglight" then 
-                        createBillboard(instance, "Splorglight", Color3.new(50, 100, 55))
-                    end
-                end)
-	    end
-
-	    local function monitorG()
-                for _, instance in pairs(workspace:GetDescendants()) do
-                    if instance:IsA("Model") and instance.Name == "WindupLight" then
-                        createBillboard(instance, "WindupLight", Color3.new(85, 100, 66))
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(instance)
-                    if instance:IsA("Model") and instance.Name == "WindupLight" then 
-                        createBillboard(instance, "WindupLight", Color3.new(85, 100, 66))
-                    end
-                end)
-            end
-
-            monitorFlashBeacon()
-            monitorCodeBreacher()
-            monitor25Currency()
-            monitor50Currency()
-            monitor15Currency()
-            monitor100Currency()
-            monitor200Currency()
-	    monitorFlashlight()
-            monitorA()
-            monitorB()
-	    monitorC()
-	    monitorD()
-	    monitorE()
-	    monitorF()
-	    monitorG()
+            monitorItems()
 
             table.insert(_G.nahESPInstances, esptable)
-                
         else
-            if _G.nahInstances then
+            if _G.nahESPInstances then
                 for _, instance in pairs(_G.nahESPInstances) do
                     for _, v in pairs(instance.nah) do
                         v.delete()
                     end
                 end
-                _G.nahInstances = nil
+                _G.nahESPInstances = nil
             end
         end
     end
 })
+
 section1:toggle({
     name = "Player esp",
     def = false,
