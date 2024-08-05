@@ -386,15 +386,435 @@ function playerEsp()
     end
 end
 
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
+local tpWalkThread
+
+local function tpWalk(speed)
+    while true do
+        task.wait()
+        if Humanoid.MoveDirection.Magnitude > 0 then
+            -- Move the player in the direction they are facing, including vertical movement
+            local moveDirection = Humanoid.MoveDirection * speed
+
+            -- Adjust for swimming: add upward movement if the player is in water
+            if Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
+                moveDirection = moveDirection + Vector3.new(0, speed, 0)
+            end
+
+            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
+        end
+    end
+end
 
 -- Add a slider to the section
-section1:slider({
-    name = "Slider Example",
+section2:slider({
+    name = "speed",
     def = 1,
-    max = 100,
+    max = 3,
     min = 1,
     rounding = true,
     callback = function(value)
-        print("Slider value is", value)
+        if tpWalkThread then
+            tpWalkThread:Disconnect()
+        end
+
+        -- Start a new tpWalk thread
+        tpWalkThread = coroutine.wrap(function()
+            tpWalk(value)
+        end)
+        tpWalkThread()
+    end
+})
+
+Player.CharacterAdded:Connect(function(character)
+    Character = character
+    HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    Humanoid = character:WaitForChild("Humanoid")
+end)
+
+local Player = game.Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local function updateFOV(fov)
+    Camera.FieldOfView = fov
+end
+
+-- 创建滑动模块来调整 FOV
+section2:AddSlider({
+    name = "FOV",
+    def = 70,
+    max = 120,
+    min = 70,
+    rounding = true,
+    callback = function(value)
+        updateFOV(Value)
+    end           
+})
+
+section1:toggle({
+    name = "Door ESP",
+    def = false,
+    callback = function(state)
+        if state then
+            _G.doorInstances = {}
+            local door = {
+                BigRoomDoor = Color3.new(11, 45, 14),
+                NormalDoor  = Color3.new(91, 78, 91)
+            }
+
+            local function createBillboard(instance, name, color)
+                if not instance or not instance:IsDescendantOf(workspace) then return end
+
+                local bill = Instance.new("BillboardGui", game.CoreGui)
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(0, 100, 0, 50)
+                bill.Adornee = instance
+                bill.MaxDistance = 2000
+
+                local mid = Instance.new("Frame", bill)
+                mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                mid.BackgroundColor3 = color
+                mid.Size = UDim2.new(0, 8, 0, 8)
+                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                Instance.new("UIStroke", mid)
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                txt.BackgroundTransparency = 1
+                txt.TextColor3 = color
+                txt.Size = UDim2.new(1, 0, 0, 20)
+                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                txt.Text = name
+                Instance.new("UIStroke", txt)
+
+                task.spawn(function()
+                    while bill and bill.Adornee do
+                        if not bill.Adornee:IsDescendantOf(workspace) then
+                            bill:Destroy()
+                            return
+                        end
+                        task.wait()
+                    end
+                end)
+            end
+
+            local function monitordoor()
+                for name, color in pairs(door) do
+                    -- Check existing instances
+                    for _, instance in pairs(workspace:GetDescendants()) do
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end
+
+                    -- Monitor for new instances
+                    workspace.DescendantAdded:Connect(function(instance)
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end)
+                end
+            end
+
+            monitordoor()
+
+            table.insert(_G.doorInstances, esptable)
+        else
+            if _G.doorInstances then
+                for _, instance in pairs(_G.doorInstances) do
+                    for _, v in pairs(instance.door) do
+                        v.delete()
+                    end
+                end
+                _G.dooeInstances = nil
+            end
+        end
+    end
+})
+
+section1:toggle({
+    name = "Key ESP",
+    def = false,
+    callback = function(state)
+        if state then
+            _G.KInstances = {}
+            local K = {
+                InnerKeyCard = Color3.new(11, 45, 14),
+                NormalKeyCard  = Color3.new(91, 78, 91)
+            }
+
+            local function createBillboard(instance, name, color)
+                if not instance or not instance:IsDescendantOf(workspace) then return end
+
+                local bill = Instance.new("BillboardGui", game.CoreGui)
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(0, 100, 0, 50)
+                bill.Adornee = instance
+                bill.MaxDistance = 2000
+
+                local mid = Instance.new("Frame", bill)
+                mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                mid.BackgroundColor3 = color
+                mid.Size = UDim2.new(0, 8, 0, 8)
+                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                Instance.new("UIStroke", mid)
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                txt.BackgroundTransparency = 1
+                txt.TextColor3 = color
+                txt.Size = UDim2.new(1, 0, 0, 20)
+                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                txt.Text = name
+                Instance.new("UIStroke", txt)
+
+                task.spawn(function()
+                    while bill and bill.Adornee do
+                        if not bill.Adornee:IsDescendantOf(workspace) then
+                            bill:Destroy()
+                            return
+                        end
+                        task.wait()
+                    end
+                end)
+            end
+
+            local function monitorK()
+                for name, color in pairs(K) do
+                    -- Check existing instances
+                    for _, instance in pairs(workspace:GetDescendants()) do
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end
+
+                    -- Monitor for new instances
+                    workspace.DescendantAdded:Connect(function(instance)
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end)
+                end
+            end
+
+            monitorK()
+
+            table.insert(_G.KInstances, esptable)
+        else
+            if _G.KInstances then
+                for _, instance in pairs(_G.KInstances) do
+                    for _, v in pairs(instance.K) do
+                        v.delete()
+                    end
+                end
+                _G.KInstances = nil
+            end
+        end
+    end
+})
+
+section2:toggle({
+    name = "Enity Message",
+    def = false,
+    callback = function(state)
+        if state then
+            local entityNames = {"Angler", "Eyefestation", "Blitz", "Pinkie", "Froger", "Chainsmoker", "Pandemonium", "Body"}  --enity
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+
+            -- Ensure flags and plr are defined
+            local flags = flags or {} --Prevent Error
+            local plr = game.Players.LocalPlayer --Prevent Error2
+
+            local function notifyEntitySpawn(entity)
+                Notification:Notify(
+                    {Title = "Pressure", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=18148044143", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- Infinite loop to keep the script running and check for hintrush flag
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- Adjust the wait time as needed
+                until not flags.hint or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- Close message or any other cleanup if needed
+            running = false
+        end
+    end
+})
+
+section1:toggle({
+    name = "Enity ESP",
+    def = false,
+    callback = function(state)
+        if state then
+            _G.EnityInstances = {}
+            local Enity = {
+                Angler = Color3.new(11, 45, 14),
+                Eyefestation = Color3.new(91, 78, 91),
+                Blitz = Color3.new(91, 78, 91),
+                Pinkie = Color3.new(91, 78, 91),
+                Froger = Color3.new(91, 78, 91),
+                Chainsmoker = Color3.new(91, 78, 91),
+                Pandemonium = Color3.new(91, 78, 91),
+                Body = Color3.new(91, 78, 91)
+            }
+
+            local function createBillboard(instance, name, color)
+                if not instance or not instance:IsDescendantOf(workspace) then return end
+
+                local bill = Instance.new("BillboardGui", game.CoreGui)
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(0, 100, 0, 50)
+                bill.Adornee = instance
+                bill.MaxDistance = 2000
+
+                local mid = Instance.new("Frame", bill)
+                mid.AnchorPoint = Vector2.new(0.5, 0.5)
+                mid.BackgroundColor3 = color
+                mid.Size = UDim2.new(0, 8, 0, 8)
+                mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+                Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+                Instance.new("UIStroke", mid)
+
+                local txt = Instance.new("TextLabel", bill)
+                txt.AnchorPoint = Vector2.new(0.5, 0.5)
+                txt.BackgroundTransparency = 1
+                txt.TextColor3 = color
+                txt.Size = UDim2.new(1, 0, 0, 20)
+                txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+                txt.Text = name
+                Instance.new("UIStroke", txt)
+
+                task.spawn(function()
+                    while bill and bill.Adornee do
+                        if not bill.Adornee:IsDescendantOf(workspace) then
+                            bill:Destroy()
+                            return
+                        end
+                        task.wait()
+                    end
+                end)
+            end
+
+            local function monitorEnity()
+                for name, color in pairs(Enity) do
+                    -- Check existing instances
+                    for _, instance in pairs(workspace:GetDescendants()) do
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end
+
+                    -- Monitor for new instances
+                    workspace.DescendantAdded:Connect(function(instance)
+                        if instance:IsA("Model") and instance.Name == name then
+                            createBillboard(instance, name, color)
+                        end
+                    end)
+                end
+            end
+
+            monitorEnity()
+
+            table.insert(_G.EnityInstances, esptable)
+        else
+            if _G.EnityInstances then
+                for _, instance in pairs(_G.EnityInstances) do
+                    for _, v in pairs(instance.Enity) do
+                        v.delete()
+                    end
+                end
+                _G.EnityInstances = nil
+            end
+        end
+    end
+})
+
+section2:toggle({
+    name = "FullBright",
+    def = false,
+    callback = function(state)
+        local Light = game:GetService("Lighting")
+
+        local function dofullbright()
+            Light.Ambient = Color3.new(1, 1, 1)
+            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
+            Light.ColorShift_Top = Color3.new(1, 1, 1)
+        end
+
+        local function resetLighting()
+            Light.Ambient = Color3.new(0, 0, 0)
+            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Light.ColorShift_Top = Color3.new(0, 0, 0)
+        end
+
+        if state then
+            _G.fullBrightEnabled = true
+            task.spawn(function()
+                while _G.fullBrightEnabled do
+                    dofullbright()
+                    task.wait(0)  -- 每秒检查一次
+                end
+            end)
+        else
+            _G.fullBrightEnabled = false
+            resetLighting()
+        end
+    end
+})
+
+section2:toggle({
+    name = "No Cilp",
+    def = false,
+    callback = function(state)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        if state then
+            _G.NoClip = runService.Stepped:Connect(function()
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end)
+        else
+            if _G.NoClip then
+                _G.NoClip:Disconnect()
+                _G.NoClip = nil
+            end
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+        end
     end
 })
