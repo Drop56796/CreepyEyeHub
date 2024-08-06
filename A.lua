@@ -827,8 +827,8 @@ section1:toggle({
     def = false,
     callback = function(state)
         if state then
-            _G.vInstances = {}
-            local v = {
+            _G.ABCDInstances = {}
+            local ABCD = {
                 MonsterLocker = Color3.new(91, 91, 91),
                 TricksterRoom = Color3.new(78, 78, 78)
             }
@@ -870,8 +870,8 @@ section1:toggle({
                 end)
             end
 
-            local function monitorv()
-                for name, color in pairs(v) do
+            local function monitorABCD()
+                for name, color in pairs(ABCD) do
                     -- Check existing instances
                     for _, instance in pairs(workspace:GetDescendants()) do
                         if instance:IsA("Model") and instance.Name == name then
@@ -888,17 +888,17 @@ section1:toggle({
                 end
             end
 
-            monitorv()
+            monitorABCD()
 
-            table.insert(_G.vInstances, esptable)
+            table.insert(_G.ABCDInstances, esptable)
         else
-            if _G.vInstances then
-                for _, instance in pairs(_G.vInstances) do
-                    for _, v in pairs(instance.v) do
+            if _G.ABCDInstances then
+                for _, instance in pairs(_G.ABCDInstances) do
+                    for _, v in pairs(instance.ABCD) do
                         v.delete()
                     end
                 end
-                _G.vInstances = nil
+                _G.ABCDInstances = nil
             end
         end
     end
@@ -909,8 +909,8 @@ section1:toggle({
     def = false,
     callback = function(state)
         if state then
-            _G.1Instances = {}
-            local la = {
+            _G.ABCInstances = {}
+            local ABC = {
                 ItemLocker = Color3.new(76, 77, 78),
                 EncounterGenerator = Color3.new(89, 90, 91)
             }
@@ -952,8 +952,8 @@ section1:toggle({
                 end)
             end
 
-            local function monitor1()
-                for name, color in pairs(la) do
+            local function monitorABC()
+                for name, color in pairs(ABC) do
                     -- Check existing instances
                     for _, instance in pairs(workspace:GetDescendants()) do
                         if instance:IsA("Model") and instance.Name == name then
@@ -970,17 +970,17 @@ section1:toggle({
                 end
             end
 
-            monitor1()
+            monitorABC()
 
-            table.insert(_G.1Instances, esptable)
+            table.insert(_G.ABCInstances, esptable)
         else
-            if _G.1Instances then
-                for _, instance in pairs(_G.1Instances) do
-                    for _, v in pairs(instance.1) do
+            if _G.ABCInstances then
+                for _, instance in pairs(_G.ABCInstances) do
+                    for _, v in pairs(instance.ABC) do
                         v.delete()
                     end
                 end
-                _G.1Instances = nil
+                _G.ABCInstances = nil
             end
         end
     end
