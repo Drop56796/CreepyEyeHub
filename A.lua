@@ -985,3 +985,63 @@ section1:toggle({
         end
     end
 })
+
+-- 获取玩家服务
+local Players = game:GetService("Players")
+
+-- 定义平台的初始大小
+local platformSize = Vector3.new(1000, 1, 1000) -- 宽度、高度、长度
+
+-- 创建平台函数
+local function createPlatform(player)
+    local character = player.Character
+    if character then
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            -- 创建平台
+            local platform = Instance.new("Part")
+            platform.Size = platformSize
+            platform.Anchored = true
+            platform.Transparency = 1 -- 设置为不可见
+            platform.CanCollide = true
+            platform.Parent = workspace
+
+            -- 更新平台位置
+            local function updatePlatform()
+                platform.Position = rootPart.Position - Vector3.new(0, rootPart.Size.Y / 2 + platform.Size.Y / 2, 0)
+            end
+
+            -- 连接更新函数到玩家移动事件
+            rootPart:GetPropertyChangedSignal("Position"):Connect(updatePlatform)
+            updatePlatform()
+        end
+    end
+end
+
+-- 监听玩家加入事件
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        createPlatform(player)
+    end)
+end)
+
+-- 假设你已经有一个名为section1的部分
+section2:toggle({
+    name = "Create Platform(with speed)",
+    def = false,
+    callback = function(state)
+        if state then
+            Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function()
+                    createPlatform(player)
+                end)
+            end)
+        else
+            for _, platform in pairs(workspace:GetChildren()) do
+                if platform:IsA("Part") and platform.Transparency == 1 then
+                    platform:Destroy()
+                end
+            end
+        end
+    end
+})
