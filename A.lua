@@ -948,30 +948,34 @@ local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Humanoid = Character:WaitForChild("Humanoid")
 local tpWalkThread
 
-local function tpWalk(speed)
+local function tpWalk(speedMultiplier)
     while true do
         task.wait()
         if Humanoid.MoveDirection.Magnitude > 0 then
+            -- Use the character's walk speed as the base speed
+            local baseSpeed = Humanoid.WalkSpeed
+            
             -- Move the player in the direction they are facing, ignoring crouch speed
-            local moveDirection = Humanoid.MoveDirection.Unit * speed
+            local moveDirection = Humanoid.MoveDirection.Unit * baseSpeed * speedMultiplier
             
             -- Adjust for swimming: add upward movement if the player is in water
             if Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
-                moveDirection = moveDirection + Vector3.new(0, speed, 0)
+                moveDirection = moveDirection + Vector3.new(0, baseSpeed * speedMultiplier, 0)
             end
             
-            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
+            -- Update the HumanoidRootPart's position
+            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + CFrame.new(moveDirection).Position
         end
     end
 end
 
-local function startTpWalk(speed)
+local function startTpWalk(speedMultiplier)
     if tpWalkThread then
         tpWalkThread = nil
     end
 
     tpWalkThread = coroutine.create(function()
-        tpWalk(speed)
+        tpWalk(speedMultiplier)
     end)
     coroutine.resume(tpWalkThread)
 end
@@ -980,7 +984,7 @@ end
 section2:slider({
     name = "speed",
     def = 1,
-    max = 100,
+    max = 20,
     min = 1,
     rounding = true,
     callback = function(value)
