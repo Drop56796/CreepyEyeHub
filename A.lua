@@ -386,50 +386,6 @@ function playerEsp()
     end
 end
 
-local Player = game.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-local Humanoid = Character:WaitForChild("Humanoid")
-local tpWalkThread
-
-local function tpWalk(speed)
-    while true do
-        task.wait()
-        if Humanoid.MoveDirection.Magnitude > 0 then
-            -- Move the player in the direction they are facing, including vertical movement
-            local moveDirection = Humanoid.MoveDirection * speed
-
-            -- Adjust for swimming: add upward movement if the player is in water
-            if Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
-                moveDirection = moveDirection + Vector3.new(0, speed, 0)
-            end
-
-            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
-        end
-    end
-end
-
--- Add a slider to the section
-section2:slider({
-    name = "speed",
-    def = 1,
-    max = 3,
-    min = 1,
-    rounding = true,
-    callback = function(value)
-        if tpWalkThread then
-            tpWalkThread:Disconnect()
-        end
-
-        -- Start a new tpWalk thread
-        tpWalkThread = coroutine.wrap(function()
-            tpWalk(value)
-        end)
-        tpWalkThread()
-    end
-})
-
-
 section1:toggle({
     name = "Door ESP",
     def = false,
@@ -983,5 +939,51 @@ section1:toggle({
                 _G.ABCInstances = nil
             end
         end
+    end
+})
+
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
+local tpWalkThread
+
+local function tpWalk(speed)
+    while true do
+        task.wait()
+        if Humanoid.MoveDirection.Magnitude > 0 then
+            -- Move the player in the direction they are facing, ignoring crouch speed
+            local moveDirection = Humanoid.MoveDirection.Unit * speed
+            
+            -- Adjust for swimming: add upward movement if the player is in water
+            if Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
+                moveDirection = moveDirection + Vector3.new(0, speed, 0)
+            end
+            
+            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + moveDirection
+        end
+    end
+end
+
+local function startTpWalk(speed)
+    if tpWalkThread then
+        tpWalkThread = nil
+    end
+
+    tpWalkThread = coroutine.create(function()
+        tpWalk(speed)
+    end)
+    coroutine.resume(tpWalkThread)
+end
+
+-- Add a slider to the section
+section2:slider({
+    name = "speed",
+    def = 1,
+    max = 100,
+    min = 1,
+    rounding = true,
+    callback = function(value)
+        startTpWalk(value)
     end
 })
