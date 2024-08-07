@@ -4,7 +4,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/blood
 local window = library:new({
     textsize = 15,
     font = Enum.Font.Jura,
-    name = "Pressure",
+    name = "AX Pressure",
     color = Color3.fromRGB(225, 255, 255)
 })
 
@@ -15,13 +15,13 @@ local tab = window:page({
 
 -- Create a section in the tab
 local section1 = tab:section({
-    name = "ESP",
+    name = "esp",
     side = "left",
     size = 250
 })
 
 local section2 = tab:section({
-    name = "Functional Class",
+    name = "Function Class",
     side = "right",
     size = 250
 })
