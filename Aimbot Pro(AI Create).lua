@@ -50,8 +50,8 @@ aimCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 
 -- 创建目标信息框
 local targetInfoFrame = Instance.new("Frame", screenGui)
-targetInfoFrame.Size = UDim2.new(0, 250, 0, 150)
-targetInfoFrame.Position = UDim2.new(0.5, -275, 0.5, -175)
+targetInfoFrame.Size = UDim2.new(0, 350, 0, 100)
+targetInfoFrame.Position = UDim2.new(0.5, -450, 0.5, -175)
 targetInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 targetInfoFrame.BackgroundTransparency = 0.5
 targetInfoFrame.BorderSizePixel = 2
@@ -76,13 +76,13 @@ targetDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 targetDetailsLabel.BackgroundTransparency = 0.5
 targetDetailsLabel.BorderSizePixel = 0
 targetDetailsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-targetDetailsLabel.Font = Enum.Font.SourceSansBold
+targetDetailsLabel.Font = Enum.Font.Code
 targetDetailsLabel.TextStrokeTransparency = 0.8
 
 -- 创建玩家自身信息框
 local playerInfoFrame = Instance.new("Frame", screenGui)
-playerInfoFrame.Size = UDim2.new(0, 250, 0, 150)
-playerInfoFrame.Position = UDim2.new(0.5, -275, 0.5, 0)
+playerInfoFrame.Size = UDim2.new(0, 350, 0, 100)
+playerInfoFrame.Position = UDim2.new(0.5, -450, 0.5, -50)
 playerInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 playerInfoFrame.BackgroundTransparency = 0.5
 playerInfoFrame.BorderSizePixel = 2
@@ -107,7 +107,7 @@ playerDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 playerDetailsLabel.BackgroundTransparency = 0.5
 playerDetailsLabel.BorderSizePixel = 0
 playerDetailsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-playerDetailsLabel.Font = Enum.Font.SourceSansBold
+playerDetailsLabel.Font = Enum.Font.Code
 playerDetailsLabel.TextStrokeTransparency = 0.8
 
 -- 查找最近的目标头部
