@@ -50,8 +50,8 @@ aimCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 
 -- 显示目标玩家信息的框
 local targetInfoFrame = Instance.new("Frame", screenGui)
-targetInfoFrame.Size = UDim2.new(0.5, -450, 0.5, -175)
-targetInfoFrame.Position = UDim2.new(0, 350, 0, 100)
+targetInfoFrame.Size = UDim2.new(0, 350, 0, 100)
+targetInfoFrame.Position = UDim2.new(0.5, -450, 0.5, -175)
 targetInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 targetInfoFrame.BackgroundTransparency = 0.5
 targetInfoFrame.BorderSizePixel = 2
@@ -91,8 +91,8 @@ targetDetailsLabel.TextStrokeTransparency = 0.8
 
 -- 显示玩家自身详细信息的标签
 local playerDetailsLabel = Instance.new("TextLabel", screenGui)
-playerDetailsLabel.Size = UDim2.new(0.5, -450, 0.5, -50)
-playerDetailsLabel.Position = UDim2.new(0, 350, 0, 100)
+playerDetailsLabel.Size = UDim2.new(0, 350, 0, 100)
+playerDetailsLabel.Position = UDim2.new(0.5, -450, 0.5, -50)
 playerDetailsLabel.Text = "Player Info: N/A"
 playerDetailsLabel.TextWrapped = true
 playerDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
