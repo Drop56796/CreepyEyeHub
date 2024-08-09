@@ -18,6 +18,8 @@ local toggleAimbotButton = Instance.new("TextButton", screenGui)
 toggleAimbotButton.Size = UDim2.new(0, 150, 0, 50)
 toggleAimbotButton.Position = UDim2.new(0, 20, 0.5, -150)
 toggleAimbotButton.Text = "Toggle Aimbot"
+toggleAimbotButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleAimbotButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 
 toggleAimbotButton.MouseButton1Click:Connect(function()
     aimbotEnabled = not aimbotEnabled
@@ -29,56 +31,84 @@ local toggleColorCheckButton = Instance.new("TextButton", screenGui)
 toggleColorCheckButton.Size = UDim2.new(0, 150, 0, 50)
 toggleColorCheckButton.Position = UDim2.new(0, 20, 0.5, -90)
 toggleColorCheckButton.Text = "Color Check"
+toggleColorCheckButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleColorCheckButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 
 toggleColorCheckButton.MouseButton1Click:Connect(function()
     colorCheckEnabled = not colorCheckEnabled
     toggleColorCheckButton.Text = colorCheckEnabled and "Color Check ON" or "Color Check OFF"
 end)
 
--- 显示目标玩家名字和头像的按钮
-local targetInfoButton = Instance.new("TextButton", screenGui)
-targetInfoButton.Size = UDim2.new(0, 200, 0, 100)
-targetInfoButton.Position = UDim2.new(0, 20, 0.5, -20)
-targetInfoButton.Text = "No Target"
-targetInfoButton.TextWrapped = true
-targetInfoButton.TextYAlignment = Enum.TextYAlignment.Top
-targetInfoButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 文字颜色
-targetInfoButton.BackgroundTransparency = 1
-
--- 显示目标玩家头像的ImageLabel
-local targetImage = Instance.new("ImageLabel", targetInfoButton)
-targetImage.Size = UDim2.new(0, 50, 0, 50)
-targetImage.Position = UDim2.new(0.5, -25, 0.5, 0)
-targetImage.BackgroundTransparency = 1
-
--- 显示目标玩家详细信息的标签
-local targetDetailsLabel = Instance.new("TextLabel", screenGui)
-targetDetailsLabel.Size = UDim2.new(0, 200, 0, 150)
-targetDetailsLabel.Position = UDim2.new(0, 20, 0.5, 90)
-targetDetailsLabel.Text = "Target Info: N/A"
-targetDetailsLabel.TextWrapped = true
-targetDetailsLabel.BackgroundTransparency = 1
-targetDetailsLabel.TextColor3 = Color3.fromRGB(1, 1, 1)  -- 文字颜色
-targetDetailsLabel.Font = Enum.Font.SourceSansBold  -- 字体
-
--- 显示玩家自身详细信息的标签
-local playerDetailsLabel = Instance.new("TextLabel", screenGui)
-playerDetailsLabel.Size = UDim2.new(0, 200, 0, 150)
-playerDetailsLabel.Position = UDim2.new(0, 230, 0.5, 90)  -- 右侧放置
-playerDetailsLabel.Text = "Player Info: N/A"
-playerDetailsLabel.TextWrapped = true
-playerDetailsLabel.BackgroundTransparency = 1
-playerDetailsLabel.TextColor3 = Color3.fromRGB(1, 1, 1)  -- 文字颜色
-playerDetailsLabel.Font = Enum.Font.SourceSansBold  -- 字体
-
 -- 创建中空的圆框
-local aimCircle = Instance.new("ImageLabel", screenGui)
+local aimCircle = Instance.new("Frame", screenGui)
 aimCircle.Size = UDim2.new(0, 200, 0, 200)
 aimCircle.Position = UDim2.new(0.5, -100, 0.5, -100)
 aimCircle.BackgroundTransparency = 1
-aimCircle.Image = "rbxassetid://6034978103"  -- 这是一个圆形图像的AssetId
-aimCircle.ImageColor3 = Color3.fromRGB(255, 255, 255)
-aimCircle.ImageTransparency = 0.5
+aimCircle.BorderSizePixel = 3
+aimCircle.BorderColor3 = Color3.fromRGB(255, 255, 255)
+aimCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+
+-- 创建目标信息框
+local targetInfoFrame = Instance.new("Frame", screenGui)
+targetInfoFrame.Size = UDim2.new(0, 250, 0, 150)
+targetInfoFrame.Position = UDim2.new(0.5, -275, 0.5, -175)
+targetInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+targetInfoFrame.BackgroundTransparency = 0.5
+targetInfoFrame.BorderSizePixel = 2
+targetInfoFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+
+-- 显示目标玩家头像
+local targetImageLabel = Instance.new("ImageLabel", targetInfoFrame)
+targetImageLabel.Size = UDim2.new(0, 80, 0, 80)
+targetImageLabel.Position = UDim2.new(0, 10, 0.5, -40)
+targetImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+targetImageLabel.BackgroundTransparency = 1
+targetImageLabel.Image = ""  -- 目标玩家头像图片链接
+
+-- 显示目标玩家详细信息
+local targetDetailsLabel = Instance.new("TextLabel", targetInfoFrame)
+targetDetailsLabel.Size = UDim2.new(1, -100, 1, -10)
+targetDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
+targetDetailsLabel.Text = "Target Info: N/A"
+targetDetailsLabel.TextWrapped = true
+targetDetailsLabel.TextScaled = true
+targetDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+targetDetailsLabel.BackgroundTransparency = 0.5
+targetDetailsLabel.BorderSizePixel = 0
+targetDetailsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+targetDetailsLabel.Font = Enum.Font.SourceSansBold
+targetDetailsLabel.TextStrokeTransparency = 0.8
+
+-- 创建玩家自身信息框
+local playerInfoFrame = Instance.new("Frame", screenGui)
+playerInfoFrame.Size = UDim2.new(0, 250, 0, 150)
+playerInfoFrame.Position = UDim2.new(0.5, -275, 0.5, 0)
+playerInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+playerInfoFrame.BackgroundTransparency = 0.5
+playerInfoFrame.BorderSizePixel = 2
+playerInfoFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+
+-- 显示玩家当前手持物品图标
+local playerToolImage = Instance.new("ImageLabel", playerInfoFrame)
+playerToolImage.Size = UDim2.new(0, 80, 0, 80)
+playerToolImage.Position = UDim2.new(0, 10, 0.5, -40)
+playerToolImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+playerToolImage.BackgroundTransparency = 1
+playerToolImage.Image = ""  -- 玩家当前手持物品的图标链接
+
+-- 显示玩家详细信息
+local playerDetailsLabel = Instance.new("TextLabel", playerInfoFrame)
+playerDetailsLabel.Size = UDim2.new(1, -100, 1, -10)
+playerDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
+playerDetailsLabel.Text = "Player Info: N/A"
+playerDetailsLabel.TextWrapped = true
+playerDetailsLabel.TextScaled = true
+playerDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+playerDetailsLabel.BackgroundTransparency = 0.5
+playerDetailsLabel.BorderSizePixel = 0
+playerDetailsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerDetailsLabel.Font = Enum.Font.SourceSansBold
+playerDetailsLabel.TextStrokeTransparency = 0.8
 
 -- 查找最近的目标头部
 local function findNearestTargetHead()
@@ -91,11 +121,6 @@ local function findNearestTargetHead()
             -- 检查目标玩家是否活着
             local humanoid = otherPlayer.Character:FindFirstChild("Humanoid")
             if not humanoid or humanoid.Health <= 0 then
-                continue
-            end
-
-            -- 检查颜色队伍
-            if colorCheckEnabled and otherPlayer.TeamColor == player.TeamColor then
                 continue
             end
 
@@ -156,10 +181,14 @@ local function drawBox()
     end
 end
 
--- 获取玩家当前手持物品名称
+-- 获取玩家当前手持物品名称和图标
 local function getToolInfo(character)
     local tool = character:FindFirstChildOfClass("Tool")
-    return tool and tool.Name or "None"
+    if tool then
+        return tool.Name, tool.TextureId  -- 假设 TextureId 是工具的图标链接
+    else
+        return "None", ""
+    end
 end
 
 -- 更新目标玩家信息
@@ -167,34 +196,29 @@ local function updateTargetInfo()
     if target then
         local targetPlayer = players:GetPlayerFromCharacter(target.Parent)
         if targetPlayer then
-            targetInfoButton.Text = targetPlayer.Name
-            targetImage.Image = "rbxthumb://type=AvatarHeadShot&id="..targetPlayer.UserId.."&w=150&h=150"
-
-            -- 获取目标玩家当前手持物品
-            local targetTool = getToolInfo(targetPlayer.Character)
+            targetImageLabel.Image = targetPlayer:FindFirstChildOfClass("Tool") and targetPlayer:FindFirstChildOfClass("Tool").TextureId or ""
 
             -- 更新目标玩家详细信息
             local targetHumanoid = targetPlayer.Character:FindFirstChild("Humanoid")
             local targetPosition = targetPlayer.Character:FindFirstChild("HumanoidRootPart") and targetPlayer.Character.HumanoidRootPart.Position
             local targetTeam = targetPlayer.Team and targetPlayer.Team.Name or "N/A"
             local targetSpeed = targetHumanoid and targetHumanoid.WalkSpeed or "N/A"
+            local targetToolName, targetToolImageId = getToolInfo(targetPlayer.Character)
             
             local infoText = string.format("Health: %s\nPosition: %s\nTeam: %s\nSpeed: %s\nTool: %s",
                 targetHumanoid and math.floor(targetHumanoid.Health) or "N/A",
                 targetPosition and tostring(targetPosition) or "N/A",
                 targetTeam,
                 targetSpeed,
-                targetTool
+                targetToolName
             )
             targetDetailsLabel.Text = "Target Info:\n" .. infoText
         else
-            targetInfoButton.Text = "No Target"
-            targetImage.Image = ""
+            targetImageLabel.Image = ""
             targetDetailsLabel.Text = "Target Info: N/A"
         end
     else
-        targetInfoButton.Text = "No Target"
-        targetImage.Image = ""
+        targetImageLabel.Image = ""
         targetDetailsLabel.Text = "Target Info: N/A"
     end
 end
@@ -206,17 +230,20 @@ local function updatePlayerInfo()
     local playerTeam = player.Team and player.Team.Name or "N/A"
     local playerSpeed = playerHumanoid and playerHumanoid.WalkSpeed or "N/A"
 
-    -- 获取自身当前手持物品名称
-    local playerTool = getToolInfo(player.Character)
+    -- 获取自身当前手持物品名称和图标
+    local playerToolName, playerToolImageId = getToolInfo(player.Character)
 
     local infoText = string.format("Health: %s\nPosition: %s\nTeam: %s\nSpeed: %s\nTool: %s",
         playerHumanoid and math.floor(playerHumanoid.Health) or "N/A",
         playerPosition and tostring(playerPosition) or "N/A",
         playerTeam,
         playerSpeed,
-        playerTool
+        playerToolName
     )
     playerDetailsLabel.Text = "Player Info:\n" .. infoText
+
+    -- 更新玩家当前手持物品图标
+    playerToolImage.Image = playerToolImageId
 end
 
 -- 在每帧更新时调用
