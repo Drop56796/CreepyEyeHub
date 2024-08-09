@@ -9,8 +9,6 @@ local camera = workspace.CurrentCamera
 local aimbotEnabled = false
 local colorCheckEnabled = false
 local target
-local nearestTargetName = ""
-local nearestTargetImage = ""
 
 -- 创建UI
 local screenGui = Instance.new("ScreenGui", CoreGui)
@@ -41,33 +39,6 @@ toggleColorCheckButton.MouseButton1Click:Connect(function()
     toggleColorCheckButton.Text = colorCheckEnabled and "Color Check ON" or "Color Check OFF"
 end)
 
--- 创建最近目标名称和头像框
-local nearestTargetFrame = Instance.new("Frame", screenGui)
-nearestTargetFrame.Size = UDim2.new(0, 150, 0, 50)
-nearestTargetFrame.Position = UDim2.new(0, 20, 0.5, -250)
-nearestTargetFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-nearestTargetFrame.BackgroundTransparency = 0.5
-nearestTargetFrame.BorderSizePixel = 2
-nearestTargetFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
-
-local nearestTargetNameLabel = Instance.new("TextLabel", nearestTargetFrame)
-nearestTargetNameLabel.Size = UDim2.new(0, 100, 0, 30)
-nearestTargetNameLabel.Position = UDim2.new(0, 40, 0, 10)
-nearestTargetNameLabel.Text = "Name: N/A"
-nearestTargetNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-nearestTargetNameLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-nearestTargetNameLabel.BackgroundTransparency = 0.5
-nearestTargetNameLabel.TextStrokeTransparency = 0.8
-nearestTargetNameLabel.Font = Enum.Font.Code
-nearestTargetNameLabel.TextScaled = true
-
-local nearestTargetImageLabel = Instance.new("ImageLabel", nearestTargetFrame)
-nearestTargetImageLabel.Size = UDim2.new(0, 30, 0, 30)
-nearestTargetImageLabel.Position = UDim2.new(0, 10, 0.5, -15)
-nearestTargetImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-nearestTargetImageLabel.BackgroundTransparency = 1
-nearestTargetImageLabel.Image = ""  -- 最近目标头像图片链接
-
 -- 创建中空的圆框
 local aimCircle = Instance.new("Frame", screenGui)
 aimCircle.Size = UDim2.new(0, 200, 0, 200)
@@ -77,59 +48,68 @@ aimCircle.BorderSizePixel = 3
 aimCircle.BorderColor3 = Color3.fromRGB(255, 255, 255)
 aimCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 
--- 创建目标信息框
+-- 显示目标玩家信息的框
 local targetInfoFrame = Instance.new("Frame", screenGui)
-targetInfoFrame.Size = UDim2.new(0, 350, 0, 100)
-targetInfoFrame.Position = UDim2.new(0.5, -450, 0.5, -175)
+targetInfoFrame.Size = UDim2.new(0.5, -450, 0.5, -175)
+targetInfoFrame.Position = UDim2.new(0, 350, 0, 100)
 targetInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 targetInfoFrame.BackgroundTransparency = 0.5
 targetInfoFrame.BorderSizePixel = 2
 targetInfoFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 
--- 显示目标玩家头像
+-- 显示目标玩家名字的标签
+local targetNameLabel = Instance.new("TextLabel", targetInfoFrame)
+targetNameLabel.Size = UDim2.new(0, 180, 0, 50)
+targetNameLabel.Position = UDim2.new(0, 10, 0, 10)
+targetNameLabel.Text = "No Target"
+targetNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+targetNameLabel.TextScaled = true
+targetNameLabel.BackgroundTransparency = 1
+targetNameLabel.TextStrokeTransparency = 0.8
+
+-- 显示目标玩家头像的框
 local targetImageLabel = Instance.new("ImageLabel", targetInfoFrame)
-targetImageLabel.Size = UDim2.new(0, 80, 0, 80)
-targetImageLabel.Position = UDim2.new(0, 10, 0.5, -40)
+targetImageLabel.Size = UDim2.new(0, 50, 0, 50)
+targetImageLabel.Position = UDim2.new(0.5, -25, 0.5, -25)
 targetImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 targetImageLabel.BackgroundTransparency = 1
 targetImageLabel.Image = ""  -- 目标玩家头像图片链接
 
--- 显示目标玩家详细信息
-local targetDetailsLabel = Instance.new("TextLabel", targetInfoFrame)
-targetDetailsLabel.Size = UDim2.new(1, 100, 1, 10)
-targetDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
+-- 显示目标玩家详细信息的标签
+local targetDetailsLabel = Instance.new("TextLabel", screenGui)
+targetDetailsLabel.Size = UDim2.new(0, 220, 0, 150)
+targetDetailsLabel.Position = UDim2.new(0, 20, 0.5, 60)
 targetDetailsLabel.Text = "Target Info: N/A"
 targetDetailsLabel.TextWrapped = true
-targetDetailsLabel.TextScaled = true
 targetDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 targetDetailsLabel.BackgroundTransparency = 0.5
-targetDetailsLabel.BorderSizePixel = 0
+targetDetailsLabel.BorderSizePixel = 2
+targetDetailsLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
 targetDetailsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 targetDetailsLabel.Font = Enum.Font.Code
 targetDetailsLabel.TextStrokeTransparency = 0.8
 
--- 创建玩家自身信息框
-local playerInfoFrame = Instance.new("Frame", screenGui)
-playerInfoFrame.Size = UDim2.new(0, 350, 0, 100)
-playerInfoFrame.Position = UDim2.new(0.5, -450, 0.5, -50)
-playerInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-playerInfoFrame.BackgroundTransparency = 0.5
-playerInfoFrame.BorderSizePixel = 2
-playerInfoFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
-
--- 显示玩家当前手持物品图标
-local playerToolImage = Instance.new("ImageLabel", playerInfoFrame)
-playerDetailsLabel.Size = UDim2.new(1, 100, 1, 10)
-playerDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
+-- 显示玩家自身详细信息的标签
+local playerDetailsLabel = Instance.new("TextLabel", screenGui)
+playerDetailsLabel.Size = UDim2.new(0.5, -450, 0.5, -50)
+playerDetailsLabel.Position = UDim2.new(0, 350, 0, 100)
 playerDetailsLabel.Text = "Player Info: N/A"
 playerDetailsLabel.TextWrapped = true
-playerDetailsLabel.TextScaled = true
 playerDetailsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 playerDetailsLabel.BackgroundTransparency = 0.5
-playerDetailsLabel.BorderSizePixel = 0
+playerDetailsLabel.BorderSizePixel = 2
+playerDetailsLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
 playerDetailsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 playerDetailsLabel.Font = Enum.Font.Code
 playerDetailsLabel.TextStrokeTransparency = 0.8
+
+-- 创建玩家当前手持物品的图标
+local playerToolImage = Instance.new("ImageLabel", playerDetailsLabel)
+playerToolImage.Size = UDim2.new(0, 50, 0, 50)
+playerToolImage.Position = UDim2.new(0, 170, 0, 10)
+playerToolImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+playerToolImage.BackgroundTransparency = 1
+playerToolImage.Image = ""  -- 玩家当前手持物品的图标链接
 
 -- 查找最近的目标头部
 local function findNearestTargetHead()
@@ -155,10 +135,6 @@ local function findNearestTargetHead()
             if distance < shortestDistance then
                 shortestDistance = distance
                 nearestTarget = head
-
-                -- 更新最近目标的名称和头像
-                nearestTargetName = otherPlayer.Name
-                nearestTargetImage = otherPlayer:FindFirstChildOfClass("Tool") and otherPlayer:FindFirstChildOfClass("Tool").TextureId or ""
             end
         end
     end
@@ -226,7 +202,7 @@ local function updateTargetInfo()
     if target then
         local targetPlayer = players:GetPlayerFromCharacter(target.Parent)
         if targetPlayer then
-            targetImageLabel.Image = targetPlayer:FindFirstChildOfClass("Tool") and targetPlayer:FindFirstChildOfClass("Tool").TextureId or ""
+            targetNameLabel.Text = targetPlayer.Name
 
             -- 更新目标玩家详细信息
             local targetHumanoid = targetPlayer.Character:FindFirstChild("Humanoid")
@@ -243,13 +219,18 @@ local function updateTargetInfo()
                 targetToolName
             )
             targetDetailsLabel.Text = "Target Info:\n" .. infoText
+
+            -- 更新目标玩家头像
+            targetImageLabel.Image = targetToolImageId
         else
-            targetImageLabel.Image = ""
+            targetNameLabel.Text = "No Target"
             targetDetailsLabel.Text = "Target Info: N/A"
+            targetImageLabel.Image = ""
         end
     else
-        targetImageLabel.Image = ""
+        targetNameLabel.Text = "No Target"
         targetDetailsLabel.Text = "Target Info: N/A"
+        targetImageLabel.Image = ""
     end
 end
 
@@ -276,12 +257,6 @@ local function updatePlayerInfo()
     playerToolImage.Image = playerToolImageId
 end
 
--- 更新最近目标的信息
-local function updateNearestTargetInfo()
-    nearestTargetNameLabel.Text = "Name: " .. nearestTargetName
-    nearestTargetImageLabel.Image = nearestTargetImage
-end
-
 -- 在每帧更新时调用
 runService.RenderStepped:Connect(function()
     if aimbotEnabled then
@@ -292,5 +267,4 @@ runService.RenderStepped:Connect(function()
         updateTargetInfo()
     end
     updatePlayerInfo()
-    updateNearestTargetInfo()
 end)
