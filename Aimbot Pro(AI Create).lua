@@ -10,8 +10,10 @@ local aimbotEnabled = false
 local colorCheckEnabled = false
 local target
 
+-- 创建UI
 local screenGui = Instance.new("ScreenGui", CoreGui)
 
+-- 自瞄切换按钮
 local toggleAimbotButton = Instance.new("TextButton", screenGui)
 toggleAimbotButton.Size = UDim2.new(0, 150, 0, 50)
 toggleAimbotButton.Position = UDim2.new(0, 20, 0.5, -150)
@@ -22,6 +24,7 @@ toggleAimbotButton.MouseButton1Click:Connect(function()
     toggleAimbotButton.Text = aimbotEnabled and "Aimbot ON" or "Aimbot OFF"
 end)
 
+-- 颜色队伍检测切换按钮
 local toggleColorCheckButton = Instance.new("TextButton", screenGui)
 toggleColorCheckButton.Size = UDim2.new(0, 150, 0, 50)
 toggleColorCheckButton.Position = UDim2.new(0, 20, 0.5, -90)
@@ -32,12 +35,15 @@ toggleColorCheckButton.MouseButton1Click:Connect(function()
     toggleColorCheckButton.Text = colorCheckEnabled and "Color Check ON" or "Color Check OFF"
 end)
 
+-- 显示目标玩家名字和头像的按钮
 local targetInfoButton = Instance.new("TextButton", screenGui)
-targetInfoButton.Size = UDim2.new(0, 150, 0, 100)
+targetInfoButton.Size = UDim2.new(0, 200, 0, 100)
 targetInfoButton.Position = UDim2.new(0, 20, 0.5, -20)
 targetInfoButton.Text = "No Target"
 targetInfoButton.TextWrapped = true
 targetInfoButton.TextYAlignment = Enum.TextYAlignment.Top
+targetInfoButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- 文字颜色
+targetInfoButton.BackgroundTransparency = 1
 
 -- 显示目标玩家头像的ImageLabel
 local targetImage = Instance.new("ImageLabel", targetInfoButton)
@@ -47,19 +53,23 @@ targetImage.BackgroundTransparency = 1
 
 -- 显示目标玩家详细信息的标签
 local targetDetailsLabel = Instance.new("TextLabel", screenGui)
-targetDetailsLabel.Size = UDim2.new(0, 150, 0, 150)
+targetDetailsLabel.Size = UDim2.new(0, 200, 0, 150)
 targetDetailsLabel.Position = UDim2.new(0, 20, 0.5, 90)
 targetDetailsLabel.Text = "Target Info: N/A"
 targetDetailsLabel.TextWrapped = true
 targetDetailsLabel.BackgroundTransparency = 1
+targetDetailsLabel.TextColor3 = Color3.fromRGB(1, 1, 1)  -- 文字颜色
+targetDetailsLabel.Font = Enum.Font.SourceSansBold  -- 字体
 
 -- 显示玩家自身详细信息的标签
 local playerDetailsLabel = Instance.new("TextLabel", screenGui)
-playerDetailsLabel.Size = UDim2.new(0, 150, 0, 150)
-playerDetailsLabel.Position = UDim2.new(0, 230, 0.5, 90)
+playerDetailsLabel.Size = UDim2.new(0, 200, 0, 150)
+playerDetailsLabel.Position = UDim2.new(0, 230, 0.5, 90)  -- 右侧放置
 playerDetailsLabel.Text = "Player Info: N/A"
 playerDetailsLabel.TextWrapped = true
 playerDetailsLabel.BackgroundTransparency = 1
+playerDetailsLabel.TextColor3 = Color3.fromRGB(1, 1, 1)  -- 文字颜色
+playerDetailsLabel.Font = Enum.Font.SourceSansBold  -- 字体
 
 -- 创建中空的圆框
 local aimCircle = Instance.new("ImageLabel", screenGui)
@@ -219,4 +229,4 @@ runService.RenderStepped:Connect(function()
         updateTargetInfo()
     end
     updatePlayerInfo()
-end)  
+end)
