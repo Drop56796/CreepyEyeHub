@@ -52,8 +52,6 @@ targetDetailsLabel.Position = UDim2.new(0, 20, 0.5, 90)
 targetDetailsLabel.Text = "Target Info: N/A"
 targetDetailsLabel.TextWrapped = true
 targetDetailsLabel.BackgroundTransparency = 1
-targetDetailsLabel.TextColor3 = Color3.fromRGB(1, 1, 1)
-targetDetailsLabel.Font = Enum.Font.SourceSansBold
 
 -- 显示玩家自身详细信息的标签
 local playerDetailsLabel = Instance.new("TextLabel", screenGui)
@@ -62,8 +60,6 @@ playerDetailsLabel.Position = UDim2.new(0, 230, 0.5, 90)
 playerDetailsLabel.Text = "Player Info: N/A"
 playerDetailsLabel.TextWrapped = true
 playerDetailsLabel.BackgroundTransparency = 1
-playerDetailsLabel.TextColor3 = Color3.fromRGB(1, 1, 1)
-playerDetailsLabel.Font = Enum.Font.SourceSansBold
 
 -- 创建中空的圆框
 local aimCircle = Instance.new("ImageLabel", screenGui)
