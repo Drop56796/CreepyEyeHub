@@ -9,6 +9,8 @@ local camera = workspace.CurrentCamera
 local aimbotEnabled = false
 local colorCheckEnabled = false
 local target
+local nearestTargetName = ""
+local nearestTargetImage = ""
 
 -- 创建UI
 local screenGui = Instance.new("ScreenGui", CoreGui)
@@ -38,6 +40,33 @@ toggleColorCheckButton.MouseButton1Click:Connect(function()
     colorCheckEnabled = not colorCheckEnabled
     toggleColorCheckButton.Text = colorCheckEnabled and "Color Check ON" or "Color Check OFF"
 end)
+
+-- 创建最近目标名称和头像框
+local nearestTargetFrame = Instance.new("Frame", screenGui)
+nearestTargetFrame.Size = UDim2.new(0, 150, 0, 50)
+nearestTargetFrame.Position = UDim2.new(0, 20, 0.5, -250)
+nearestTargetFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+nearestTargetFrame.BackgroundTransparency = 0.5
+nearestTargetFrame.BorderSizePixel = 2
+nearestTargetFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+
+local nearestTargetNameLabel = Instance.new("TextLabel", nearestTargetFrame)
+nearestTargetNameLabel.Size = UDim2.new(0, 100, 0, 30)
+nearestTargetNameLabel.Position = UDim2.new(0, 40, 0, 10)
+nearestTargetNameLabel.Text = "Name: N/A"
+nearestTargetNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+nearestTargetNameLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+nearestTargetNameLabel.BackgroundTransparency = 0.5
+nearestTargetNameLabel.TextStrokeTransparency = 0.8
+nearestTargetNameLabel.Font = Enum.Font.Code
+nearestTargetNameLabel.TextScaled = true
+
+local nearestTargetImageLabel = Instance.new("ImageLabel", nearestTargetFrame)
+nearestTargetImageLabel.Size = UDim2.new(0, 30, 0, 30)
+nearestTargetImageLabel.Position = UDim2.new(0, 10, 0.5, -15)
+nearestTargetImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+nearestTargetImageLabel.BackgroundTransparency = 1
+nearestTargetImageLabel.Image = ""  -- 最近目标头像图片链接
 
 -- 创建中空的圆框
 local aimCircle = Instance.new("Frame", screenGui)
@@ -90,14 +119,6 @@ playerInfoFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 
 -- 显示玩家当前手持物品图标
 local playerToolImage = Instance.new("ImageLabel", playerInfoFrame)
-playerToolImage.Size = UDim2.new(0, 80, 0, 80)
-playerToolImage.Position = UDim2.new(0, 10, 0.5, -40)
-playerToolImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-playerToolImage.BackgroundTransparency = 1
-playerToolImage.Image = ""  -- 玩家当前手持物品的图标链接
-
--- 显示玩家详细信息
-local playerDetailsLabel = Instance.new("TextLabel", playerInfoFrame)
 playerDetailsLabel.Size = UDim2.new(1, -100, 1, -10)
 playerDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
 playerDetailsLabel.Text = "Player Info: N/A"
@@ -124,11 +145,20 @@ local function findNearestTargetHead()
                 continue
             end
 
+            -- 检查颜色队伍
+            if colorCheckEnabled and otherPlayer.TeamColor == player.TeamColor then
+                continue
+            end
+
             local head = otherPlayer.Character.Head
             local distance = (head.Position - player.Character.Head.Position).Magnitude
             if distance < shortestDistance then
                 shortestDistance = distance
                 nearestTarget = head
+
+                -- 更新最近目标的名称和头像
+                nearestTargetName = otherPlayer.Name
+                nearestTargetImage = otherPlayer:FindFirstChildOfClass("Tool") and otherPlayer:FindFirstChildOfClass("Tool").TextureId or ""
             end
         end
     end
@@ -246,6 +276,12 @@ local function updatePlayerInfo()
     playerToolImage.Image = playerToolImageId
 end
 
+-- 更新最近目标的信息
+local function updateNearestTargetInfo()
+    nearestTargetNameLabel.Text = "Name: " .. nearestTargetName
+    nearestTargetImageLabel.Image = nearestTargetImage
+end
+
 -- 在每帧更新时调用
 runService.RenderStepped:Connect(function()
     if aimbotEnabled then
@@ -256,4 +292,5 @@ runService.RenderStepped:Connect(function()
         updateTargetInfo()
     end
     updatePlayerInfo()
+    updateNearestTargetInfo()
 end)
