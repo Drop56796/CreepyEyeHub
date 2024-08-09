@@ -96,7 +96,7 @@ targetImageLabel.Image = ""  -- 目标玩家头像图片链接
 
 -- 显示目标玩家详细信息
 local targetDetailsLabel = Instance.new("TextLabel", targetInfoFrame)
-targetDetailsLabel.Size = UDim2.new(1, -100, 1, -10)
+targetDetailsLabel.Size = UDim2.new(1, 100, 1, 10)
 targetDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
 targetDetailsLabel.Text = "Target Info: N/A"
 targetDetailsLabel.TextWrapped = true
@@ -119,7 +119,7 @@ playerInfoFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 
 -- 显示玩家当前手持物品图标
 local playerToolImage = Instance.new("ImageLabel", playerInfoFrame)
-playerDetailsLabel.Size = UDim2.new(1, -100, 1, -10)
+playerDetailsLabel.Size = UDim2.new(1, 100, 1, 10)
 playerDetailsLabel.Position = UDim2.new(0, 90, 0, 5)
 playerDetailsLabel.Text = "Player Info: N/A"
 playerDetailsLabel.TextWrapped = true
