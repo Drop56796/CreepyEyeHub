@@ -991,3 +991,146 @@ section2:slider({
         startTpWalk(value)
     end
 })
+
+-- Define a variable to control auto-interaction
+local autoInteract = false
+
+-- Function to handle auto-interaction
+local function setupAutoInteract(state)
+    if state then
+        -- Enable auto-interaction
+        autoInteract = true
+
+        -- Get the local player
+        local player = game.Players.LocalPlayer
+
+        -- Connect to room and descendant additions
+        workspace.CurrentRooms.ChildAdded:Connect(function(room)
+            room.DescendantAdded:Connect(function(descendant)
+                if descendant:IsA("Model") then
+                    local prompt = nil
+                    -- Determine the prompt based on the model's name
+                    if descendant.Name == "DrawerContainer" then
+                        prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                    elseif descendant.Name == "GoldPile" then
+                        prompt = descendant:WaitForChild("LootPrompt")
+                    elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                        prompt = descendant:WaitForChild("ActivateEventPrompt")
+                    end
+
+                    -- If a prompt is found, set up auto-interaction
+                    if prompt then
+                        local interactions = prompt:GetAttribute("Interactions")
+                        if not interactions then
+                            task.spawn(function()
+                                while autoInteract and not prompt:GetAttribute("Interactions") do
+                                    task.wait(0.1)
+                                    if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                        fireproximityprompt(prompt)
+                                    end
+                                end
+                            end)
+                        end
+                    end
+                end
+            end)
+        end)
+
+        -- Check existing items in current rooms
+        for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+            for _, descendant in pairs(room:GetDescendants()) do
+                if descendant:IsA("Model") then
+                    local prompt = nil
+                    -- Determine the prompt based on the model's name
+                    if descendant.Name == "DrawerContainer" then
+                        prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                    elseif descendant.Name == "GoldPile" then
+                        prompt = descendant:WaitForChild("LootPrompt")
+                    elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                        prompt = descendant:WaitForChild("ActivateEventPrompt")
+                    end
+
+                    -- If a prompt is found, set up auto-interaction
+                    if prompt then
+                        local interactions = prompt:GetAttribute("Interactions")
+                        if not interactions then
+                            task.spawn(function()
+                                while autoInteract and not prompt:GetAttribute("Interactions") do
+                                    task.wait(0.1)
+                                    if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                        fireproximityprompt(prompt)
+                                    end
+                                end
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+    else
+        -- Disable auto-interaction
+        autoInteract = false
+    end
+end
+
+-- Example usage
+section1:toggle({
+    name = "look aura",
+    def = false,
+    callback = function(state)
+        setupAutoInteract(state)
+    end
+})
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+-- Initialize default values
+local isSpeedEnabled = false
+local speedMultiplier = 1
+
+-- Function to update character's movement speed
+local function updateSpeed()
+    pcall(function()
+        local player = Players.LocalPlayer
+        local character = player and player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                if isSpeedEnabled then
+                    -- Use speedMultiplier to adjust the movement speed
+                    humanoid.WalkSpeed = speedMultiplier
+                else
+                    -- Disable speed adjustment by setting to default value
+                    humanoid.WalkSpeed = 16 -- Default WalkSpeed value (adjust as needed)
+                end
+            end
+        end
+    end)
+end
+
+-- Connect RenderStepped to continuously update character's speed
+RunService.RenderStepped:Connect(updateSpeed)
+
+-- Toggle control
+section2:toggle({
+    name = "Enable Speed",
+    def = false,
+    callback = function(state)
+        isSpeedEnabled = state
+        updateSpeed() -- Update speed immediately when toggle state changes
+    end
+})
+
+-- Slider control
+section2:slider({
+    name = "Speed",
+    def = 20,
+    max = 24,
+    min = 1,
+    rounding = true,
+    callback = function(state)
+        speedMultiplier = state
+        updateSpeed() -- Update speed immediately when slider value changes
+    end
+})
