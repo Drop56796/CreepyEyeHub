@@ -6,8 +6,8 @@ local player = Players.LocalPlayer
 -- 创建一个简单的控制台 GUI
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local consoleFrame = Instance.new("Frame", screenGui)
-consoleFrame.Size = UDim2.new(1, 0, 0.5, 0)
-consoleFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
+consoleFrame.Size = UDim2.new(0.5, 0, 0.85, 0)
+consoleFrame.Position = UDim2.new(0.25, 0, 0.7, 0)
 consoleFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 consoleFrame.Visible = false
 consoleFrame.Active = true
