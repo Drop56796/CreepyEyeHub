@@ -1,6 +1,3 @@
-loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/White%20King%20obfuscate.lua?raw=true"))()
-wait(1)
-
 local gui = game:GetService("CoreGui"):FindFirstChild("ScreenGui")
 
 if not gui then
@@ -28,3 +25,7 @@ local function toggleGui()
 end
 
 toggleButton.MouseButton1Click:Connect(toggleGui)
+
+wait(0.25)
+
+loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/White%20King%20obfuscate.lua?raw=true"))()
