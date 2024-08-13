@@ -1,4 +1,4 @@
-local lib = {RainbowColorValue = 0, HueSelectionPosition = 0}
+local lib = {RainbowColorValue = 1, HueSelectionPosition = 1}
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -8,7 +8,7 @@ local PresetColor = Color3.fromRGB(44, 120, 224)
 local CloseBind = Enum.KeyCode.RightControl
 
 local ui = Instance.new("ScreenGui")
-ui.Name = "ui"
+ui.Name = "vape by White"
 ui.Parent = game.CoreGui
 ui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
