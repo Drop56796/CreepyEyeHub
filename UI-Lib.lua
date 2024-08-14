@@ -123,11 +123,23 @@ function lib:Window(text, preset, closebind)
     Title.BackgroundTransparency = 1.000
     Title.Position = UDim2.new(0.0339285731, 0, 0.0564263314, 0)
     Title.Size = UDim2.new(0, 200, 0, 23)
-    Title.Font = Enum.Font.GothamSemibold
+    Title.Font = Enum.Font.Code
     Title.Text = text
-    Title.TextColor3 = Color3.fromRGB(68, 68, 68)
     Title.TextSize = 12.000
     Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- 循环彩色
+    local colors = {Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255), Color3.fromRGB(0, 255, 255)}
+    local colorIndex = 1
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        Title.BackgroundColor3 = colors[colorIndex]
+        colorIndex = colorIndex + 1
+        if colorIndex > #colors then
+            colorIndex = 1
+        end
+    end)
+end
 
     Main:TweenSize(UDim2.new(0, 560, 0, 319), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, .6, true)
 
@@ -140,7 +152,7 @@ function lib:Window(text, preset, closebind)
     ToggleButton.BackgroundColor3 = Color3.fromRGB(44, 120, 224)
     ToggleButton.Position = UDim2.new(0.1, 0, 0.5, 0) -- 将位置设置在屏幕左侧
     ToggleButton.Size = UDim2.new(0, 100, 0, 50)
-    ToggleButton.Font = Enum.Font.GothamSemibold
+    ToggleButton.Font = Enum.Font.Code
     ToggleButton.Text = "Toggle UI"
     ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     ToggleButton.TextSize = 14.000
@@ -229,7 +241,7 @@ function lib:Window(text, preset, closebind)
         OkayBtn.Position = UDim2.new(0.0609756112, 0, 0.720207274, 0)
         OkayBtn.Size = UDim2.new(0, 144, 0, 42)
         OkayBtn.AutoButtonColor = false
-        OkayBtn.Font = Enum.Font.SourceSans
+        OkayBtn.Font = Enum.Font.Code
         OkayBtn.Text = ""
         OkayBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
         OkayBtn.TextSize = 14.000
