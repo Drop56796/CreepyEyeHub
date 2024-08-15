@@ -16,7 +16,7 @@ end)
 -- Assuming this is part of a larger script in Roblox
 tab2:Toggle("开自瞄(2)", false, function(t)
     -- 获取CoreGui中的ToggleGuiScreen对象
-    local gui = game:GetService("CoreGui"):FindFirstChild("ToggleGuiScreen")
+    local gui = game:GetService("CoreGui"):FindFirstChild("MyCustomScreenGui")
     
     -- 启动或停止自瞄功能
     if t then
