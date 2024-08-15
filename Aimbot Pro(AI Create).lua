@@ -1,7 +1,10 @@
 local UIS = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
+local screenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))  -- 创建ScreenGui并附加到CoreGui
+
+-- 给screenGui取一个名字
+screenGui.Name = "MyCustomScreenGui"  -- 你可以根据需要自定义这个名字
 
 local player = players.LocalPlayer
 local camera = workspace.CurrentCamera
@@ -9,9 +12,6 @@ local camera = workspace.CurrentCamera
 local aimbotEnabled = false
 local colorCheckEnabled = false
 local target
-
--- 创建UI
-local screenGui = Instance.new("ScreenGui", CoreGui)
 
 -- 自瞄切换按钮
 local toggleAimbotButton = Instance.new("TextButton", screenGui)
