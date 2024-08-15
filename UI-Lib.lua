@@ -119,7 +119,7 @@ function lib:Window(text, preset, closebind)
 
     Title.Name = "Title"
     Title.Parent = Main
-    Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Title.BackgroundColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
     Title.BackgroundTransparency = 1.000
     Title.Position = UDim2.new(0.0339285731, 0, 0.0564263314, 0)
     Title.Size = UDim2.new(0, 200, 0, 23)
@@ -127,20 +127,7 @@ function lib:Window(text, preset, closebind)
     Title.Text = text
     Title.TextSize = 12.000
     Title.TextXAlignment = Enum.TextXAlignment.Left
-
-    -- 循环彩色
-    local colors = {Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255), Color3.fromRGB(0, 255, 255)}
-    local colorIndex = 1
-
-    game:GetService("RunService").RenderStepped:Connect(function()
-        Title.BackgroundColor3 = colors[colorIndex]
-        colorIndex = colorIndex + 1
-        if colorIndex > #colors then
-            colorIndex = 1
-        end
-    end)
-end
-
+    
     Main:TweenSize(UDim2.new(0, 560, 0, 319), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, .6, true)
 
     MakeDraggable(DragFrame, Main)
