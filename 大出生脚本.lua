@@ -125,7 +125,7 @@ function esp(what, color, core, name)
 end
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))() 
-local Window = OrionLib:MakeWindow({Name = "出生脚本 V1", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
+local Window = OrionLib:MakeWindow({Name = "出生脚本 V1.1", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
 
 local Tab = Window:MakeTab({
 	Name = "公告",
@@ -133,12 +133,12 @@ local Tab = Window:MakeTab({
 	PremiumOnly = false
 })
 
-Tab:AddLabel("本脚本为 criminaily 制作")
+Tab:AddLabel("本脚本为 游戏 制作")
 Tab:AddLabel("不怕banned和被骂没母和被挂你就用")
 Tab:AddLabel("开始你的表演")
 
 local Tab2 = Window:MakeTab({
-	Name = "Main",
+	Name = "Criminaily",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
@@ -270,6 +270,52 @@ Tab2:AddToggle({
             stopMonitoring() -- Stop monitoring when the toggle is disabled
         end
     end
+})
+
+local Tab3 = Window:MakeTab({
+	Name = "Doors",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+Tab3:AddButton({
+	Name = "white king",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/white-King/blob/main/White%20King.lua?raw=true"))()
+  	end    
+})
+
+Tab3:AddButton({
+	Name = "Black king old",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/DOORS%20PC.lua?raw=true"))()
+  	end    
+})
+
+local Tab4 = Window:MakeTab({
+	Name = "Pressure",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+Tab4:AddButton({
+	Name = "Creepy client V2.4",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/pressure-ScriptV2.4.lua?raw=true"))()
+  	end    
+})
+
+local Tab5 = Window:MakeTab({
+	Name = "bedwars",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+Tab5:AddButton({
+	Name = "开自瞄",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/bedwars.lua?raw=true"))()
+  	end    
 })
 
 OrionLib:Init()
