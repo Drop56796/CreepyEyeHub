@@ -1,4 +1,31 @@
--- ESP function definition (assuming it already exists)
+local function playSound(soundId, volume, duration)
+    -- 创建一个新的Sound对象
+    local sound = Instance.new("Sound")
+    sound.SoundId = soundId
+    sound.Volume = volume
+    sound.PlayOnRemove = true
+    sound.Parent = game:GetService("SoundService") -- 使用SoundService作为父对象
+
+    -- 播放声音
+    sound:Play()
+
+    -- 在声音播放完毕后自动销毁
+    local function onSoundEnded()
+        sound:Destroy()
+    end
+
+    sound.Ended:Connect(onSoundEnded)
+
+    -- 如果duration被设置，设置定时器以在duration之后销毁声音
+    if duration then
+        delay(duration, function()
+            if sound.Parent then -- 确保声音对象仍然存在
+                sound:Destroy()
+            end
+        end)
+    end
+end
+-------------------------------------------
 function esp(what, color, core, name)
     local parts
     if typeof(what) == "Instance" then
@@ -193,49 +220,55 @@ Tab2:AddToggle({
     end
 })
 
+-- Declare variables to manage state and running status
+local isRunning = false
+local checkThread
+
+-- Function to start monitoring nearby players
+local function startMonitoring()
+    isRunning = true
+    checkThread = spawn(function()
+        while isRunning do
+            -- Check for nearby players
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                    if distance < 50 then
+                        -- Notify the player
+			playSound("rbxassetid://4590662766", 1, 3.5)
+                        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
+			local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
+                        Notification:Notify(
+                            {Title = "出生", Description = player.Name .. " 玩家在你50格范围之内"},
+                            {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                            {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                        )
+                    end
+                end
+            end
+            task.wait(1) -- Adjust the wait time as needed
+        end
+    end)
+end
+
+-- Function to stop monitoring nearby players
+local function stopMonitoring()
+    isRunning = false
+    if checkThread then
+        checkThread:Destroy() -- Ensure the thread is properly terminated
+    end
+end
+
+-- Add a toggle for player message
 Tab2:AddToggle({
     Name = "Player Message",
     Default = false,
     Callback = function(state)
-        -- Ensure `flags` is defined to prevent errors
-        local flags = flags or {}
-        local plr = game.Players.LocalPlayer -- Get the local player
-
-        -- Load the notification libraries
-        local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() -- Lib1
-        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() -- Lib2
-
-        -- Function to notify player about nearby players
-        local function notifyPlayerNearby(player)
-            Notification:Notify(
-                {Title = "出生", Description = player.Name .. " 玩家在你50格范围之内"},
-                {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-                {Image = "http://www.roblox.com/asset/?id=18394059300", ImageColor = Color3.fromRGB(1, 0.25, 0)}
-            )
+        if state then
+            startMonitoring() -- Start monitoring when the toggle is enabled
+        else
+            stopMonitoring() -- Stop monitoring when the toggle is disabled
         end
-
-        -- Function to check nearby players
-        local function checkNearbyPlayers()
-            for _, player in pairs(game.Players:GetPlayers()) do
-                if player ~= plr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    local distance = (plr.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                    if distance < 50 then
-                        notifyPlayerNearby(player)
-                    end
-                end
-            end
-        end
-
-        -- Main loop to keep checking for nearby players
-        local running = true
-        spawn(function()
-            while running do
-                if state then
-                    checkNearbyPlayers()
-                end
-                task.wait(1) -- Adjust the wait time as needed
-            end
-        end)
     end
 })
 
