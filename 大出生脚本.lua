@@ -145,7 +145,7 @@ Tab2:AddToggle({
 	Name = "No cilp",
 	Default = false,
 	Callback = function(state)
-		  local player = game.Players.LocalPlayer
+        local player = game.Players.LocalPlayer
         local char = player.Character
         local runService = game:GetService("RunService")
         if state then
@@ -169,90 +169,12 @@ Tab2:AddToggle({
         end
     end  
 })
-Tab2:AddToggle({
-	Name = "Full bright",
-	Default = false,
-	Callback = function(state)
-            local Light = game:GetService("Lighting")
-
-        local function dofullbright()
-            Light.Ambient = Color3.new(1, 1, 1)
-            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
-            Light.ColorShift_Top = Color3.new(1, 1, 1)
-        end
-
-        local function resetLighting()
-            Light.Ambient = Color3.new(0, 0, 0)
-            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
-            Light.ColorShift_Top = Color3.new(0, 0, 0)
-        end
-
-        if state then
-            _G.fullBrightEnabled = true
-            task.spawn(function()
-                while _G.fullBrightEnabled do
-                    dofullbright()
-                    task.wait(0)  -- 每秒检查一次
-                end
-            end)
-        else
-            _G.fullBrightEnabled = false
-            resetLighting()
-        end
-    end
-})
-
-Tab2:AddToggle({
-	Name = "Player Message",
-	Default = false,
-	Callback = function(state)
-            if state then
-    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
-    local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-
-    -- Ensure flags and plr are defined
-    local flags = flags or {} --Prevent Error
-    local plr = game.Players.LocalPlayer --Prevent Error2
-
-    local function notifyPlayerNearby(player)
-        Notification:Notify(
-            {Title = "出生", Description = player.Name .. " 玩家在你50格范围之内"},
-            {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-            {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
-        )
-    end
-
-    local function checkNearbyPlayers()
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player ~= plr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local distance = (plr.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                if distance < 50 then
-                    notifyPlayerNearby(player)
-                end
-            end
-        end
-    end
-
-    -- Infinite loop to keep the script running and check for nearby players
-    local running = true
-    while running do
-        checkNearbyPlayers()
-        task.wait(1) -- Adjust the wait time as needed
-        if not flags.hint then
-            running = false
-        end
-    end
-else 
-    -- Close message or any other cleanup if needed
-    running = false
-end
-})
 
 Tab2:AddToggle({
 	Name = "Player esp",
 	Default = false,
 	Callback = function(state)
-		  if state then
+        if state then
             _G.espInstances = {}
             for _, player in pairs(game.Players:GetPlayers()) do
                 if player.Character then
@@ -268,6 +190,52 @@ Tab2:AddToggle({
                 _G.espInstances = nil
             end
         end
+    end
+})
+
+Tab2:AddToggle({
+    Name = "Player Message",
+    Default = false,
+    Callback = function(state)
+        -- Ensure `flags` is defined to prevent errors
+        local flags = flags or {}
+        local plr = game.Players.LocalPlayer -- Get the local player
+
+        -- Load the notification libraries
+        local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() -- Lib1
+        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() -- Lib2
+
+        -- Function to notify player about nearby players
+        local function notifyPlayerNearby(player)
+            Notification:Notify(
+                {Title = "出生", Description = player.Name .. " 玩家在你50格范围之内"},
+                {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                {Image = "http://www.roblox.com/asset/?id=18394059300", ImageColor = Color3.fromRGB(1, 0.25, 0)}
+            )
+        end
+
+        -- Function to check nearby players
+        local function checkNearbyPlayers()
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= plr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local distance = (plr.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                    if distance < 50 then
+                        notifyPlayerNearby(player)
+                    end
+                end
+            end
+        end
+
+        -- Main loop to keep checking for nearby players
+        local running = true
+        spawn(function()
+            while running do
+                if state then
+                    checkNearbyPlayers()
+                end
+                task.wait(1) -- Adjust the wait time as needed
+            end
+        end)
     end
 })
 
