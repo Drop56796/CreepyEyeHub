@@ -272,6 +272,31 @@ Tab2:AddToggle({
     end
 })
 
+Tab2:AddToggle({
+    Name = "Auto Click (All can ProximityPrompt Model)",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+
+        if state then
+            _G.AutoProximityPrompt = runService.RenderStepped:Connect(function()
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("ProximityPrompt") then
+                        v:InputBegan(Enum.UserInputType.MouseButton1, Vector3.new())
+                    end
+                end
+            end)
+        else
+            if _G.AutoProximityPrompt then
+                _G.AutoProximityPrompt:Disconnect()
+                _G.AutoProximityPrompt = nil
+            end
+        end
+    end  
+})
+
 local Tab3 = Window:MakeTab({
 	Name = "Doors",
 	Icon = "rbxassetid://4483345998",
