@@ -312,7 +312,7 @@ local Tab5 = Window:MakeTab({
 })
 
 Tab5:AddButton({
-	Name = "开自瞄",
+	Name = "1",
 	Callback = function()
       		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/bedwars.lua?raw=true"))()
   	end    
