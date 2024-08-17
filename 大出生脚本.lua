@@ -126,23 +126,22 @@ end
 --------------------
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+local v = 1.1
 
 Notification:Notify(
-    {Title = "出生 v1.1" .. v, Description = "验证成功 script start now!"},
+    {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
 playSound("rbxassetid://4590662766", 1, 3.5)
 
 Notification:Notify(
-    {Title = "出生 v1.1", Description = "script.lol.run"},
+    {Title = "出生 v" .. v, Description = "script.lol.run"},
     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
 wait(2)
 
-
-local v = 1.1
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))() 
 local Window = OrionLib:MakeWindow({Name = "出生脚本 v" .. v, HidePremium = true, SaveConfig = true, ConfigFolder = "Loser"})
 
