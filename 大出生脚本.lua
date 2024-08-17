@@ -187,6 +187,15 @@ Tab2:AddTextbox({
 	end	  
 })
 
+Tab6:AddTextbox({
+	Name = "fov",
+	Default = "default box input",
+	TextDisappear = true,
+	Callback = function(Value)
+		game:GetService("Workspace").CurrentCamera.FieldOfView = Value
+	end	  
+})
+
 
 Tab2:AddToggle({
 	Name = "No cilp",
@@ -308,6 +317,264 @@ Tab2:AddToggle({
             end
         else
             autoInteract = false
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "变成知秋2",
+    Default = false,
+    Callback = function(state)
+        if state then
+            autoInteract = true
+            while autoInteract do
+                for _, descendant in pairs(workspace:GetDescendants()) do
+                    if descendant:IsA("ProximityPrompt") then
+                        fireproximityprompt(descendant)
+                    end
+                end
+                task.wait(0.25) -- Adjust the wait time as needed
+            end
+        else
+            autoInteract = false
+        end
+    end
+})
+
+local Tab6 = Window:MakeTab({
+	Name = "通用",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+local spinning = false
+local noClip = false -- Adjust this value for faster or slower spinning
+local flying = false
+local farming = false
+local speed = 50
+local defaultSpeed = 16
+local boostedSpeed = 50
+local spinSpeed = 500
+local normalJumpPower = 50
+local boostedJumpPower = 100
+
+Tab6:AddToggle({
+    Name = "变成老大",
+    Default = false,
+    Callback = function(state)
+        spinning = state
+        if spinning then
+            -- Start spinning the player
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local rootPart = character:WaitForChild("HumanoidRootPart") -- The part we want to rotate
+            
+            -- Spin loop
+            spawn(function()
+                while spinning do
+                    rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+                    task.wait(0.01) -- Adjust the wait time for faster or slower updates
+                end
+            end)
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "给我飞起来!!!",
+    Default = false,
+    Callback = function(state)
+        flying = state
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        if flying then
+            humanoidRootPart.Anchored = true -- Anchor the HumanoidRootPart to enable flight
+
+            -- Fly loop
+            spawn(function()
+                while flying do
+                    humanoidRootPart.CFrame = humanoidRootPart.CFrame + humanoidRootPart.CFrame.lookVector * speed * 0.1
+                    task.wait(0.1)
+                end
+            end)
+        else
+            humanoidRootPart.Anchored = false -- Unanchor to stop flying
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "火车头启动!!!",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+
+        if state then
+            humanoid.WalkSpeed = boostedSpeed
+        else
+            humanoid.WalkSpeed = defaultSpeed
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "NoClip",
+    Default = false,
+    Callback = function(state)
+        noClip = state
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        if noClip then
+            -- NoClip loop
+            spawn(function()
+                while noClip do
+                    for _, part in pairs(character:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            -- Re-enable collision
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "啊!!!!!!!",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+
+        if state then
+            humanoid.JumpPower = boostedJumpPower
+        else
+            humanoid.JumpPower = normalJumpPower
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "滑行者",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+
+        if state then
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+        else
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "变成知秋",
+    Default = false,
+    Callback = function(state)
+        farming = state
+        while farming do
+            for _, item in pairs(workspace:GetChildren()) do
+                if item:IsA("Tool") and (item.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude < 10 then
+                    fireclickdetector(item.ClickDetector) -- Simulates clicking the item
+                end
+            end
+            task.wait(1) -- Adjust the wait time as needed
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "Fake Lag",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        if state then
+            -- Freeze the player to simulate lag
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Anchored = true
+                end
+            end
+        else
+            -- Unfreeze the player
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Anchored = false
+                end
+            end
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "Bunny Hop",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local humanoid = player.Character:WaitForChild("Humanoid")
+
+        if state then
+            -- Start Bunny Hopping
+            spawn(function()
+                while state do
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    task.wait(0.3) -- Adjust this value for faster or slower hopping
+                end
+            end)
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "Infinite Jump",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+
+        if state then
+            -- Enable Infinite Jump
+            game:GetService("UserInputService").JumpRequest:Connect(function()
+                if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+                    player.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "Invisible Character",
+    Default = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+
+        for _, part in pairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.Transparency = state and 1 or 0 -- Set transparency to 1 (invisible) or 0 (visible)
+                part.CanCollide = not state -- Disable collision when invisible
+            elseif part:IsA("Accessory") then
+                part.Handle.Transparency = state and 1 or 0
+            end
         end
     end
 })
