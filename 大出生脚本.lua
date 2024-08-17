@@ -1071,8 +1071,67 @@ Tab3:AddToggle({
     end
 })
 
+-- Add the toggle to enable/disable FOV control
 Tab3:AddToggle({
-	Name = "金币视奸👁️",
+    Name = "Enable FOV",
+    Default = false,
+    Callback = function(state)
+        FOVEnabled = state -- Update the variable based on the toggle state
+        if not state then
+            -- Reset the FOV to default when FOV control is disabled
+            game:GetService("Workspace").CurrentCamera.FieldOfView = 70
+        end
+    end
+})
+-- Add the textbox to input the desired FOV
+Tab3:AddTextbox({
+    Name = "FOV",
+    Default = "70", -- Default FOV in Roblox is usually 70
+    TextDisappear = true,
+    Callback = function(FOV)
+        if FOVEnabled then
+            -- Convert the input to a number and update the FOV
+            local fo = tonumber(FOV)
+            if fo then
+                game:GetService("Workspace").CurrentCamera.FieldOfView = fo
+            else
+                -- Handle invalid input (not a number)
+                warn("Please enter a valid number.")
+            end
+        else
+            warn("FOV control is disabled.")
+        end
+    end
+})
+
+local Tab4 = Window:MakeTab({
+	Name = "Pressure",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+Tab4:AddButton({
+	Name = "Creepy client V2.4",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/pressure-ScriptV2.4.lua?raw=true"))()
+  	end    
+})
+
+local Tab5 = Window:MakeTab({
+	Name = "bedwars",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+Tab5:AddButton({
+	Name = "1",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/bedwars.lua?raw=true"))()
+  	end    
+})
+
+Tab3:AddToggle({
+	Name = "钥匙视奸👁️",
 	Default = false,
 	Callback = function(state)
         if state then
@@ -1200,65 +1259,6 @@ Tab3:AddToggle({
             markedTargets = {}
         end
     end        
-})
-
--- Add the toggle to enable/disable FOV control
-Tab3:AddToggle({
-    Name = "Enable FOV",
-    Default = false,
-    Callback = function(state)
-        FOVEnabled = state -- Update the variable based on the toggle state
-        if not state then
-            -- Reset the FOV to default when FOV control is disabled
-            game:GetService("Workspace").CurrentCamera.FieldOfView = 70
-        end
-    end
-})
--- Add the textbox to input the desired FOV
-Tab3:AddTextbox({
-    Name = "FOV",
-    Default = "70", -- Default FOV in Roblox is usually 70
-    TextDisappear = true,
-    Callback = function(FOV)
-        if FOVEnabled then
-            -- Convert the input to a number and update the FOV
-            local fo = tonumber(FOV)
-            if fo then
-                game:GetService("Workspace").CurrentCamera.FieldOfView = fo
-            else
-                -- Handle invalid input (not a number)
-                warn("Please enter a valid number.")
-            end
-        else
-            warn("FOV control is disabled.")
-        end
-    end
-})
-
-local Tab4 = Window:MakeTab({
-	Name = "Pressure",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
-Tab4:AddButton({
-	Name = "Creepy client V2.4",
-	Callback = function()
-      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/pressure-ScriptV2.4.lua?raw=true"))()
-  	end    
-})
-
-local Tab5 = Window:MakeTab({
-	Name = "bedwars",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
-Tab5:AddButton({
-	Name = "1",
-	Callback = function()
-      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/bedwars.lua?raw=true"))()
-  	end    
 })
 
 OrionLib:Init()
