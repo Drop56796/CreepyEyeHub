@@ -126,7 +126,7 @@ end
 ------------------
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-------------------
+
 playSound("rbxassetid://4590662766", 1, 3.5)
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
