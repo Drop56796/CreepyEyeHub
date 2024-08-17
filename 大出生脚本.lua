@@ -126,7 +126,7 @@ end
 --------------------
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-local v = 1.1
+local v = 1.2
 local speedControlEnabled = false 
 local FOVEnabled = false
 
