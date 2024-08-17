@@ -900,7 +900,7 @@ Tab3:AddToggle({
                 setup(room) 
             end
 
-            table.insert(_G.lockerESPInstances, esptable)
+            table.insert(_G.lockESPInstances, esptable)
 
 	else
             if _G.lockESPInstances then
@@ -976,34 +976,197 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-    Name = "删除稀客 和他的胳膊 还有火",
-    Default = false,
-    Callback = function(Seek)
-        local connection
-        if Seek then
-            connection = game:GetService("RunService").RenderStepped:Connect(function()
-                local room = game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]
-                -- Start Remove Seek Fire/Arm
-                if room:FindFirstChild("SeekMoving") then
-                    room:WaitForChild("SeekMoving"):Destroy()
+	Name = "拉杆视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.locESPInstances = {}
+            local esptable = {loc = {}}
+            local flags = {esploc = true}
+
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "LeverForGate" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(1, 0.5, 0), v.PrimaryPart, "Lever")
+                        table.insert(esptable.lockers, h)
+                    end
                 end
-                if room:FindFirstChild("ChandelierObstruction") then
-                    room:WaitForChild("ChandelierObstruction"):Destroy()
-                end
-                if room:FindFirstChild("Seek_Arm") then
-                    room:WaitForChild("Seek_Arm"):Destroy()
-                end
-            end)
-        else
-            if connection then
-                connection:Disconnect()  --Connect:Disconnect
             end
-            -- Fixed Original
-            local room = game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.locESPInstances, esptable)
+
+	else
+            if _G.locESPInstances then
+                for _, instance in pairs(_G.locESPInstances) do
+                    for _, v in pairs(instance.loc) do
+                        v.delete()
+                    end
+                end
+                _G.locESPInstances = nil
+            end
         end
     end
 })
 
+Tab3:AddToggle({
+	Name = "钥匙视奸👁️",
+	Default = false,
+	Callback = function(state)
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local markedTargets = {}
+
+        local function createCircularUI(parent, color)
+            local mid = Instance.new("Frame", parent)
+            mid.AnchorPoint = Vector2.new(0.5, 0.5)
+            mid.BackgroundColor3 = color
+            mid.Size = UDim2.new(0, 8, 0, 8)
+            mid.Position = UDim2.new(0.5, 0, 0.0001, 0) -- Adjusted position
+            Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+            Instance.new("UIStroke", mid)
+            
+            return mid
+        end
+
+        local function markTarget(target, customName)
+            if not target then return end
+            local oldTag = target:FindFirstChild("Batteries")
+            if oldTag then
+                oldTag:Destroy()
+            end
+            local oldHighlight = target:FindFirstChild("Highlight")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
+            local tag = Instance.new("BillboardGui")
+            tag.Name = "Batteries"
+            tag.Size = UDim2.new(0, 200, 0, 50)
+            tag.StudsOffset = Vector3.new(0, 0.7, 0) -- Adjusted offset
+            tag.AlwaysOnTop = true
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextStrokeTransparency = 0 
+            textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.Font = Enum.Font.Jura
+            textLabel.TextScaled = true
+            textLabel.Text = customName
+            textLabel.Parent = tag
+            tag.Parent = target
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "Highlight"
+            highlight.Adornee = target
+            highlight.FillColor = Color3.fromRGB(255, 255, 255)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 139)
+            highlight.Parent = target
+            markedTargets[target] = customName
+            
+            -- 添加优质圆圈 UI
+            createCircularUI(tag, Color3.fromRGB(255, 255, 255))
+        end
+
+        local function recursiveFindAll(parent, name, targets)
+            for _, child in ipairs(parent:GetChildren()) do
+                if child.Name == name then
+                    table.insert(targets, child)
+                end
+                recursiveFindAll(child, name, targets)
+            end
+        end
+
+        local function Itemlocationname(name, customName)
+            local targets = {}
+            recursiveFindAll(game, name, targets)
+            for _, target in ipairs(targets) do
+                markTarget(target, customName)
+            end
+        end
+
+        local function Invalidplayername(playerName, customName)
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Name == playerName and player.Character then
+                    local head = player.Character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, customName)
+                    end
+                end
+            end
+        end
+
+        if state then
+            Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function(character)
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, player.Name)
+                    end
+                end)
+            end)
+
+            game.DescendantAdded:Connect(function(descendant)
+                if descendant.Name == "Key" then
+                    markTarget(descendant, "Key")
+                end
+            end)
+
+            RunService.RenderStepped:Connect(function()
+                for target, customName in pairs(markedTargets) do
+                    if target and target:FindFirstChild("Batteries") then
+                        target.Batteries.TextLabel.Text = customName
+                    else
+                        if target then
+                            markTarget(target, customName)
+                        end
+                    end
+                end
+            end)
+
+            Invalidplayername("玩家名称", "玩家")
+            Itemlocationname("Key", "Key")
+        else
+            for target, _ in pairs(markedTargets) do
+                if target:FindFirstChild("Batteries") then
+                    target.Batteries:Destroy()
+                end
+                if target:FindFirstChild("Highlight") then
+                    target.Highlight:Destroy()
+                end
+            end
+            markedTargets = {}
+        end
+    end
+})
 
 -- Add the toggle to enable/disable speed control
 Tab3:AddToggle({
