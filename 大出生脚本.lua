@@ -124,6 +124,24 @@ function esp(what, color, core, name)
     return ret
 end
 ------------------
+local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+------------------
+playSound("rbxassetid://4590662766", 1, 3.5)
+Notification:Notify(
+    {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
+    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
+    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+)
+
+Notification:Notify(
+    {Title = "出生 v" .. v, Description = "script.lol.run"},
+    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
+    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+)
+wait(2)
+
+
 local v = 1.1
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))() 
 local Window = OrionLib:MakeWindow({Name = "出生脚本 v" .. v, HidePremium = true, SaveConfig = true, ConfigFolder = "Loser"})
@@ -237,8 +255,6 @@ local function startMonitoring()
                     if distance < 500 then
                         -- Notify the player
 			playSound("rbxassetid://4590662766", 1, 3.5)
-                        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
-			local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
                         Notification:Notify(
                             {Title = "出生", Description = player.Name .. " 玩家在你50格范围之内"},
                             {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
@@ -320,8 +336,7 @@ Tab3:AddToggle({
 	Callback = function(state)
         if state then
             local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  --enity
-            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
-            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+	    playSound("rbxassetid://4590662766", 1, 3.5)
 
             -- Ensure flags and plr are defined
             local flags = flags or {} --Prevent Error
@@ -583,6 +598,129 @@ Tab3:AddToggle({
                     end
                 end
                 _G.lockerESPInstances = nil
+            end
+        end
+    end
+})
+
+Tab3:AddToggle({
+	Name = "金币视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.lockESPInstances = {}
+            local esptable = {lock = {}}
+            local flags = {esplock = true}
+
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "GoldPile" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(1, 0.5, 0), v.PrimaryPart, "Gold")
+                        table.insert(esptable.lockers, h)
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.lockerESPInstances, esptable)
+
+	else
+            if _G.lockESPInstances then
+                for _, instance in pairs(_G.lockESPInstances) do
+                    for _, v in pairs(instance.lock) do
+                        v.delete()
+                    end
+                end
+                _G.lockESPInstances = nil
+            end
+        end
+    end
+})
+
+Tab3:AddToggle({
+	Name = "书视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.bookESPInstances = {}
+            local esptable = {books = {}}
+            local flags = {espbooks = true}
+
+	    local function check(v)
+                if v:IsA("Model") and (v.Name == "LiveHintBook" or v.Name == "LiveBreakerPolePickup") then
+                    task.wait(0.1)
+                    
+                    local h = esp(v, Color3.fromRGB(255, 255, 255), v.PrimaryPart, "Book")
+                    table.insert(esptable.books, h)
+                    
+                    v.AncestryChanged:Connect(function()
+                        if not v:IsDescendantOf(room) then
+                            h.delete() 
+                        end
+                    end)
+                end
+            end
+            
+            local function setup(room)
+                if room.Name == "50" or room.Name == "100" then
+                    room.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(room:GetDescendants()) do
+                        check(v)
+                    end
+                end
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.bookESPInstances, esptable)
+
+	else
+            if _G.bookESPInstances then
+                for _, instance in pairs(_G.bookESPInstances) do
+                    for _, v in pairs(instance.books) do
+                        v.delete()
+                    end
+                end
+                _G.bookESPInstances = nil
             end
         end
     end
