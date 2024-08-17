@@ -49,7 +49,7 @@ function esp(what, color, core, name)
             box.ZIndex = 1
             box.AdornCullingMode = Enum.AdornCullingMode.Never
             box.Color3 = color
-            box.Transparency = 0.7
+            box.Transparency = 0.999
             box.Adornee = v
             box.Parent = game.CoreGui
 
@@ -127,6 +127,8 @@ end
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 local v = 1.1
+local speedControlEnabled = false 
+local FOVEnabled = false
 
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
@@ -607,6 +609,252 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
+	Name = "高亮",
+	Default = false,
+	Callback = function(state)
+        local Light = game:GetService("Lighting")
+
+        local function dofullbright()
+            Light.Ambient = Color3.new(1, 1, 1)
+            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
+            Light.ColorShift_Top = Color3.new(1, 1, 1)
+        end
+
+        local function resetLighting()
+            Light.Ambient = Color3.new(0, 0, 0)
+            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Light.ColorShift_Top = Color3.new(0, 0, 0)
+        end
+
+        if state then
+            _G.fullBrightEnabled = true
+            task.spawn(function()
+                while _G.fullBrightEnabled do
+                    dofullbright()
+                    task.wait(0)  -- 每秒检查一次
+                end
+            end)
+        else
+            _G.fullBrightEnabled = false
+            resetLighting()
+        end
+    end
+})
+
+Tab3:AddToggle({
+	Name = "实体视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.entityESPInstances = {}
+            local esptable = {entity = {}}
+            local flags = {esprush = true}
+            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Eyes", "JeffTheKiller", "SeekMoving"}
+	    
+            local addconnect
+            addconnect = workspace.ChildAdded:Connect(function(v)
+                if table.find(entitynames, v.Name) then
+                    task.wait(0.1)
+                    
+                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""))
+                    table.insert(esptable.entity, h)
+                end
+            end)
+
+            local function setup(room)
+                if room.Name == "50" or room.Name == "100" then
+                    local figuresetup = room:WaitForChild("FigureSetup")
+                
+                    if figuresetup then
+                        local fig = figuresetup:WaitForChild("FigureRagdoll")
+                        task.wait(0.1)
+                        
+                        local h = esp(fig, Color3.fromRGB(255, 25, 25), fig.PrimaryPart, "Figure")
+                        table.insert(esptable.entity, h)
+                    end 
+                else
+                    local assets = room:WaitForChild("Assets")
+                    
+                    local function check(v)
+                        if v:IsA("Model") and table.find(entitynames, v.Name) then
+                            task.wait(0.1)
+                            
+                            local h = esp(v:WaitForChild("Base"), Color3.fromRGB(255, 25, 25), v.Base, "Snare")
+                            table.insert(esptable.entity, h)
+                        end
+                    end
+                    
+                    assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                end 
+            end
+            
+            local roomconnect
+            roomconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+	    end
+
+	    table.insert(_G.entityESPInstances, esptable)
+
+        else
+            if _G.entityESPInstances then
+                for _, instance in pairs(_G.entityESPInstances) do
+                    for _, v in pairs(instance.entity) do
+                        v.delete()
+                    end
+                end
+                _G.entityESPInstances = nil
+            end
+        end
+    end				
+})
+
+Tab3:AddToggle({
+	Name = "物品视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.itemESPInstances = {}
+            local esptable = {items = {}}
+            local flags = {espitems = true}
+
+	    local function check(v)
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+                    task.wait(0.1)
+                    
+                    local part = (v:FindFirstChild("Handle") or v:FindFirstChild("Prop"))
+                    local h = esp(part, Color3.fromRGB(255, 255, 255), part, v.Name)
+                    table.insert(esptable.items, h)
+                end
+            end
+            
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then  
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.espitems
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+
+            table.insert(_G.itemESPInstances, esptable)
+
+        else
+            if _G.itemESPInstances then
+                for _, instance in pairs(_G.itemESPInstances) do
+                    for _, v in pairs(instance.items) do
+                        v.delete()
+                    end
+                end
+                _G.itemESPInstances = nil
+            end
+        end
+    end
+})
+
+Tab3:AddToggle({
+	Name = "自动图书馆密码",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.codeEventInstances = {}
+            local flags = {getcode = true}
+
+            local function deciphercode()
+                local paper = char:FindFirstChild("LibraryHintPaper")
+                local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+                
+                local code = {[1]="_", [2]="_", [3]="_", [4]="_", [5]="_"}
+                    
+                if paper then
+                    for i, v in pairs(paper:WaitForChild("UI"):GetChildren()) do
+                        if v:IsA("ImageLabel") and v.Name ~= "Image" then
+                            for i, img in pairs(hints:GetChildren()) do
+                                if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
+                                    local num = img:FindFirstChild("TextLabel").Text
+                                    
+                                    code[tonumber(v.Name)] = num 
+                                end
+                            end
+                        end
+                    end 
+                end
+                
+                return code
+            end
+            
+            local addconnect
+            addconnect = char.ChildAdded:Connect(function(v)
+                if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
+                    task.wait()
+                    
+                    local code = table.concat(deciphercode())
+                    
+                    if code:find("_") then
+			local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+                        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+                        Notification:Notify(
+                            {Title = "出生", Description = "给我去收集所有书你还没收集完"},
+                            {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                            {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                        )
+                    else
+			local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+                        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+                        Notification:Notify(
+                            {Title = "出生", Description = "图书馆密码=" .. code},
+                            {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                            {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                        )
+                    end
+                end
+            end)
+            
+            table.insert(_G.codeEventInstances, addconnect)
+
+        else
+            if _G.codeEventInstances then
+                for _, instance in pairs(_G.codeEventInstances) do
+                    instance:Disconnect()
+                end
+                _G.codeEventInstances = nil
+            end
+        end
+    end
+})
+
+Tab3:AddToggle({
 	Name = "金币视奸👁️",
 	Default = false,
 	Callback = function(state)
@@ -619,7 +867,7 @@ Tab3:AddToggle({
                 if v:IsA("Model") then
                     task.wait(0.1)
                     if v.Name == "GoldPile" then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(1, 0.5, 0), v.PrimaryPart, "Gold")
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(255, 255, 255), v.PrimaryPart, "Gold")
                         table.insert(esptable.lockers, h)
                     end
                 end
@@ -725,6 +973,70 @@ Tab3:AddToggle({
                 end
                 _G.bookESPInstances = nil
             end
+        end
+    end
+})	
+-- Add the toggle to enable/disable speed control
+Tab3:AddToggle({
+    Name = "Enable Speed",
+    Default = false,
+    Callback = function(state)
+        speedControlEnabled = state -- Update the variable based on the toggle state
+        if not state then
+            -- Reset the speed to default when speed control is disabled
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+        end
+    end
+})
+-- Add the textbox to input the desired speed
+Tab3:AddTextbox({
+    Name = "Speed",
+    Default = "16", -- Default speed in Roblox is usually 16
+    TextDisappear = true,
+    Callback = function(Value)
+        if speedControlEnabled then
+            -- Convert the input to a number and update the WalkSpeed
+            local speed = Value
+            if speed then
+                game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+            else
+                -- Handle invalid input (not a number)
+                warn("Please enter a valid number.")
+            end
+        else
+            warn("Speed control is disabled.")
+        end
+    end
+})
+-- Add the toggle to enable/disable FOV control
+Tab3:AddToggle({
+    Name = "Enable FOV",
+    Default = false,
+    Callback = function(state)
+        FOVEnabled = state -- Update the variable based on the toggle state
+        if not state then
+            -- Reset the FOV to default when FOV control is disabled
+            game:GetService("Workspace").CurrentCamera.FieldOfView = 70
+        end
+    end
+})
+-- Add the textbox to input the desired FOV
+Tab3:AddTextbox({
+    Name = "FOV",
+    Default = "70", -- Default FOV in Roblox is usually 70
+    TextDisappear = true,
+    Callback = function(FOV)
+        if FOVEnabled then
+            -- Convert the input to a number and update the FOV
+            local fo = tonumber(FOV)
+            if fo then
+                game:GetService("Workspace").CurrentCamera.FieldOfView = fo
+            else
+                -- Handle invalid input (not a number)
+                warn("Please enter a valid number.")
+            end
+        else
+            warn("FOV control is disabled.")
         end
     end
 })
