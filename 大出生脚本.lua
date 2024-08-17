@@ -974,28 +974,36 @@ Tab3:AddToggle({
         end
     end
 })
+
 Tab3:AddToggle({
-    Name = "删除稀客  和他的胳膊  还有火(不能关闭)",
+    Name = "删除稀客 和他的胳膊 还有火",
     Default = false,
     Callback = function(Seek)
-    game:GetService("RunService").RenderStepped:Connect(function()
+        local connection
         if Seek then
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("SeekMoving"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("SeekMoving"):Destroy()
-	    game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("ChandelierObstruction"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("ChandelierObstruction"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("Seek_Arm"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("Seek_Arm"):Destroy()
-	else
-	    game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("SeekMoving"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("SeekMoving"):Destroy()
-	    game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("ChandelierObstruction"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("ChandelierObstruction"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("Seek_Arm"):Destroy()
-            game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("Seek_Arm"):Destroy()
+            connection = game:GetService("RunService").RenderStepped:Connect(function()
+                local room = game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]
+                -- Start Remove Seek Fire/Arm
+                if room:FindFirstChild("SeekMoving") then
+                    room:WaitForChild("SeekMoving"):Destroy()
+                end
+                if room:FindFirstChild("ChandelierObstruction") then
+                    room:WaitForChild("ChandelierObstruction"):Destroy()
+                end
+                if room:FindFirstChild("Seek_Arm") then
+                    room:WaitForChild("Seek_Arm"):Destroy()
+                end
+            end)
+        else
+            if connection then
+                connection:Disconnect()  --Connect:Disconnect
+            end
+            -- Fixed Original
+            local room = game.workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]
         end
     end
 })
+
 
 -- Add the toggle to enable/disable speed control
 Tab3:AddToggle({
