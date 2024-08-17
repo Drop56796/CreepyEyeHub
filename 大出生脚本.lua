@@ -123,9 +123,10 @@ function esp(what, color, core, name)
 
     return ret
 end
-
+------------------
+local v = 1.1
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))() 
-local Window = OrionLib:MakeWindow({Name = "出生脚本 V1.1", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
+local Window = OrionLib:MakeWindow({Name = "出生脚本 v" .. v, HidePremium = true, SaveConfig = true, ConfigFolder = "Loser"})
 
 local Tab = Window:MakeTab({
 	Name = "公告",
