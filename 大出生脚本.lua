@@ -1105,6 +1105,7 @@ Tab3:AddToggle({
 	Name = "金币视奸👁️",
 	Default = false,
 	Callback = function(state)
+        if state then
         local Players = game:GetService("Players")
         local RunService = game:GetService("RunService")
         local markedTargets = {}
@@ -1187,8 +1188,8 @@ Tab3:AddToggle({
             end
         end
 
-        if state then
-            Players.PlayerAdded:Connect(function(player)
+        
+        Players.PlayerAdded:Connect(function(player)
                 player.CharacterAdded:Connect(function(character)
                     local head = character:FindFirstChild("Head")
                     if head then
