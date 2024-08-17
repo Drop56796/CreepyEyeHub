@@ -187,16 +187,6 @@ Tab2:AddTextbox({
 	end	  
 })
 
-Tab6:AddTextbox({
-	Name = "fov",
-	Default = "default box input",
-	TextDisappear = true,
-	Callback = function(Value)
-		game:GetService("Workspace").CurrentCamera.FieldOfView = Value
-	end	  
-})
-
-
 Tab2:AddToggle({
 	Name = "No cilp",
 	Default = false,
@@ -321,26 +311,6 @@ Tab2:AddToggle({
     end
 })
 
-Tab6:AddToggle({
-    Name = "变成知秋2",
-    Default = false,
-    Callback = function(state)
-        if state then
-            autoInteract = true
-            while autoInteract do
-                for _, descendant in pairs(workspace:GetDescendants()) do
-                    if descendant:IsA("ProximityPrompt") then
-                        fireproximityprompt(descendant)
-                    end
-                end
-                task.wait(0.25) -- Adjust the wait time as needed
-            end
-        else
-            autoInteract = false
-        end
-    end
-})
-
 local Tab6 = Window:MakeTab({
 	Name = "通用",
 	Icon = "rbxassetid://4483345998",
@@ -401,6 +371,26 @@ Tab6:AddToggle({
             end)
         else
             humanoidRootPart.Anchored = false -- Unanchor to stop flying
+        end
+    end
+})
+
+Tab6:AddToggle({
+    Name = "变成知秋2",
+    Default = false,
+    Callback = function(state)
+        if state then
+            autoInteract = true
+            while autoInteract do
+                for _, descendant in pairs(workspace:GetDescendants()) do
+                    if descendant:IsA("ProximityPrompt") then
+                        fireproximityprompt(descendant)
+                    end
+                end
+                task.wait(0.25) -- Adjust the wait time as needed
+            end
+        else
+            autoInteract = false
         end
     end
 })
