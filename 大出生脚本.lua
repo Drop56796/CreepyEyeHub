@@ -123,16 +123,16 @@ function esp(what, color, core, name)
 
     return ret
 end
-------------------
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 
-playSound("rbxassetid://4590662766", 1, 3.5)
+
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
+playSound("rbxassetid://4590662766", 1, 3.5)
 
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "script.lol.run"},
@@ -255,6 +255,8 @@ local function startMonitoring()
                     if distance < 500 then
                         -- Notify the player
 			playSound("rbxassetid://4590662766", 1, 3.5)
+			local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+                        local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
                         Notification:Notify(
                             {Title = "出生", Description = player.Name .. " 玩家在你50格范围之内"},
                             {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
@@ -336,6 +338,8 @@ Tab3:AddToggle({
 	Callback = function(state)
         if state then
             local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  --enity
+	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 	    playSound("rbxassetid://4590662766", 1, 3.5)
 
             -- Ensure flags and plr are defined
