@@ -312,9 +312,9 @@ Tab3:AddButton({
       		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/DOORS%20PC.lua?raw=true"))()
   	end    
 })
-Tab:AddLabel("--------------------------------")
+Tab3:AddLabel("--------------------------------")
 
-Tab2:AddToggle({
+Tab3:AddToggle({
 	Name = "实体消息",
 	Default = false,
 	Callback = function(state)
@@ -365,11 +365,227 @@ Tab2:AddToggle({
     end
 })
 
-Tab2:AddToggle({
-	Name = "",
+Tab3:AddToggle({
+	Name = "快速交互",
 	Default = false,
 	Callback = function(state)
-        
+        if state then
+            -- open
+            autoInteract = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            autoInteract = false
+        end
+    end
+})
+
+Tab3:AddToggle({
+	Name = "No cilp",
+	Default = false,
+	Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        if state then
+            _G.NoClip = runService.Stepped:Connect(function()
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end)
+        else
+            if _G.NoClip then
+                _G.NoClip:Disconnect()
+                _G.NoClip = nil
+            end
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+        end
+    end  
+})
+
+Tab3:AddToggle({
+	Name = "门视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.doorESPInstances = {}
+            local esptable = {doors = {}}
+            local flags = {espdoors = true}
+				
+	    local function setup(room)
+                local door = room:WaitForChild("Door"):WaitForChild("Door")
+                
+                task.wait(0.1)
+                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door")
+                table.insert(esptable.doors, h)
+                
+                door:WaitForChild("Open").Played:Connect(function()
+                    h.delete()
+                end)
+                
+                door.AncestryChanged:Connect(function()
+                    h.delete()
+                end)
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+
+            table.insert(_G.doorESPInstances, esptable)
+
+        else
+            if _G.doorESPInstances then
+                for _, instance in pairs(_G.doorESPInstances) do
+                    for _, v in pairs(instance.doors) do
+                        v.delete()
+                    end
+                end
+                _G.doorESPInstances = nil
+            end
+        end
+    end
+})
+
+Tab3:AddToggle({
+	Name = "衣柜视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.lockerESPInstances = {}
+            local esptable = {lockers = {}}
+            local flags = {esplocker = true}
+
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "Wardrobe" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
+                        table.insert(esptable.lockers, h) 
+                    elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker")
+                        table.insert(esptable.lockers, h) 
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.lockerESPInstances, esptable)
+
+	else
+            if _G.lockerESPInstances then
+                for _, instance in pairs(_G.lockerESPInstances) do
+                    for _, v in pairs(instance.lockers) do
+                        v.delete()
+                    end
+                end
+                _G.lockerESPInstances = nil
+            end
+        end
+    end
 })
 
 local Tab4 = Window:MakeTab({
