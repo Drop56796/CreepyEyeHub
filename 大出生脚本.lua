@@ -1543,18 +1543,19 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-	Name = "实体消息",
-	Default = false,
-	Callback = function(state)
+    Name = "实体消息",
+    Default = false,
+    Callback = function(state)
         if state then
             local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
-	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-	    playSound("rbxassetid://4590662766", 1, 3.5)
+            playSound("rbxassetid://4590662766", 1, 3.5)
 
             -- 确保 flags 和 plr 已定义
             local flags = flags or {} -- 防止错误
             local plr = game.Players.LocalPlayer -- 防止错误2
+            local entityEvent = game.ReplicatedStorage:FindFirstChild("EntityEvent")
 
             local function notifyEntitySpawn(entity)
                 Notification:Notify(
@@ -1562,7 +1563,11 @@ Tab3:AddToggle({
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
-                game.ReplicatedStorage.EntityEvent:FireAllClients(entity.Name .. " 已生成!!!!")
+                if entityEvent then
+                    entityEvent:FireAllClients(entity.Name .. " 已生成!!!!!")
+                else
+                    warn("EntityEvent does not exist in ReplicatedStorage.")
+                end
             end
 
             local function onChildAdded(child)
@@ -1595,33 +1600,32 @@ Tab3:AddToggle({
     end
 })
 
--- 实体事件
-local entityEvent = ReplicatedStorage:WaitForChild("EntityEvent")
-entityEvent.OnClientEvent:Connect(function(message)
-    game.Players.LocalPlayer:Chat(message)
-end)
-
 Tab3:AddToggle({
-	Name = "物品事件",
-	Default = false,
-	Callback = function(state)
+    Name = "物品事件",
+    Default = false,
+    Callback = function(state)
         if state then
-            local itemNames = {"Candle","Crucifix","SkeletonKey","Vitamins","Lockpick","Lighter","Flashlight"}  -- 物品名称
-	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local itemNames = {"Candle", "Crucifix", "SkeletonKey", "Vitamins", "Lockpick", "Lighter", "Flashlight"}  -- 物品名称
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-	    playSound("rbxassetid://4590662766", 1, 3.5)
+            playSound("rbxassetid://4590662766", 1, 3.5)
 
             -- 确保 flags 和 plr 已定义
             local flags = flags or {} -- 防止错误
             local plr = game.Players.LocalPlayer -- 防止错误2
+            local itemEvent = game.ReplicatedStorage:FindFirstChild("ItemEvent")
 
             local function notifyItemEvent(item)
                 Notification:Notify(
-                    {Title = "事件触发", Description = item.Name .. " 已生成请检查周围"},
+                    {Title = "出生[物品事件]", Description = item.Name .. " 已生成请检查周围"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
-                game.ReplicatedStorage.ItemEvent:FireAllClients(item.Name .. " 已生成")
+                if itemEvent then
+                    itemEvent:FireAllClients(item.Name .. " 已生成")
+                else
+                    warn("ItemEvent does not exist in ReplicatedStorage.")
+                end
             end
 
             local function onChildAdded(child)
@@ -1643,7 +1647,7 @@ Tab3:AddToggle({
                 
                 repeat
                     task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrushlol or not running
+                until not flags.hintrush or not running
                 
                 connection:Disconnect()
             end 
@@ -1653,10 +1657,5 @@ Tab3:AddToggle({
         end
     end
 })
-
-local itemEvent = ReplicatedStorage:WaitForChild("ItemEvent")
-itemEvent.OnClientEvent:Connect(function(message)
-    game.Players.LocalPlayer:Chat(message)
-end)
 
 OrionLib:Init()
