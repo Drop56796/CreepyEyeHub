@@ -129,7 +129,10 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local v = 1.3
 local speedControlEnabled = false 
 local FOVEnabled = false
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local flags = {
+   auraActive = false, 
+   leverAuraActive = false
+}
 
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
@@ -1674,17 +1677,18 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-    Name = "自动交互 书/物品",
+    Name = "自动交互 书/电力盒/物品/拉杆",
     Default = false,
     Callback = function(state)
         if state then
+            flags.auraActive = true
+            flags.leverAuraActive = true
             local player = game.Players.LocalPlayer
             local character = player.Character or player.CharacterAdded:Wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-            local auraDistance = 12 -- 定义感知光环的距离
-            local flags = {auraActive = true}
+            local auraDistance = 10 -- 定义感知光环的距离
 
-            -- 检测距离并自动点击
+            -- 检测距离并自动点击物品
             local function checkDistance(item)
                 local part = item:FindFirstChild("Handle") or item:FindFirstChild("Prop") or item:FindFirstChildWhichIsA("BasePart")
                 if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
@@ -1696,15 +1700,32 @@ Tab3:AddToggle({
                 end
             end
 
-            -- 监控新物品的出现
-            local function check(v)
-                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType") or v.Name == "LiveBreakerPolePickup" or v.Name == "LiveHintBook") then
-                    task.wait(0.1)
-                    checkDistance(v)
+            -- 检测距离并自动点击LeverForGate
+            local function checkLeverDistance(lever)
+                local part = lever:FindFirstChildWhichIsA("BasePart")
+                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
+                    -- 尝试自动点击 ProximityPrompt
+                    local prompt = lever:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    if prompt then
+                        fireproximityprompt(prompt)
+                    end
                 end
             end
 
-            -- 设置监视器以处理现有和新添加的物品
+            -- 监控新物品或LeverForGate的出现
+            local function check(v)
+                if v:IsA("Model") then
+                    if v:GetAttribute("Pickup") or v:GetAttribute("PropType") or v.Name == "LiveBreakerPolePickup" or v.Name == "LiveHintBook" then
+                        task.wait(0.1)
+                        checkDistance(v)
+                    elseif v.Name == "LeverForGate" then
+                        task.wait(0.1)
+                        checkLeverDistance(v)
+                    end
+                end
+            end
+
+            -- 设置监视器以处理现有和新添加的物品或LeverForGate
             local function setup(room)
                 local assets = room:WaitForChild("Assets")
 
@@ -1719,7 +1740,7 @@ Tab3:AddToggle({
                     end
 
                     task.spawn(function()
-                        repeat task.wait() until not flags.auraActive
+                        repeat task.wait() until not flags.auraActive and not flags.leverAuraActive
                         subaddcon:Disconnect()
                     end)
                 end
@@ -1738,80 +1759,7 @@ Tab3:AddToggle({
 
         else
             flags.auraActive = false
-        end
-    end
-})
-
-Tab3:AddToggle({
-    Name = "自动交互 拉杆",
-    Default = false,
-    Callback = function(state)
-        if state then
-            local player = game.Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-            local auraDistance = 12 -- 定义感知光环的距离
-            local flags = {} -- 初始化 flags 表
-
-            -- 标记 auraActive 为 true
-            flags.leverAuraActive = true
-
-            -- 检测距离并自动点击
-            local function checkDistance(lever)
-                local part = lever:FindFirstChildWhichIsA("BasePart")
-                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
-                    -- 尝试自动点击 ProximityPrompt
-                    local prompt = lever:FindFirstChildWhichIsA("ProximityPrompt", true)
-                    if prompt then
-                        fireproximityprompt(prompt)
-                    end
-                end
-            end
-
-            -- 监控新物品的出现
-            local function check(v)
-                if v:IsA("Model") and v.Name == "LeverForGate" then
-                    task.wait(0.1)
-                    checkDistance(v)
-                end
-            end
-
-            -- 设置监视器以处理现有和新添加的物品
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v)
-                    end)
-
-                    for i, v in pairs(assets:GetDescendants()) do
-                        check(v)
-                    end
-
-                    task.spawn(function()
-                        repeat task.wait() until not flags.leverAuraActive
-                        subaddcon:Disconnect()
-                    end)
-                end
-            end
-
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                if room:FindFirstChild("Assets") then
-                    setup(room)
-                end
-            end
-
-        else
-            if flags then
-                flags.leverAuraActive = false
-            end
+            flags.leverAuraActive = false -- 停止光环功能
         end
     end
 })
