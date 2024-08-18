@@ -782,7 +782,7 @@ Tab3:AddToggle({
             local doorCounter = 0  -- Initialize a counter for the doors
                 
             local function setup(room)
-                local door = room:WaitForChild("Door"):WaitForChild("Door")
+                local door = room:WaitForChild("Door") -- Directly get the Door object
                 
                 task.wait(0.1)
                 
@@ -790,14 +790,20 @@ Tab3:AddToggle({
                 doorCounter = doorCounter + 1
                 local doorIndex = string.format("%03d", doorCounter)
                 
-                -- Check if the door has a Lock
-                local lockStatus = Door:FindFirstChild("Lock") and "Locked" or "Unlocked"
+                -- Check if the door has a Lock directly under Door
+                local lock = door:FindFirstChild("Lock")
+                local lockStatus
+                if lock then
+                    lockStatus = lock.Value and "Locked" or "Unlocked"
+                else
+                    lockStatus = "Unlocked"
+                end
                 
-                -- 设置 ESP 时传递索引，显示门号和锁状态
-                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door " .. doorIndex .. " ｜ " .. lockStatus)
+                -- Setup ESP with the door index and lock status
+                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door " .. doorIndex .. " - " .. lockStatus)
                 table.insert(esptable.doors, h)
                 
-                door:WaitForChild("Open").Played:Connect(function()
+                door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
                     h.delete()
                 end)
                 
