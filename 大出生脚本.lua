@@ -748,6 +748,29 @@ Tab3:AddToggle({
     end  
 })
 
+Tab6:AddToggle({
+	Name = "玩家视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.espInstances = {}
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player.Character then
+                    local espInstance = esp(player.Character, Color3.new(1, 0.78, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                    table.insert(_G.espInstances, espInstance)
+                end
+            end
+        else
+            if _G.espInstances then
+                for _, espInstance in pairs(_G.espInstances) do
+                    espInstance.delete()
+                end
+                _G.espInstances = nil
+            end
+        end
+    end
+})
+
 Tab3:AddToggle({
 	Name = "门视奸👁️",
 	Default = false,
@@ -1391,7 +1414,6 @@ Tab3:AddToggle({
 	Name = "钥匙视奸👁️",
 	Default = false,
 	Callback = function(state)
-        if state then
         local Players = game:GetService("Players")
         local RunService = game:GetService("RunService")
         local markedTargets = {}
@@ -1474,8 +1496,8 @@ Tab3:AddToggle({
             end
         end
 
-        
-        Players.PlayerAdded:Connect(function(player)
+        if state then
+             Players.PlayerAdded:Connect(function(player)
                 player.CharacterAdded:Connect(function(character)
                     local head = character:FindFirstChild("Head")
                     if head then
