@@ -592,7 +592,9 @@ Tab3:AddButton({
       		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/DOORS%20PC.lua?raw=true"))()
   	end    
 })
-Tab3:AddLabel("--------------------------------")
+Tab3:AddLabel("----------------功能----------------")
+
+local autoInteract = false
 
 local autoInteract = false
 
@@ -632,7 +634,9 @@ Tab3:AddToggle({
                             elseif name == "GoldPile" then
                                 prompt = descendant:WaitForChild("LootPrompt")
                             else
-                                prompt = descendant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                -- 查找所有类型的 Prompt
+                                prompt = descendant:FindFirstChildWhichIsA("ProximityPrompt", true) 
+                                    or descendant:FindFirstChildWhichIsA("ModulePrompt", true)
                             end
 
                             -- 如果找到交互提示（Prompt），则执行自动交互
@@ -657,7 +661,8 @@ Tab3:AddToggle({
                     if descendant:GetAttribute("Pickup") or descendant:GetAttribute("PropType") then
                         local part = descendant:FindFirstChild("Handle") or descendant:FindFirstChild("Prop") or descendant:FindFirstChildWhichIsA("BasePart")
                         if part then
-                            local prompt = descendant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                            local prompt = descendant:FindFirstChildWhichIsA("ProximityPrompt", true) 
+                                or descendant:FindFirstChildWhichIsA("ModulePrompt", true)
                             if prompt then
                                 local interactions = prompt:GetAttribute("Interactions")
                                 if not interactions then
