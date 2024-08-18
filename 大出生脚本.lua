@@ -1743,7 +1743,7 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-    Name = "自动交互拉杆",
+    Name = "自动交互 拉杆",
     Default = false,
     Callback = function(state)
         if state then
@@ -1751,7 +1751,10 @@ Tab3:AddToggle({
             local character = player.Character or player.CharacterAdded:Wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
             local auraDistance = 12 -- 定义感知光环的距离
-            local flags = {leverAuraActive = true}
+            local flags = {} -- 初始化 flags 表
+
+            -- 标记 auraActive 为 true
+            flags.leverAuraActive = true
 
             -- 检测距离并自动点击
             local function checkDistance(lever)
@@ -1806,7 +1809,9 @@ Tab3:AddToggle({
             end
 
         else
-            flags.leverAuraActive = false
+            if flags then
+                flags.leverAuraActive = false
+            end
         end
     end
 })
