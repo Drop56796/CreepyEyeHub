@@ -772,19 +772,18 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-    Name = "门视奸👁️",
+    Name = "Door ESP 👁️",
     Default = false,
     Callback = function(state)
         if state then
             _G.doorESPInstances = {}
             local esptable = {doors = {}}
-            local flags = {espdoors = true}
-                
-            local function updateDoorStatus(door, h, doorIndex)
+            local doorCount = 0  -- To keep track of door numbers
+
+            local function updateDoorStatus(door, h)
                 local isLocked = door:FindFirstChild("Lock") and door.Lock.Value or false
-                local isOpen = door:FindFirstChild("Open") and door.Open.Playing or false
-                local statusText = "<Door " .. doorIndex .. "> " .. (isLocked and "Locked" or "Unlocked") .. " - " .. (isOpen and "Open" or "Closed")
-                h.setText(statusText)
+                local statusText = (isLocked and "Locked" or "Unlocked")
+                h.setText("<" .. string.format("%03d", doorCount) .. "> " .. statusText)
             end
 
             local function setup(room)
@@ -792,33 +791,29 @@ Tab3:AddToggle({
                 
                 task.wait(0.1)
                 
-                -- Get the door index
-                local doorIndex = #esptable.doors + 1
-                -- Create initial ESP
-                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "<Door " .. doorIndex .. "> Unlocked - Closed")
+                -- Increment door count and format the number
+                doorCount = doorCount + 1
+                local doorIndex = string.format("%03d", doorCount)
+                
+                -- Create the ESP with formatted door index and status
+                -- Default status
+                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "<" .. doorIndex .. "> " .. statusText)
                 table.insert(esptable.doors, h)
                 
-                -- Update status when door's state changes
+                -- Update status when door's lock state changes
                 local function onDoorStateChanged()
-                    updateDoorStatus(door, h, doorIndex)
+                    updateDoorStatus(door, h)
                 end
 
-                -- Connect signals
+                -- Connect signal for lock status changes
                 if door:FindFirstChild("Lock") then
                     door.Lock:GetPropertyChangedSignal("Value"):Connect(onDoorStateChanged)
-                end
-                if door:FindFirstChild("Open") then
-                    door.Open:GetPropertyChangedSignal("Playing"):Connect(onDoorStateChanged)
                 end
 
                 -- Initial status update
                 onDoorStateChanged()
                 
-                -- Clean up ESP on door destruction or opening
-                door:WaitForChild("Open").Played:Connect(function()
-                    h.delete()
-                end)
-                
+                -- Clean up ESP on door destruction
                 door.AncestryChanged:Connect(function()
                     h.delete()
                 end)
