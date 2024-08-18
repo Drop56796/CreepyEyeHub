@@ -1673,4 +1673,142 @@ Tab3:AddToggle({
     end
 })
 
+Tab3:AddToggle({
+    Name = "自动交互 书/物品",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            local auraDistance = 12 -- 定义感知光环的距离
+            local flags = {auraActive = true}
+
+            -- 检测距离并自动点击
+            local function checkDistance(item)
+                local part = item:FindFirstChild("Handle") or item:FindFirstChild("Prop") or item:FindFirstChildWhichIsA("BasePart")
+                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
+                    -- 尝试自动点击 ProximityPrompt
+                    local prompt = item:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    if prompt then
+                        fireproximityprompt(prompt)
+                    end
+                end
+            end
+
+            -- 监控新物品的出现
+            local function check(v)
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType") or v.Name == "LiveBreakerPolePickup" or v.Name == "LiveHintBook") then
+                    task.wait(0.1)
+                    checkDistance(v)
+                end
+            end
+
+            -- 设置监视器以处理现有和新添加的物品
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.auraActive
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+
+        else
+            flags.auraActive = false
+        end
+    end
+})
+
+Tab3:AddToggle({
+    Name = "自动交互拉杆",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            local auraDistance = 12 -- 定义感知光环的距离
+            local flags = {leverAuraActive = true}
+
+            -- 检测距离并自动点击
+            local function checkDistance(lever)
+                local part = lever:FindFirstChildWhichIsA("BasePart")
+                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
+                    -- 尝试自动点击 ProximityPrompt
+                    local prompt = lever:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    if prompt then
+                        fireproximityprompt(prompt)
+                    end
+                end
+            end
+
+            -- 监控新物品的出现
+            local function check(v)
+                if v:IsA("Model") and v.Name == "LeverForGate" then
+                    task.wait(0.1)
+                    checkDistance(v)
+                end
+            end
+
+            -- 设置监视器以处理现有和新添加的物品
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.leverAuraActive
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+
+        else
+            flags.leverAuraActive = false
+        end
+    end
+})
+
 OrionLib:Init()
