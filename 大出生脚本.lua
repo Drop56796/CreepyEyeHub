@@ -129,10 +129,6 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local v = 1.3
 local speedControlEnabled = false 
 local FOVEnabled = false
-local flags = {
-   auraActive = false, 
-   leverAuraActive = false
-}
 
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
@@ -621,6 +617,20 @@ Tab3:AddToggle({
                 "LeverForGate"
             }
 
+            -- 自动点击 ModulePrompt
+            local function firemoduleprompt(prompt)
+                if prompt and prompt:IsA("ModulePrompt") then
+                    prompt:Activate()
+                end
+            end
+
+            -- 自动点击 ActivateEventPrompt
+            local function fireactivateeventprompt(prompt)
+                if prompt and prompt:IsA("ActivateEventPrompt") then
+                    prompt:Activate()
+                end
+            end
+
             -- 检查并自动交互
             local function checkAndInteract(descendant)
                 if descendant:IsA("Model") then
@@ -634,9 +644,8 @@ Tab3:AddToggle({
                             elseif name == "GoldPile" then
                                 prompt = descendant:WaitForChild("LootPrompt")
                             else
-                                -- 查找所有类型的 Prompt
-                                prompt = descendant:FindFirstChildWhichIsA("ProximityPrompt", true) 
-                                    or descendant:FindFirstChildWhichIsA("ModulePrompt", true)
+                                -- 查找 ModulePrompt
+                                prompt = descendant:FindFirstChildWhichIsA("ModulePrompt", true)
                             end
 
                             -- 如果找到交互提示（Prompt），则执行自动交互
@@ -647,7 +656,12 @@ Tab3:AddToggle({
                                         while autoInteract and not prompt:GetAttribute("Interactions") do
                                             task.wait(0.1)
                                             if humanoidRootPart and player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
-                                                fireproximityprompt(prompt)
+                                                -- 自动点击 ModulePrompt 或 ActivateEventPrompt
+                                                if prompt:IsA("ModulePrompt") then
+                                                    firemoduleprompt(prompt)
+                                                elseif prompt:IsA("ActivateEventPrompt") then
+                                                    fireactivateeventprompt(prompt)
+                                                end
                                             end
                                         end
                                     end)
@@ -661,8 +675,7 @@ Tab3:AddToggle({
                     if descendant:GetAttribute("Pickup") or descendant:GetAttribute("PropType") then
                         local part = descendant:FindFirstChild("Handle") or descendant:FindFirstChild("Prop") or descendant:FindFirstChildWhichIsA("BasePart")
                         if part then
-                            local prompt = descendant:FindFirstChildWhichIsA("ProximityPrompt", true) 
-                                or descendant:FindFirstChildWhichIsA("ModulePrompt", true)
+                            local prompt = descendant:FindFirstChildWhichIsA("ModulePrompt", true)
                             if prompt then
                                 local interactions = prompt:GetAttribute("Interactions")
                                 if not interactions then
@@ -670,7 +683,8 @@ Tab3:AddToggle({
                                         while autoInteract and not prompt:GetAttribute("Interactions") do
                                             task.wait(0.1)
                                             if humanoidRootPart and player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
-                                                fireproximityprompt(prompt)
+                                                -- 自动点击 ModulePrompt
+                                                firemoduleprompt(prompt)
                                             end
                                         end
                                     end)
