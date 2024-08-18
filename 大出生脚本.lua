@@ -49,7 +49,7 @@ function esp(what, color, core, name)
             box.ZIndex = 1
             box.AdornCullingMode = Enum.AdornCullingMode.Never
             box.Color3 = color
-            box.Transparency = 0.999
+            box.Transparency = 0.8
             box.Adornee = v
             box.Parent = game.CoreGui
 
@@ -786,21 +786,12 @@ Tab3:AddToggle({
                 
                 task.wait(0.1)
                 
-                -- Increment the door counter and format it as a three-digit number
+                -- Increment the door counter and format it as a four-digit number starting from 0001
                 doorCounter = doorCounter + 1
-                local doorIndex = string.format("%03d", doorCounter)
+                local doorIndex = string.format("%04d", doorCounter)
                 
-                -- Check if the door has a Lock directly under Door
-                local lock = door:FindFirstChild("Lock")
-                local lockStatus
-                if lock then
-                    lockStatus = lock.Value and "Locked" or "Unlocked"
-                else
-                    lockStatus = "Unlocked"
-                end
-                
-                -- Setup ESP with the door index and lock status
-                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door " .. doorIndex .. " - " .. lockStatus)
+                -- Set up ESP with the door index in the format "Door [0001]"
+                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]")
                 table.insert(esptable.doors, h)
                 
                 door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
