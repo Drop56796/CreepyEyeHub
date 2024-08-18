@@ -599,120 +599,76 @@ Tab3:AddToggle({
     Default = false,
     Callback = function(state)
         if state then
-            -- 启用自动交互
+            -- open
             autoInteract = true
 
-            -- 获取玩家
+            -- getplayer
             local player = game.Players.LocalPlayer
-            local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart") or nil
 
-            -- 定义所有需要交互的物品/对象名称
-            local interactableObjects = {
-                "DrawerContainer",
-                "GoldPile",
-                "ChestBox",
-                "RolltopContainer",
-                "LiveBreakerPolePickup",
-                "LiveHintBook",
-                "LeverForGate"
-            }
-
-            -- 自动点击 ModulePrompt
-            local function firemoduleprompt(prompt)
-                if prompt and prompt:IsA("ModulePrompt") then
-                    prompt:Activate()
-                end
-            end
-
-            -- 自动点击 ActivateEventPrompt
-            local function fireactivateeventprompt(prompt)
-                if prompt and prompt:IsA("ActivateEventPrompt") then
-                    prompt:Activate()
-                end
-            end
-
-            -- 检查并自动交互
-            local function checkAndInteract(descendant)
-                if descendant:IsA("Model") then
-                    local prompt = nil
-
-                    -- 处理特定名称的模型
-                    for _, name in pairs(interactableObjects) do
-                        if descendant.Name:sub(1, #name) == name then
-                            if name == "DrawerContainer" then
-                                prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
-                            elseif name == "GoldPile" then
-                                prompt = descendant:WaitForChild("LootPrompt")
-                            else
-                                -- 查找 ModulePrompt
-                                prompt = descendant:FindFirstChildWhichIsA("ModulePrompt", true)
-                            end
-
-                            -- 如果找到交互提示（Prompt），则执行自动交互
-                            if prompt then
-                                local interactions = prompt:GetAttribute("Interactions")
-                                if not interactions then
-                                    task.spawn(function()
-                                        while autoInteract and not prompt:GetAttribute("Interactions") do
-                                            task.wait(0.1)
-                                            if humanoidRootPart and player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
-                                                -- 自动点击 ModulePrompt 或 ActivateEventPrompt
-                                                if prompt:IsA("ModulePrompt") then
-                                                    firemoduleprompt(prompt)
-                                                elseif prompt:IsA("ActivateEventPrompt") then
-                                                    fireactivateeventprompt(prompt)
-                                                end
-                                            end
-                                        end
-                                    end)
-                                end
-                            end
-                            return -- 处理完后直接返回
-                        end
-                    end
-
-                    -- 处理具有 Pickup 或 PropType 属性的模型
-                    if descendant:GetAttribute("Pickup") or descendant:GetAttribute("PropType") then
-                        local part = descendant:FindFirstChild("Handle") or descendant:FindFirstChild("Prop") or descendant:FindFirstChildWhichIsA("BasePart")
-                        if part then
-                            local prompt = descendant:FindFirstChildWhichIsA("ModulePrompt", true)
-                            if prompt then
-                                local interactions = prompt:GetAttribute("Interactions")
-                                if not interactions then
-                                    task.spawn(function()
-                                        while autoInteract and not prompt:GetAttribute("Interactions") do
-                                            task.wait(0.1)
-                                            if humanoidRootPart and player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
-                                                -- 自动点击 ModulePrompt
-                                                firemoduleprompt(prompt)
-                                            end
-                                        end
-                                    end)
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            -- 监控新添加的房间
+            -- check
             workspace.CurrentRooms.ChildAdded:Connect(function(room)
                 room.DescendantAdded:Connect(function(descendant)
-                    checkAndInteract(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
                 end)
             end)
 
-            -- 检查当前房间中的对象
+            -- check2
             for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
                 for _, descendant in pairs(room:GetDescendants()) do
-                    checkAndInteract(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
                 end
             end
         else
-            -- 禁用自动交互
+            -- close
             autoInteract = false
         end
-    end
+    end        
 })
 
 Tab3:AddToggle({
@@ -1716,6 +1672,96 @@ Tab3:AddToggle({
             if _G.itemNotificationInstances then
                 _G.itemNotificationInstances = nil
             end
+        end
+    end
+})
+
+local flags = {auraActive = false, leverAuraActive = false} -- 将 flags 移到函数外部
+
+Tab3:AddToggle({
+    Name = "自动交互 书/物品/拉杆",
+    Default = false,
+    Callback = function(state)
+        if state then
+            flags.auraActive = true
+            flags.leverAuraActive = true
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            local auraDistance = 12 -- 定义感知光环的距离
+
+            -- 检测距离并自动点击物品
+            local function checkDistance(item)
+                local part = item:FindFirstChild("Handle") or item:FindFirstChild("Prop") or item:FindFirstChildWhichIsA("BasePart")
+                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
+                    -- 尝试自动点击 ProximityPrompt
+                    local prompt = item:FindFirstChildWhichIsA("ModulePrompt", true)
+                    if prompt then
+                        fireproximityprompt(prompt)
+                    end
+                end
+            end
+
+            -- 检测距离并自动点击LeverForGate
+            local function checkLeverDistance(lever)
+                local part = lever:FindFirstChildWhichIsA("BasePart")
+                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
+                    -- 尝试自动点击 ProximityPrompt
+                    local prompt = lever:FindFirstChildWhichIsA("ActivateEventPrompt", true)
+                    if prompt then
+                        fireproximityprompt(prompt)
+                    end
+                end
+            end
+
+            -- 监控新物品或LeverForGate的出现
+            local function check(v)
+                if v:IsA("Model") then
+                    if v:GetAttribute("Pickup") or v:GetAttribute("PropType") or v.Name == "LiveBreakerPolePickup" or v.Name == "LiveHintBook" then
+                        task.wait(0.1)
+                        checkDistance(v)
+                    elseif v.Name == "LeverForGate" then
+                        task.wait(0.1)
+                        checkLeverDistance(v)
+                    end
+                end
+            end
+
+            -- 设置监视器以处理现有和新添加的物品或LeverForGate
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.auraActive and not flags.leverAuraActive
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+
+        else
+            flags.auraActive = false
+            flags.leverAuraActive = false -- 停止光环功能
         end
     end
 })
