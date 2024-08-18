@@ -1743,4 +1743,69 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end)
 end)
 
+-- 定义全局变量
+_G.Gates = false
+
+-- 添加 Toggle 用于 Gates
+Tab3:AddToggle({
+    Name = "Gate删除",
+    Default = false,
+    Callback = function(state)
+        _G.Gates = state
+        
+        -- 当 Gates 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.Gates then
+                        local latestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                        local currentRoom = game.workspace.CurrentRooms[tostring(latestRoom)]
+                        
+                        -- 销毁 Gate 对象
+                        if currentRoom:FindFirstChild("Gate") then
+                            currentRoom.Gate:Destroy()
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
+
+-- 定义全局变量
+_G.SeekES = false
+
+-- 添加 Toggle 用于 SeekES
+Tab3:AddToggle({
+    Name = "销毁 稀客胳膊/火",
+    Default = false,
+    Callback = function(state)
+        _G.SeekES = state
+        
+        -- 当 SeekES 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.SeekES then
+                        local latestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                        local currentRoom = game.workspace.CurrentRooms[tostring(latestRoom)]
+                        local assets = currentRoom:WaitForChild("Assets")
+
+                        -- 销毁 ChandelierObstruction 和 Seek_Arm
+                        if assets:FindFirstChild("ChandelierObstruction") then
+                            assets.ChandelierObstruction:Destroy()
+                        end
+
+                        for i = 1, 15 do
+                            if assets:FindFirstChild("Seek_Arm") then
+                                assets.Seek_Arm:Destroy()
+                            end
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
+
 OrionLib:Init()
