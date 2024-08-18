@@ -896,6 +896,51 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
+    Name = "稀客删除",
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- 创建一个函数用于删除包含 SeekMoving 的模型
+            local function deleteModelIfSeekMoving(model)
+                if model:FindFirstChild("SeekMoving") then
+                    model:Destroy()
+                end
+            end
+
+            -- 监听模型的添加事件
+            local function onModelAdded(model)
+                if model:IsA("Model") then
+                    deleteModelIfSeekMoving(model)
+                end
+            end
+
+            -- 监听 CurrentRooms 下的模型添加事件
+            local modelAddedConnection
+            modelAddedConnection = workspace.CurrentRooms.ChildAdded:Connect(function(model)
+                onModelAdded(model)
+            end)
+
+            -- 遍历现有的模型并进行检查
+            for _, model in pairs(workspace.CurrentRooms:GetChildren()) do
+                if model:IsA("Model") then
+                    deleteModelIfSeekMoving(model)
+                end
+            end
+
+            -- 保存连接，以便在关闭时可以断开
+            _G.modelAddedConnection = modelAddedConnection
+
+        else
+            -- 关闭功能，断开模型添加事件的监听
+            if _G.modelAddedConnection then
+                _G.modelAddedConnection:Disconnect()
+                _G.modelAddedConnection = nil
+            end
+        end
+    end
+})
+
+Tab3:AddToggle({
 	Name = "高亮",
 	Default = false,
 	Callback = function(state)
