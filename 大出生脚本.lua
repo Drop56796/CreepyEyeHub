@@ -1555,19 +1555,13 @@ Tab3:AddToggle({
             -- 确保 flags 和 plr 已定义
             local flags = flags or {} -- 防止错误
             local plr = game.Players.LocalPlayer -- 防止错误2
-            local entityEvent = game.ReplicatedStorage:FindFirstChild("EntityEvent")
 
             local function notifyEntitySpawn(entity)
                 Notification:Notify(
                     {Title = "出生[实体事件]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
-                )
-                if entityEvent then
-                    entityEvent:FireAllClients(entity.Name .. " 已生成!!!!!")
-                else
-                    warn("EntityEvent does not exist in ReplicatedStorage.")
-                end
+		)
             end
 
             local function onChildAdded(child)
@@ -1601,59 +1595,80 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-    Name = "物品事件",
+    Name = "物品消息",
     Default = false,
     Callback = function(state)
         if state then
-            local itemNames = {"Candle", "Crucifix", "SkeletonKey", "Vitamins", "Lockpick", "Lighter", "Flashlight"}  -- 物品名称
+            _G.itemNotificationInstances = {}
+            local flags = {notifitems = true}
+
+            -- 加载通知库
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-            playSound("rbxassetid://4590662766", 1, 3.5)
 
-            -- 确保 flags 和 plr 已定义
-            local flags = flags or {} -- 防止错误
-            local plr = game.Players.LocalPlayer -- 防止错误2
-            local itemEvent = game.ReplicatedStorage:FindFirstChild("ItemEvent")
-
-            local function notifyItemEvent(item)
+            -- 发送通知的函数
+            local function notifyItem(itemName)
                 Notification:Notify(
-                    {Title = "出生[物品事件]", Description = item.Name .. " 已生成请检查周围"},
+                    {Title = "出生[物品事件]", Description = itemName .. " 已生成"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
-                if itemEvent then
-                    itemEvent:FireAllClients(item.Name .. " 已生成")
-                else
-                    warn("ItemEvent does not exist in ReplicatedStorage.")
-                end
             end
 
-            local function onChildAdded(child)
-                if table.find(itemNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+            -- 监控新物品的出现
+            local function check(v)
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+                    task.wait(0.1)
+
+                    -- 尝试找到物品的主部件
+                    local part = v:FindFirstChild("Handle") or v:FindFirstChild("Prop") or v:FindFirstChildWhichIsA("BasePart")
                     
-                    if child:IsDescendantOf(workspace) then
-                        notifyItemEvent(child)
+                    -- 如果找到了部件，发送通知
+                    if part then
+                        local itemName = v.Name
+                        notifyItem(itemName)
                     end
                 end
             end
 
-            -- 无限循环以保持脚本运行并检查 hintrush 标志
-            local running = true
-            while running do
-                local connection = workspace.ChildAdded:Connect(onChildAdded)
-                
-                repeat
-                    task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrush or not running
-                
-                connection:Disconnect()
-            end 
-        else 
-            -- 关闭消息或进行其他清理（如有需要）
-            running = false
+            -- 设置监视器以处理现有和新添加的物品
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.notifitems
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+
+            table.insert(_G.itemNotificationInstances, flags)
+
+        else
+            if _G.itemNotificationInstances then
+                _G.itemNotificationInstances = nil
+            end
         end
     end
 })
