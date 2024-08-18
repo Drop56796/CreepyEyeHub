@@ -791,7 +791,7 @@ Tab3:AddToggle({
                 local doorIndex = string.format("%03d", doorCounter)
                 
                 -- Check if the door has a Lock
-                local lockStatus = door:FindFirstChild("Lock") and "Locked" or "Unlocked"
+                local lockStatus = Door:FindFirstChild("Lock") and "Locked" or "Unlocked"
                 
                 -- 设置 ESP 时传递索引，显示门号和锁状态
                 local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door " .. doorIndex .. " ｜ " .. lockStatus)
