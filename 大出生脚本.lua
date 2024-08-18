@@ -129,6 +129,7 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local v = 1.3
 local speedControlEnabled = false 
 local FOVEnabled = false
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
@@ -1549,15 +1550,11 @@ Tab3:AddToggle({
             local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
 	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+	    playSound("rbxassetid://4590662766", 1, 3.5)
 
             -- 确保 flags 和 plr 已定义
             local flags = flags or {} -- 防止错误
             local plr = game.Players.LocalPlayer -- 防止错误2
-
-            -- 创建一个 RemoteEvent 用于发送消息
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local entityEvent = Instance.new("RemoteEvent", ReplicatedStorage)
-            entityEvent.Name = "EntityEvent"
 
             local function notifyEntitySpawn(entity)
                 Notification:Notify(
@@ -1565,8 +1562,7 @@ Tab3:AddToggle({
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
-                entityEvent:FireAllClients(entity.Name .. " 已生成!!!")
-		playSound("rbxassetid://4590662766", 1, 2)
+                game.ReplicatedStorage.EntityEvent:FireAllClients(entity.Name .. " 已生成!!!!")
             end
 
             local function onChildAdded(child)
@@ -1599,11 +1595,9 @@ Tab3:AddToggle({
     end
 })
 
--- 客户端脚本，用于接收并显示消息
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local EntityEvent = ReplicatedStorage:WaitForChild("EntityEvent")
-
-EntityEvent.OnClientEvent:Connect(function(message)
+-- 实体事件
+local entityEvent = ReplicatedStorage:WaitForChild("EntityEvent")
+entityEvent.OnClientEvent:Connect(function(message)
     game.Players.LocalPlayer:Chat(message)
 end)
 
@@ -1612,27 +1606,22 @@ Tab3:AddToggle({
 	Default = false,
 	Callback = function(state)
         if state then
-            local itemNames = {"Candle", "Crucifix", "SkeletonKey", "Vitamins", "Lockpick", "Lighter", "Flashlight"}  -- 物品名称
-	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()() --Lib1
-            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()() --Lib2
+            local itemNames = {"Candle","Crucifix","SkeletonKey","Vitamins","Lockpick","Lighter","Flashlight"}  -- 物品名称
+	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+	    playSound("rbxassetid://4590662766", 1, 3.5)
 
             -- 确保 flags 和 plr 已定义
             local flags = flags or {} -- 防止错误
             local plr = game.Players.LocalPlayer -- 防止错误2
 
-            -- 创建一个 RemoteEvent 用于发送消息
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local itemEvent = Instance.new("RemoteEvent", ReplicatedStorage)
-            itemEvent.Name = "ItemEvent"
-
             local function notifyItemEvent(item)
                 Notification:Notify(
-                    {Title = "出生[物品事件]", Description = item.Name .. " 已生成请检查周围"},
+                    {Title = "事件触发", Description = item.Name .. " 已生成请检查周围"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
-                itemEvent:FireAllClients(item.Name .. " 已生成")
-		playSound("rbxassetid://4590662766", 1, 2)
+                game.ReplicatedStorage.ItemEvent:FireAllClients(item.Name .. " 已生成")
             end
 
             local function onChildAdded(child)
@@ -1654,7 +1643,7 @@ Tab3:AddToggle({
                 
                 repeat
                     task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrusul or not running
+                until not flags.hintrushlol or not running
                 
                 connection:Disconnect()
             end 
@@ -1665,10 +1654,7 @@ Tab3:AddToggle({
     end
 })
 
--- 客户端脚本，用于接收并显示消息
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local itemEvent = ReplicatedStorage:WaitForChild("ItemEvent")
-
 itemEvent.OnClientEvent:Connect(function(message)
     game.Players.LocalPlayer:Chat(message)
 end)
