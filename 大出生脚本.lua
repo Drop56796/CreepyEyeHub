@@ -591,138 +591,6 @@ Tab3:AddButton({
 Tab3:AddLabel("--------------------------------")
 
 Tab3:AddToggle({
-	Name = "物品事件",
-	Default = false,
-	Callback = function(state)
-        if state then
-            local itemNames = {"Candle", "Crucifix", "SkeletonKey", "Vitamins", "Lockpick", "Lighter", "Flashlight"}  -- 物品名称
-	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()() --Lib1
-            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()() --Lib2
-
-            -- 确保 flags 和 plr 已定义
-            local flags = flags or {} -- 防止错误
-            local plr = game.Players.LocalPlayer -- 防止错误2
-
-            -- 创建一个 RemoteEvent 用于发送消息
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local itemEvent = Instance.new("RemoteEvent", ReplicatedStorage)
-            itemEvent.Name = "ItemEvent"
-
-            local function notifyItemEvent(item)
-                Notification:Notify(
-                    {Title = "出生[物品事件]", Description = item.Name .. " 已生成请检查周围"},
-                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
-                )
-                itemEvent:FireAllClients(item.Name .. " 已生成")
-		playSound("rbxassetid://4590662766", 1, 2)
-            end
-
-            local function onChildAdded(child)
-                if table.find(itemNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-                    
-                    if child:IsDescendantOf(workspace) then
-                        notifyItemEvent(child)
-                    end
-                end
-            end
-
-            -- 无限循环以保持脚本运行并检查 hintrush 标志
-            local running = true
-            while running do
-                local connection = workspace.ChildAdded:Connect(onChildAdded)
-                
-                repeat
-                    task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrush or not running
-                
-                connection:Disconnect()
-            end 
-        else 
-            -- 关闭消息或进行其他清理（如有需要）
-            running = false
-        end
-    end
-})
-
--- 客户端脚本，用于接收并显示消息
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local itemEvent = ReplicatedStorage:WaitForChild("ItemEvent")
-
-itemEvent.OnClientEvent:Connect(function(message)
-    game.Players.LocalPlayer:Chat(message)
-end)
-
-Tab3:AddToggle({
-	Name = "实体消息",
-	Default = false,
-	Callback = function(state)
-        if state then
-            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
-	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
-            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-
-            -- 确保 flags 和 plr 已定义
-            local flags = flags or {} -- 防止错误
-            local plr = game.Players.LocalPlayer -- 防止错误2
-
-            -- 创建一个 RemoteEvent 用于发送消息
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local entityEvent = Instance.new("RemoteEvent", ReplicatedStorage)
-            entityEvent.Name = "EntityEvent"
-
-            local function notifyEntitySpawn(entity)
-                Notification:Notify(
-                    {Title = "出生[实体事件]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
-                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
-                )
-                entityEvent:FireAllClients(entity.Name .. " 已生成!!!")
-		playSound("rbxassetid://4590662766", 1, 2)
-            end
-
-            local function onChildAdded(child)
-                if table.find(entityNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-                    
-                    if child:IsDescendantOf(workspace) then
-                        notifyEntitySpawn(child)
-                    end
-                end
-            end
-
-            -- 无限循环以保持脚本运行并检查 hintrush 标志
-            local running = true
-            while running do
-                local connection = workspace.ChildAdded:Connect(onChildAdded)
-                
-                repeat
-                    task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrush or not running
-                
-                connection:Disconnect()
-            end 
-        else 
-            -- 关闭消息或进行其他清理（如有需要）
-            running = false
-        end
-    end
-})
-
--- 客户端脚本，用于接收并显示消息
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local entityEvent = ReplicatedStorage:WaitForChild("EntityEvent")
-
-entityEvent.OnClientEvent:Connect(function(message)
-    game.Players.LocalPlayer:Chat(message)
-end)
-
-Tab3:AddToggle({
 	Name = "快速交互",
 	Default = false,
 	Callback = function(state)
@@ -1672,5 +1540,137 @@ Tab3:AddToggle({
         end
     end        
 })
+
+Tab3:AddToggle({
+	Name = "实体消息",
+	Default = false,
+	Callback = function(state)
+        if state then
+            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
+	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+
+            -- 确保 flags 和 plr 已定义
+            local flags = flags or {} -- 防止错误
+            local plr = game.Players.LocalPlayer -- 防止错误2
+
+            -- 创建一个 RemoteEvent 用于发送消息
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local entityEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+            entityEvent.Name = "EntityEvent"
+
+            local function notifyEntitySpawn(entity)
+                Notification:Notify(
+                    {Title = "出生[实体事件]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+                entityEvent:FireAllClients(entity.Name .. " 已生成!!!")
+		playSound("rbxassetid://4590662766", 1, 2)
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- 无限循环以保持脚本运行并检查 hintrush 标志
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- 根据需要调整等待时间
+                until not flags.hintrush or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- 关闭消息或进行其他清理（如有需要）
+            running = false
+        end
+    end
+})
+
+-- 客户端脚本，用于接收并显示消息
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local EntityEvent = ReplicatedStorage:WaitForChild("EntityEvent")
+
+EntityEvent.OnClientEvent:Connect(function(message)
+    game.Players.LocalPlayer:Chat(message)
+end)
+
+Tab3:AddToggle({
+	Name = "物品事件",
+	Default = false,
+	Callback = function(state)
+        if state then
+            local itemNames = {"Candle", "Crucifix", "SkeletonKey", "Vitamins", "Lockpick", "Lighter", "Flashlight"}  -- 物品名称
+	    local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()() --Lib2
+
+            -- 确保 flags 和 plr 已定义
+            local flags = flags or {} -- 防止错误
+            local plr = game.Players.LocalPlayer -- 防止错误2
+
+            -- 创建一个 RemoteEvent 用于发送消息
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local itemEvent = Instance.new("RemoteEvent", ReplicatedStorage)
+            itemEvent.Name = "ItemEvent"
+
+            local function notifyItemEvent(item)
+                Notification:Notify(
+                    {Title = "出生[物品事件]", Description = item.Name .. " 已生成请检查周围"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+                itemEvent:FireAllClients(item.Name .. " 已生成")
+		playSound("rbxassetid://4590662766", 1, 2)
+            end
+
+            local function onChildAdded(child)
+                if table.find(itemNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyItemEvent(child)
+                    end
+                end
+            end
+
+            -- 无限循环以保持脚本运行并检查 hintrush 标志
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- 根据需要调整等待时间
+                until not flags.hintrusul or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- 关闭消息或进行其他清理（如有需要）
+            running = false
+        end
+    end
+})
+
+-- 客户端脚本，用于接收并显示消息
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local itemEvent = ReplicatedStorage:WaitForChild("ItemEvent")
+
+itemEvent.OnClientEvent:Connect(function(message)
+    game.Players.LocalPlayer:Chat(message)
+end)
 
 OrionLib:Init()
