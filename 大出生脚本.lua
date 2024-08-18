@@ -780,17 +780,41 @@ Tab3:AddToggle({
             local esptable = {doors = {}}
             local flags = {espdoors = true}
                 
+            local function updateDoorStatus(door, h, doorIndex)
+                local isLocked = door:FindFirstChild("Lock") and door.Lock.Value or false
+                local isOpen = door:FindFirstChild("Open") and door.Open.Playing or false
+                local statusText = "<Door " .. doorIndex .. "> " .. (isLocked and "Locked" or "Unlocked") .. " - " .. (isOpen and "Open" or "Closed")
+                h.setText(statusText)
+            end
+
             local function setup(room)
                 local door = room:WaitForChild("Door"):WaitForChild("Door")
                 
                 task.wait(0.1)
                 
-                -- 获取门的数量
+                -- Get the door index
                 local doorIndex = #esptable.doors + 1
-                -- 设置 ESP 时传递索引
-                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door " .. doorIndex)
+                -- Create initial ESP
+                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "<Door " .. doorIndex .. "> Unlocked - Closed")
                 table.insert(esptable.doors, h)
                 
+                -- Update status when door's state changes
+                local function onDoorStateChanged()
+                    updateDoorStatus(door, h, doorIndex)
+                end
+
+                -- Connect signals
+                if door:FindFirstChild("Lock") then
+                    door.Lock:GetPropertyChangedSignal("Value"):Connect(onDoorStateChanged)
+                end
+                if door:FindFirstChild("Open") then
+                    door.Open:GetPropertyChangedSignal("Playing"):Connect(onDoorStateChanged)
+                end
+
+                -- Initial status update
+                onDoorStateChanged()
+                
+                -- Clean up ESP on door destruction or opening
                 door:WaitForChild("Open").Played:Connect(function()
                     h.delete()
                 end)
@@ -1137,37 +1161,21 @@ Tab3:AddToggle({
 })
 
 Tab3:AddToggle({
-    Name = "金币视奸👁️",
-    Default = false,
-    Callback = function(state)
+	Name = "金币视奸👁️",
+	Default = false,
+	Callback = function(state)
         if state then
             _G.lockESPInstances = {}
             local esptable = {lock = {}}
             local flags = {esplock = true}
-            
-            local function updateGoldCount(room)
-                local goldCount = 0
-                -- 计算房间中的金币数量
-                for _, v in pairs(room:WaitForChild("Assets"):GetDescendants()) do
-                    if v:IsA("Model") and v.Name == "GoldPile" then
-                        goldCount = goldCount + 1
-                    end
-                end
-                -- 更新房间的金币数量显示
-                for _, espInstance in pairs(esptable.lock) do
-                    if espInstance.room == room then
-                        espInstance.setText("Gold: " .. goldCount)
-                    end
-                end
-            end
-            
-            local function check(v, room)
-                if v:IsA("Model") and v.Name == "GoldPile" then
+
+	    local function check(v)
+                if v:IsA("Model") then
                     task.wait(0.1)
-                    local h = esp(v.PrimaryPart, Color3.fromRGB(255, 255, 255), v.PrimaryPart, "Gold")
-                    h.room = room  -- 保存房间信息
-                    table.insert(esptable.lock, h)
-                    updateGoldCount(room)
+                    if v.Name == "GoldPile" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(255, 255, 255), v.PrimaryPart, "Gold")
+                        table.insert(esptable.lockers, h)
+                    end
                 end
             end
                 
@@ -1177,16 +1185,15 @@ Tab3:AddToggle({
                 if assets then
                     local subaddcon
                     subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v, room) 
-                        updateGoldCount(room)
+                        check(v) 
                     end)
                     
-                    for _, v in pairs(assets:GetDescendants()) do
-                        check(v, room)
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
                     end
                     
                     task.spawn(function()
-                        repeat task.wait() until not flags.esplock
+                        repeat task.wait() until not flags.esplocker
                         subaddcon:Disconnect()  
                     end) 
                 end 
@@ -1197,13 +1204,13 @@ Tab3:AddToggle({
                 setup(room)
             end)
             
-            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
                 setup(room) 
             end
 
             table.insert(_G.lockESPInstances, esptable)
 
-        else
+	else
             if _G.lockESPInstances then
                 for _, instance in pairs(_G.lockESPInstances) do
                     for _, v in pairs(instance.lock) do
@@ -1215,6 +1222,7 @@ Tab3:AddToggle({
         end
     end
 })
+            
 
 Tab3:AddToggle({
 	Name = "书视奸👁️",
