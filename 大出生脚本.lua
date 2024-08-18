@@ -748,7 +748,7 @@ Tab3:AddToggle({
     end  
 })
 
-Tab6:AddToggle({
+Tab3:AddToggle({
 	Name = "玩家视奸👁️",
 	Default = false,
 	Callback = function(state)
@@ -772,19 +772,23 @@ Tab6:AddToggle({
 })
 
 Tab3:AddToggle({
-	Name = "门视奸👁️",
-	Default = false,
-	Callback = function(state)
+    Name = "门视奸👁️",
+    Default = false,
+    Callback = function(state)
         if state then
             _G.doorESPInstances = {}
             local esptable = {doors = {}}
             local flags = {espdoors = true}
-				
-	    local function setup(room)
+                
+            local function setup(room)
                 local door = room:WaitForChild("Door"):WaitForChild("Door")
                 
                 task.wait(0.1)
-                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door")
+                
+                -- 获取门的数量
+                local doorIndex = #esptable.doors + 1
+                -- 设置 ESP 时传递索引
+                local h = esp(door, Color3.fromRGB(90, 255, 40), door, "Door " .. doorIndex)
                 table.insert(esptable.doors, h)
                 
                 door:WaitForChild("Open").Played:Connect(function()
