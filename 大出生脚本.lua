@@ -1676,94 +1676,71 @@ Tab3:AddToggle({
     end
 })
 
-local flags = {auraActive = false, leverAuraActive = false} -- 将 flags 移到函数外部
+-- 定义全局变量
+getgenv().midd = false
 
+-- 添加 Toggle
 Tab3:AddToggle({
-    Name = "自动交互 书/物品/拉杆",
+    Name = "点击范围 (大)",
     Default = false,
     Callback = function(state)
+        getgenv().midd = state
+
         if state then
-            flags.auraActive = true
-            flags.leverAuraActive = true
-            local player = game.Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-            local auraDistance = 12 -- 定义感知光环的距离
-
-            -- 检测距离并自动点击物品
-            local function checkDistance(item)
-                local part = item:FindFirstChild("Handle") or item:FindFirstChild("Prop") or item:FindFirstChildWhichIsA("BasePart")
-                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
-                    -- 尝试自动点击 ProximityPrompt
-                    local prompt = item:FindFirstChildWhichIsA("ModulePrompt", true)
-                    if prompt then
-                        fireproximityprompt(prompt)
+            -- 监听 CurrentRooms 中的子对象添加事件
+            game:GetService("Workspace").CurrentRooms.DescendantAdded:Connect(function(v)
+                -- 如果 midd 变量为 false，则直接返回
+                if not getgenv().midd then return end
+                
+                -- 检查是否是 ProximityPrompt 对象
+                if v:IsA("ProximityPrompt") then
+                    -- 如果 midd 为 true，将 MaxActivationDistance 设置为 20
+                    if getgenv().midd then
+                        v.MaxActivationDistance = 20
                     end
                 end
-            end
-
-            -- 检测距离并自动点击LeverForGate
-            local function checkLeverDistance(lever)
-                local part = lever:FindFirstChildWhichIsA("BasePart")
-                if part and (humanoidRootPart.Position - part.Position).magnitude <= auraDistance then
-                    -- 尝试自动点击 ProximityPrompt
-                    local prompt = lever:FindFirstChildWhichIsA("ActivateEventPrompt", true)
-                    if prompt then
-                        fireproximityprompt(prompt)
-                    end
-                end
-            end
-
-            -- 监控新物品或LeverForGate的出现
-            local function check(v)
-                if v:IsA("Model") then
-                    if v:GetAttribute("Pickup") or v:GetAttribute("PropType") or v.Name == "LiveBreakerPolePickup" or v.Name == "LiveHintBook" then
-                        task.wait(0.1)
-                        checkDistance(v)
-                    elseif v.Name == "LeverForGate" then
-                        task.wait(0.1)
-                        checkLeverDistance(v)
-                    end
-                end
-            end
-
-            -- 设置监视器以处理现有和新添加的物品或LeverForGate
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v)
-                    end)
-
-                    for i, v in pairs(assets:GetDescendants()) do
-                        check(v)
-                    end
-
-                    task.spawn(function()
-                        repeat task.wait() until not flags.auraActive and not flags.leverAuraActive
-                        subaddcon:Disconnect()
-                    end)
-                end
-            end
-
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
             end)
-
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                if room:FindFirstChild("Assets") then
-                    setup(room)
-                end
-            end
-
-        else
-            flags.auraActive = false
-            flags.leverAuraActive = false -- 停止光环功能
         end
     end
 })
+
+local lasfToggle = false  -- 用于控制是否启用销毁物体的功能
+
+-- 定义一个 Toggle，用于控制 lasfToggle 的状态
+Tab3:AddToggle({
+    Name = "销毁吊灯",
+    Default = false,
+    Callback = function(state)
+        lasfToggle = state
+    end
+})
+
+-- 使用 RenderStepped 来监听房间的改变并执行销毁操作
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        if lasfToggle then
+            local latestRoomNumber = tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)
+            local latestRoom = game.workspace.CurrentRooms:FindFirstChild(latestRoomNumber)
+            
+            if latestRoom then
+                local assets = latestRoom:FindFirstChild("Assets")
+                
+                if assets then
+                    -- 尝试销毁吊灯
+                    local chandelier = assets:FindFirstChild("Chandelier")
+                    if chandelier then
+                        chandelier:Destroy()
+                    end
+
+                    -- 尝试销毁灯具
+                    local lightFixtures = assets:FindFirstChild("Light_Fixtures")
+                    if lightFixtures then
+                        lightFixtures:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+end)
 
 OrionLib:Init()
