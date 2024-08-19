@@ -129,15 +129,6 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local v = 1.4
 local speedControlEnabled = false 
 local FOVEnabled = false
-local elevatorbreakerbox = false
-getgenv().midd = false
-local lasfToggle = false  -- 用于控制是否启用销毁物体的功能
-_G.Gates = false
-_G.SeekES = false
-local Toggle = false
-local ScreechModule
-local addconnect
-
 -----------------------------
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
@@ -1685,7 +1676,8 @@ Tab3:AddToggle({
     end
 })
 
--- 添加 Toggle
+getgenv().midd = false
+
 Tab3:AddToggle({
     Name = "点击范围 (大)",
     Default = false,
@@ -1709,7 +1701,7 @@ Tab3:AddToggle({
         end
     end
 })
-
+local lasfToggle = false  -- 用于控制是否启用销毁物体的功能
 -- 定义一个 Toggle，用于控制 lasfToggle 的状态
 Tab3:AddToggle({
     Name = "销毁吊灯",
@@ -1746,7 +1738,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     end)
 end)
-
+_G.Gates = false
 -- 添加 Toggle 用于 Gates
 Tab3:AddToggle({
     Name = "Gate删除",
@@ -1772,7 +1764,7 @@ Tab3:AddToggle({
         end
     end
 })
-
+_G.SeekES = false
 -- 添加 Toggle 用于 SeekES
 Tab3:AddToggle({
     Name = "销毁 稀客胳膊/火",
@@ -1805,20 +1797,20 @@ Tab3:AddToggle({
         end
     end
 })
-
+local _G.A = false
 -- 定义一个 Toggle，用于控制 lasfToggle 的状态
 Tab3:AddToggle({
     Name = "跳过第50门",
     Default = false,
     Callback = function(state)
-        Toggle = state
+        _G.A = state
     end
 })
 
 -- 使用 RenderStepped 来监听房间的改变并执行销毁操作
 game:GetService("RunService").RenderStepped:Connect(function()
     pcall(function()
-        if Toggle then
+        if _G.A then
             local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
 
                     -- 检查玩家是否到达第50房间
@@ -1836,7 +1828,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     end)
 end)
-
+local ScreechModule
 -- 初始化 Tab3 中的 Toggle
 Tab3:AddToggle({
     Name = "无害的Screech",
@@ -1859,7 +1851,7 @@ Tab3:AddToggle({
         end
     end
 })
-
+local elevatorbreakerbox = false
 tab3:AddToggle({
     Name = "通过电力盒",
     Default = false,
@@ -1883,6 +1875,7 @@ Tab3:AddToggle({
     Name = "蜘蛛不跳脸",
     Default = false,
     Callback = function(state)
+	
         -- 根据 Toggle 状态启用或禁用 Timothy Jumpscare
         if state then
             -- 禁用 Timothy Jumpscare
@@ -1900,7 +1893,7 @@ Tab3:AddToggle({
         end
     end
 })
-
+local addconnect
 -- 添加禁用 Seek Chase 的 Toggle
 Tab3:AddToggle({
     Name = "绕过追逐战",
