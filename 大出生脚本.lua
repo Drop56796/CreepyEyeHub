@@ -123,13 +123,19 @@ function esp(what, color, core, name)
 
     return ret
 end
------------------------------
+-----------------------------------
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
 local v = 1.4
 local speedControlEnabled = false 
 local FOVEnabled = false
------------------------------
+-----------------------------flags-
+local flags = {
+    elevatorbreakerbox = false,
+    spiderNoJump = false,
+    bypassChase = false
+}
+------------------------------------
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
@@ -1761,6 +1767,30 @@ Tab3:AddToggle({
         end
     end
 })
+
+local ScreechModule
+Tab3:AddToggle({
+    Name = "无害的Screech",
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- 确保找到 ScreechModule
+            if not ScreechModule then
+                ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
+            end
+            -- 移除 ScreechModule
+            if ScreechModule then
+                ScreechModule.Parent = nil
+            end
+        else
+            -- 恢复 ScreechModule
+            if ScreechModule then
+                ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+            end
+        end
+    end
+})
+
 _G.SeekES = false
 -- 添加 Toggle 用于 SeekES
 Tab3:AddToggle({
@@ -1794,15 +1824,14 @@ Tab3:AddToggle({
         end
     end
 })
-
-local elevatorbreakerbox = false
-tab3:AddToggle({
+-- Toggle for Elevator Breaker Box
+Tab3:AddToggle({
     Name = "通过电力盒",
     Default = false,
     Callback = function(state)
-        elevatorbreakerbox = state  -- 根据 Toggle 状态直接设置变量
+        flags.elevatorbreakerbox = state
 
-        if elevatorbreakerbox then
+        if flags.elevatorbreakerbox then
             -- 执行断路器迷你游戏完成逻辑
             game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
             for i = 0, 50 do 
@@ -1814,14 +1843,17 @@ tab3:AddToggle({
     end
 })
 
--- 假设这是您之前定义的 Toggle，用来控制某个功能
+-- Toggle for Spider No Jump Face
+local SpiderJumpscareModule
 Tab3:AddToggle({
     Name = "蜘蛛不跳脸",
     Default = false,
-    Callback = function(state)	
-        -- 根据 Toggle 状态启用或禁用 Timothy Jumpscare
+    Callback = function(state)
+        flags.spiderNoJump = state
+
         if state then
             -- 禁用 Timothy Jumpscare
+            SpiderJumpscareModule = SpiderJumpscareModule or plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
             if SpiderJumpscareModule then
                 SpiderJumpscareModule.Parent = nil
             end
@@ -1836,49 +1868,22 @@ Tab3:AddToggle({
         end
     end
 })
-local addconnect
--- 添加禁用 Seek Chase 的 Toggle
+
+-- Toggle for Bypass Chase
 Tab3:AddToggle({
     Name = "绕过追逐战",
     Default = false,
-    Callback = function(val)
-        if val then
+    Callback = function(state)
+        flags.bypassChase = state
+
+        if state then
             -- 启用禁用 Seek Chase 功能
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+            local rooms = workspace.CurrentRooms:GetChildren()
+            for _, room in ipairs(rooms) do
                 local trigger = room:FindFirstChild("TriggerEventCollision", true)
                 if trigger then
                     trigger:Destroy()
                 end
-            end)
-        else
-            -- 断开连接并清理状态
-            if addconnect then
-                addconnect:Disconnect()
-                addconnect = nil
-            end
-        end
-    end
-})
-
-local ScreechModule
--- 初始化 Tab3 中的 Toggle
-Tab3:AddToggle({
-    Name = "无害的Screech",
-    Default = false,
-    Callback = function(state)
-        if state then
-            -- 确保找到 ScreechModule
-            if not ScreechModule then
-                ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
-            end
-            -- 移除 ScreechModule
-            if ScreechModule then
-                ScreechModule.Parent = nil
-            end
-        else
-            -- 恢复 ScreechModule
-            if ScreechModule then
-                ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
             end
         end
     end
