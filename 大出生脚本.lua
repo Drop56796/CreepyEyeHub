@@ -132,8 +132,7 @@ local FOVEnabled = false
 -----------------------------flags-
 local flags = {
     elevatorbreakerbox = false,
-    spiderNoJump = false,
-    bypassChase = false
+    spiderNoJump = false
 }
 ------------------------------------
 Notification:Notify(
@@ -141,7 +140,7 @@ Notification:Notify(
     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
 )
-playSound("rbxassetid://4590662766", 1, 3.5)
+playSound("rbxassetid://4590657391", 1, 3.5)
 
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "script.lol.run"},
@@ -1869,15 +1868,13 @@ Tab3:AddToggle({
     end
 })
 
--- Toggle for Bypass Chase
 Tab3:AddToggle({
-    Name = "绕过追逐战",
+    Name = "删除稀客",
     Default = false,
     Callback = function(state)
-        flags.bypassChase = state
-
+        -- 检查开关状态
         if state then
-            -- 启用禁用 Seek Chase 功能
+            -- 开关启用时，删除所有房间中的 TriggerEventCollision 触发器
             local rooms = workspace.CurrentRooms:GetChildren()
             for _, room in ipairs(rooms) do
                 local trigger = room:FindFirstChild("TriggerEventCollision", true)
@@ -1885,6 +1882,8 @@ Tab3:AddToggle({
                     trigger:Destroy()
                 end
             end
+        else
+            print("开关已禁用")
         end
     end
 })
