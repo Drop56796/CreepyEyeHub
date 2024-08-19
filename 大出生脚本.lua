@@ -589,9 +589,6 @@ Tab3:AddButton({
   	end    
 })
 Tab3:AddLabel("----------------功能----------------")
-
-local autoInteract = false
-
 local autoInteract = false
 
 Tab3:AddToggle({
