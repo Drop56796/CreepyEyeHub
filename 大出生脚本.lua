@@ -1794,29 +1794,7 @@ Tab3:AddToggle({
         end
     end
 })
-local ScreechModule
--- 初始化 Tab3 中的 Toggle
-Tab3:AddToggle({
-    Name = "无害的Screech",
-    Default = false,
-    Callback = function(state)
-        if state then
-            -- 确保找到 ScreechModule
-            if not ScreechModule then
-                ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
-            end
-            -- 移除 ScreechModule
-            if ScreechModule then
-                ScreechModule.Parent = nil
-            end
-        else
-            -- 恢复 ScreechModule
-            if ScreechModule then
-                ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-            end
-        end
-    end
-})
+
 local elevatorbreakerbox = false
 tab3:AddToggle({
     Name = "通过电力盒",
@@ -1877,6 +1855,30 @@ Tab3:AddToggle({
             if addconnect then
                 addconnect:Disconnect()
                 addconnect = nil
+            end
+        end
+    end
+})
+
+local ScreechModule
+-- 初始化 Tab3 中的 Toggle
+Tab3:AddToggle({
+    Name = "无害的Screech",
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- 确保找到 ScreechModule
+            if not ScreechModule then
+                ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
+            end
+            -- 移除 ScreechModule
+            if ScreechModule then
+                ScreechModule.Parent = nil
+            end
+        else
+            -- 恢复 ScreechModule
+            if ScreechModule then
+                ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
             end
         end
     end
