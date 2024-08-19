@@ -1794,37 +1794,6 @@ Tab3:AddToggle({
         end
     end
 })
-local _G.A = false
--- 定义一个 Toggle，用于控制 lasfToggle 的状态
-Tab3:AddToggle({
-    Name = "跳过第50门",
-    Default = false,
-    Callback = function(state)
-        _G.A = state
-    end
-})
-
--- 使用 RenderStepped 来监听房间的改变并执行销毁操作
-game:GetService("RunService").RenderStepped:Connect(function()
-    pcall(function()
-        if _G.A then
-            local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
-
-                    -- 检查玩家是否到达第50房间
-                    if LatestRoom.Value == 50 then
-                        -- 获取第51房间的门
-                        local CurrentDoor = workspace.CurrentRooms[tostring(LatestRoom.Value + 1)]:WaitForChild("Door")
-
-                        -- 传送玩家到门的位置
-                        if CurrentDoor then
-                            game.Players.LocalPlayer.Character:PivotTo(CFrame.new(CurrentDoor.Position + Vector3.new(0, 5, 0)))
-                        end
-		    end
-		end
-            end
-        end
-    end)
-end)
 local ScreechModule
 -- 初始化 Tab3 中的 Toggle
 Tab3:AddToggle({
@@ -1871,8 +1840,7 @@ tab3:AddToggle({
 Tab3:AddToggle({
     Name = "蜘蛛不跳脸",
     Default = false,
-    Callback = function(state)
-	
+    Callback = function(state)	
         -- 根据 Toggle 状态启用或禁用 Timothy Jumpscare
         if state then
             -- 禁用 Timothy Jumpscare
