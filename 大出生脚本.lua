@@ -144,7 +144,7 @@ Notification:Notify(
 )
 wait(2)
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))() 
+local OrionLib = loadstring(game:HttpGet(('https://github.com/Drop56796/CreepyEyeHub/blob/main/ThemeGuiNew.lua')))() 
 local Window = OrionLib:MakeWindow({Name = "出生脚本 v" .. v, HidePremium = true, SaveConfig = true, ConfigFolder = "Loser"})
 
 local Tab = Window:MakeTab({
