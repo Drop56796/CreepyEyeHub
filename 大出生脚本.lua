@@ -123,13 +123,22 @@ function esp(what, color, core, name)
 
     return ret
 end
---------------------
+-----------------------------
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
-local v = 1.3
+local v = 1.4
 local speedControlEnabled = false 
 local FOVEnabled = false
+local elevatorbreakerbox = false
+getgenv().midd = false
+local lasfToggle = false  -- 用于控制是否启用销毁物体的功能
+_G.Gates = false
+_G.SeekES = false
+local Toggle = false
+local ScreechModule
+local addconnect
 
+-----------------------------
 Notification:Notify(
     {Title = "出生 v" .. v, Description = "验证成功 script start now!"},
     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
@@ -1676,9 +1685,6 @@ Tab3:AddToggle({
     end
 })
 
--- 定义全局变量
-getgenv().midd = false
-
 -- 添加 Toggle
 Tab3:AddToggle({
     Name = "点击范围 (大)",
@@ -1703,8 +1709,6 @@ Tab3:AddToggle({
         end
     end
 })
-
-local lasfToggle = false  -- 用于控制是否启用销毁物体的功能
 
 -- 定义一个 Toggle，用于控制 lasfToggle 的状态
 Tab3:AddToggle({
@@ -1743,9 +1747,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end)
 end)
 
--- 定义全局变量
-_G.Gates = false
-
 -- 添加 Toggle 用于 Gates
 Tab3:AddToggle({
     Name = "Gate删除",
@@ -1771,9 +1772,6 @@ Tab3:AddToggle({
         end
     end
 })
-
--- 定义全局变量
-_G.SeekES = false
 
 -- 添加 Toggle 用于 SeekES
 Tab3:AddToggle({
@@ -1804,6 +1802,124 @@ Tab3:AddToggle({
                     end
                 end)
             end)
+        end
+    end
+})
+
+-- 定义一个 Toggle，用于控制 lasfToggle 的状态
+Tab3:AddToggle({
+    Name = "跳过第50门",
+    Default = false,
+    Callback = function(state)
+        Toggle = state
+    end
+})
+
+-- 使用 RenderStepped 来监听房间的改变并执行销毁操作
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        if Toggle then
+            local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
+
+                    -- 检查玩家是否到达第50房间
+                    if LatestRoom.Value == 50 then
+                        -- 获取第51房间的门
+                        local CurrentDoor = workspace.CurrentRooms[tostring(LatestRoom.Value + 1)]:WaitForChild("Door")
+
+                        -- 传送玩家到门的位置
+                        if CurrentDoor then
+                            game.Players.LocalPlayer.Character:PivotTo(CFrame.new(CurrentDoor.Position + Vector3.new(0, 5, 0)))
+                        end
+		    end
+		end
+            end
+        end
+    end)
+end)
+
+-- 初始化 Tab3 中的 Toggle
+Tab3:AddToggle({
+    Name = "无害的Screech",
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- 确保找到 ScreechModule
+            if not ScreechModule then
+                ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
+            end
+            -- 移除 ScreechModule
+            if ScreechModule then
+                ScreechModule.Parent = nil
+            end
+        else
+            -- 恢复 ScreechModule
+            if ScreechModule then
+                ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+            end
+        end
+    end
+})
+
+tab3:AddToggle({
+    Name = "通过电力盒",
+    Default = false,
+    Callback = function(state)
+        elevatorbreakerbox = state  -- 根据 Toggle 状态直接设置变量
+
+        if elevatorbreakerbox then
+            -- 执行断路器迷你游戏完成逻辑
+            game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
+            for i = 0, 50 do 
+                game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
+                task.wait(.1) 
+            end
+            game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
+        end
+    end
+})
+
+-- 假设这是您之前定义的 Toggle，用来控制某个功能
+Tab3:AddToggle({
+    Name = "蜘蛛不跳脸",
+    Default = false,
+    Callback = function(state)
+        -- 根据 Toggle 状态启用或禁用 Timothy Jumpscare
+        if state then
+            -- 禁用 Timothy Jumpscare
+            if SpiderJumpscareModule then
+                SpiderJumpscareModule.Parent = nil
+            end
+        else
+            -- 启用 Timothy Jumpscare
+            if not SpiderJumpscareModule then
+                SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
+            end
+            if SpiderJumpscareModule then
+                SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+            end
+        end
+    end
+})
+
+-- 添加禁用 Seek Chase 的 Toggle
+Tab3:AddToggle({
+    Name = "绕过追逐战",
+    Default = false,
+    Callback = function(val)
+        if val then
+            -- 启用禁用 Seek Chase 功能
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                local trigger = room:FindFirstChild("TriggerEventCollision", true)
+                if trigger then
+                    trigger:Destroy()
+                end
+            end)
+        else
+            -- 断开连接并清理状态
+            if addconnect then
+                addconnect:Disconnect()
+                addconnect = nil
+            end
         end
     end
 })
