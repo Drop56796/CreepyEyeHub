@@ -1136,71 +1136,7 @@ Tab3:AddToggle({
             end
         end
     end
-})
-
-Tab3:AddToggle({
-	Name = "金币视奸👁️",
-	Default = false,
-	Callback = function(state)
-        if state then
-            _G.lockESPInstances = {}
-            local esptable = {lock = {}}
-            local flags = {esplock = true}
-
-	    local function check(v)
-                if v:IsA("Model") then
-                    task.wait(0.1)
-                    if v.Name == "GoldPile" then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(255, 255, 255), v.PrimaryPart, "Gold")
-                        table.insert(esptable.lockers, h)
-                    end
-                end
-            end
-                
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-                
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v) 
-                    end)
-                    
-                    for i, v in pairs(assets:GetDescendants()) do
-                        check(v)
-                    end
-                    
-                    task.spawn(function()
-                        repeat task.wait() until not flags.esplocker
-                        subaddcon:Disconnect()  
-                    end) 
-                end 
-            end
-            
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-            
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                setup(room) 
-            end
-
-            table.insert(_G.lockESPInstances, esptable)
-
-	else
-            if _G.lockESPInstances then
-                for _, instance in pairs(_G.lockESPInstances) do
-                    for _, v in pairs(instance.lock) do
-                        v.delete()
-                    end
-                end
-                _G.lockESPInstances = nil
-            end
-        end
-    end
-})
-            
+})            
 
 Tab3:AddToggle({
 	Name = "书视奸👁️",
@@ -1823,69 +1759,205 @@ Tab3:AddToggle({
         end
     end
 })
--- Toggle for Elevator Breaker Box
+
 Tab3:AddToggle({
-    Name = "通过电力盒",
+    Name = "金币视奸👁️",
     Default = false,
     Callback = function(state)
-        flags.elevatorbreakerbox = state
-
-        if flags.elevatorbreakerbox then
-            -- 执行断路器迷你游戏完成逻辑
-            game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
-            for i = 0, 50 do 
-                game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
-                task.wait(.1) 
-            end
-            game:GetService("ReplicatedStorage").EntityInfo.EBF:FireServer()
-        end
-    end
-})
-
--- Toggle for Spider No Jump Face
-local SpiderJumpscareModule
-Tab3:AddToggle({
-    Name = "蜘蛛不跳脸",
-    Default = false,
-    Callback = function(state)
-        flags.spiderNoJump = state
-
         if state then
-            -- 禁用 Timothy Jumpscare
-            SpiderJumpscareModule = SpiderJumpscareModule or plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
-            if SpiderJumpscareModule then
-                SpiderJumpscareModule.Parent = nil
-            end
-        else
-            -- 启用 Timothy Jumpscare
-            if not SpiderJumpscareModule then
-                SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
-            end
-            if SpiderJumpscareModule then
-                SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-            end
-        end
-    end
-})
+            _G.lockESPInstances = {}
+            local esptable = {lock = {}}
+            local flags = {esplock = true}
 
-Tab3:AddToggle({
-    Name = "删除稀客",
-    Default = false,
-    Callback = function(state)
-        -- 检查开关状态
-        if state then
-            -- 开关启用时，删除所有房间中的 TriggerEventCollision 触发器
-            local rooms = workspace.CurrentRooms:GetChildren()
-            for _, room in ipairs(rooms) do
-                local trigger = room:FindFirstChild("TriggerEventCollision", true)
-                if trigger then
-                    trigger:Destroy()
+            local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "GoldPile" then
+                        local hitbox = v:WaitForChild("Hitbox")
+                        if hitbox then
+                            local goldValue = v:GetAttribute("GoldValue") or 0
+                            local formattedGoldValue = string.format("%04d", goldValue) -- Format the gold value as a four-digit number
+                            local displayText = string.format("[%s | %s]", formattedGoldValue, formattedGoldValue)
+                            local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText)
+                            table.insert(esptable.lock, h)
+                        end
+                    end
                 end
             end
+
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplock
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.lockESPInstances, esptable)
+
         else
-            print("开关已禁用")
+            if _G.lockESPInstances then
+                for _, instance in pairs(_G.lockESPInstances) do
+                    for _, v in pairs(instance.lock) do
+                        v.delete()
+                    end
+                end
+                _G.lockESPInstances = nil
+            end
         end
     end
 })
+
+Tab3:AddToggle({
+    Name = "假门视奸👁️",
+    Default = false,
+    Callback = function(state)
+        if state then
+            _G.fakeDoorESPInstances = {}
+            local esptable = {doors = {}}
+            local flags = {esplock = true}
+
+            local function checkFakeDoor(v)
+                if v:IsA("Model") and v.Name == "DoorFake" then
+                    local doorPart = v:FindFirstChild("Door")
+                    if doorPart then
+                        local displayText = "Dupe Door"
+                        local h = esp(doorPart, Color3.fromRGB(255, 0, 0), doorPart, displayText)
+                        table.insert(esptable.doors, h)
+                    end
+                end
+            end
+
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        checkFakeDoor(v) 
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        checkFakeDoor(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplock
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.fakeDoorESPInstances, esptable)
+
+        else
+            if _G.fakeDoorESPInstances then
+                for _, instance in pairs(_G.fakeDoorESPInstances) do
+                    for _, v in pairs(instance.doors) do
+                        v.delete()
+                    end
+                end
+                _G.fakeDoorESPInstances = nil
+            end
+        end
+    end
+})
+Tab3:AddToggle({
+	Name = "箱子视奸👁️",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.lockeESPInstances = {}
+            local esptable = {locke = {}}
+            local flags = {esplocke = true}
+
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "ChestBox" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(255, 0, 0), v.PrimaryPart, "ChestBox [Unlocked]")
+                        table.insert(esptable.lockers, h) 
+                    elseif v.Name == "ChestBoxLocked" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(255, 0, 0), v.PrimaryPart, "ChestBox [Locked]")
+                        table.insert(esptable.lockers, h) 
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.lockeESPInstances, esptable)
+
+	else
+            if _G.lockeESPInstances then
+                for _, instance in pairs(_G.lockeESPInstances) do
+                    for _, v in pairs(instance.locke) do
+                        v.delete()
+                    end
+                end
+                _G.lockeESPInstances = nil
+            end
+        end
+    end
+})
+
+
 
 OrionLib:Init()
