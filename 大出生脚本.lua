@@ -49,7 +49,7 @@ function esp(what, color, core, name)
             box.ZIndex = 1
             box.AdornCullingMode = Enum.AdornCullingMode.Never
             box.Color3 = color
-            box.Transparency = 0.8
+            box.Transparency = 0.95
             box.Adornee = v
             box.Parent = game.CoreGui
 
@@ -1777,7 +1777,7 @@ Tab3:AddToggle({
                         if hitbox then
                             local goldValue = v:GetAttribute("GoldValue") or 0
                             local formattedGoldValue = string.format("%04d", goldValue) -- Format the gold value as a four-digit number
-                            local displayText = string.format("[%s | %s]", formattedGoldValue, formattedGoldValue)
+                            local displayText = string.format("Gold [%s]", formattedGoldValue)
                             local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText)
                             table.insert(esptable.lock, h)
                         end
@@ -1829,69 +1829,6 @@ Tab3:AddToggle({
     end
 })
 
-Tab3:AddToggle({
-    Name = "假门视奸👁️",
-    Default = false,
-    Callback = function(state)
-        if state then
-            _G.fakeDoorESPInstances = {}
-            local esptable = {doors = {}}
-            local flags = {esplock = true}
-
-            local function checkFakeDoor(v)
-                if v:IsA("Model") and v.Name == "DoorFake" then
-                    local doorPart = v:FindFirstChild("Door")
-                    if doorPart then
-                        local displayText = "Dupe Door"
-                        local h = esp(doorPart, Color3.fromRGB(255, 0, 0), doorPart, displayText)
-                        table.insert(esptable.doors, h)
-                    end
-                end
-            end
-
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        checkFakeDoor(v) 
-                    end)
-
-                    for i, v in pairs(assets:GetDescendants()) do
-                        checkFakeDoor(v)
-                    end
-
-                    task.spawn(function()
-                        repeat task.wait() until not flags.esplock
-                        subaddcon:Disconnect()  
-                    end) 
-                end 
-            end
-
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                setup(room) 
-            end
-
-            table.insert(_G.fakeDoorESPInstances, esptable)
-
-        else
-            if _G.fakeDoorESPInstances then
-                for _, instance in pairs(_G.fakeDoorESPInstances) do
-                    for _, v in pairs(instance.doors) do
-                        v.delete()
-                    end
-                end
-                _G.fakeDoorESPInstances = nil
-            end
-        end
-    end
-})
 Tab3:AddToggle({
 	Name = "箱子视奸👁️",
 	Default = false,
