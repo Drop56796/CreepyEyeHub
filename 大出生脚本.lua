@@ -1906,10 +1906,10 @@ Tab3:AddToggle({
                     task.wait(0.1)
                     if v.Name == "ChestBox" then
                         local h = esp(v.PrimaryPart, Color3.fromRGB(255, 0, 0), v.PrimaryPart, "ChestBox [Unlocked]")
-                        table.insert(esptable.lockers, h) 
+                        table.insert(esptable.locke, h) 
                     elseif v.Name == "ChestBoxLocked" then
                         local h = esp(v.PrimaryPart, Color3.fromRGB(255, 0, 0), v.PrimaryPart, "ChestBox [Locked]")
-                        table.insert(esptable.lockers, h) 
+                        table.insert(esptable.locke, h) 
                     end
                 end
             end
