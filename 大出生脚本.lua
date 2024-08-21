@@ -214,7 +214,6 @@ Tab:AddLabel("当前 Game ID: " .. game.GameId)
 Tab:AddLabel("Place ID: " .. game.PlaceId)
 local creatorName = game.CreatorType == Enum.CreatorType.Group and game.CreatorId or game.CreatorId
 Tab:AddLabel("游戏创建者: " .. creatorName)
-Tab:AddLabel("游戏创建者: " .. creatorDisplayName .. " (" .. creatorUsername .. ")")
 Tab:AddLabel("当前游戏人数: " .. #game.Players:GetPlayers())
 Tab:AddLabel("当前 Ping: " .. game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString())
 local serverPing = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
