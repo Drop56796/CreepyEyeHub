@@ -129,16 +129,6 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local v = 1.4
 local speedControlEnabled = false 
 local FOVEnabled = false
-local player = game.Players.LocalPlayer
-local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-local UIS = game:GetService("UserInputService")
-local StatsService = game:GetService("Stats")
-local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local soundService = game:GetService("SoundService")
-local dataStoreService = game:GetService("DataStoreService")
-local localizationService = game:GetService("LocalizationService")
 -----------------------------flags-
 local flags = {
     elevatorbreakerbox = false,
@@ -174,12 +164,19 @@ Tab:AddLabel("开始你的表演")
 Tab:AddLabel("目前版本 v" .. v)
 Tab:AddLabel("作者nys195")
 Tab:AddLabel("-------------全部信息------------")
+local player = game.Players.LocalPlayer
+local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+local UIS = game:GetService("UserInputService")
+local StatsService = game:GetService("Stats")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local soundService = game:GetService("SoundService")
+local dataStoreService = game:GetService("DataStoreService")
+local localizationService = game:GetService("LocalizationService")
+
 Tab:AddLabel("玩家语言: " .. locale)
-
--- 获取存储数据的 DataStore
 local dataStore = dataStoreService:GetDataStore("PlayerSettings")
-
--- 获取玩家好友在线状态
 local function getOnlineFriendsCount()
     local friends = player:GetFriendsOnline(200) -- 获取最多200个在线好友
     local onlineFriendsInGame = 0
@@ -344,8 +341,7 @@ local function updateTab()
 end
 
 -- 使用 RunService 的 Heartbeat 事件每帧更新信息
-RunService.Heartbeat:Connect(updateTab)
-  
+RunService.Heartbeat:Connect(updateTab)  
 
 local Tab2 = Window:MakeTab({
 	Name = "Criminaily",
