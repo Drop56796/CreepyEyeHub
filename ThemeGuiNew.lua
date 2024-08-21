@@ -6,24 +6,49 @@ local Mouse = LocalPlayer:GetMouse()
 local HttpService = game:GetService("HttpService")
 
 local OrionLib = {
-	Elements = {},
-	ThemeObjects = {},
-	Connections = {},
-	Flags = {},
-	Themes = {
-		Default = {
-			Main = Color3.fromRGB(255, 255, 255),
-			Second = Color3.fromRGB(255, 255, 255),
-			Stroke = Color3.fromRGB(1, 0.5, 0),
-			Divider = Color3.fromRGB(1, 0.5, 0),
-			Text = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
-			TextDark = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
-		}
-	},
-	SelectedTheme = "Default",
-	Folder = nil,
-	SaveCfg = false
+    Elements = {},
+    ThemeObjects = {},
+    Connections = {},
+    Flags = {},
+    Themes = {
+        Default = {
+            Main = Color3.fromRGB(255, 255, 255),
+            Second = Color3.fromRGB(255, 255, 255),
+            Stroke = Color3.fromRGB(1, 0.5, 0),
+            Divider = Color3.fromRGB(1, 0.5, 0),
+            Text = Color3.fromRGB(255, 0, 0),  -- 初始颜色为红色
+            TextDark = Color3.fromRGB(0, 0, 255) -- 初始颜色为蓝色
+        }
+    },
+    SelectedTheme = "Default",
+    Folder = nil,
+    SaveCfg = false
 }
+
+local function getRandomColor()
+    return Color3.fromRGB(
+        math.random(0, 255),  -- 随机生成红色分量
+        math.random(0, 255),  -- 随机生成绿色分量
+        math.random(0, 255)   -- 随机生成蓝色分量
+    )
+end
+
+-- 更新颜色的函数
+local function updateColors()
+    local theme = OrionLib.Themes[OrionLib.SelectedTheme]
+    
+    -- 随机时间间隔更新颜色
+    if tick() % 1 < 0.05 then  -- 每秒更新一次，调整 0.05 来增加或减少更新频率
+        theme.Text = getRandomColor()
+        theme.TextDark = getRandomColor()
+    end
+end
+
+-- 在每一帧更新颜色
+RunService.Heartbeat:Connect(function()
+    updateColors()
+end)
+
 
 --Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util - Created by 7kayoh
 local Icons = {}
