@@ -2092,7 +2092,7 @@ Tab11:AddLabel("如果被禁止")
 Tab11:AddLabel("并且在下一次进入游戏")
 Tab11:AddLabel("观看你当小丑的画面")
 Tab11:AddLabel("我们不负责----By nys195")
-
+Tab3:AddLabel("Rooms--------------------")
 local isA1000Enabled = false
 local Folder = Instance.new("Folder", workspace)
 Folder.Name = "PathFindPartsFolder"
@@ -2229,6 +2229,34 @@ Tab3:AddToggle({
                 {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
             )
         end
+    end
+})
+
+-- Function to toggle the visibility of the A90 module
+local function toggleA90(val)
+    -- Find the A90 module in the player's GUI
+    local A90Module = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
+
+    if val then
+        -- If enabled, remove the A90 module
+        if A90Module then
+            A90Module.Parent = nil
+        end
+    else
+        -- If disabled, re-add the A90 module
+        if A90Module then
+            A90Module.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+        end
+    end
+end
+
+-- Add a toggle button to control the A1000 Script
+Tab3:AddToggle({
+    Name = "A90 Harmless",
+    Default = false,
+    Callback = function(val)
+        -- Call the function to toggle A1000 Script based on the toggle state
+        toggleA90(val)
     end
 })
 
