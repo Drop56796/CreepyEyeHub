@@ -163,6 +163,75 @@ Tab:AddLabel("不怕banned和被骂没母和被挂你就用")
 Tab:AddLabel("开始你的表演")
 Tab:AddLabel("目前版本 v" .. v)
 Tab:AddLabel("作者nys195")
+Tab:AddLabel("-------------全部信息------------")
+local player = game.Players.LocalPlayer
+local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+-- 显示玩家基本信息
+Tab:AddLabel("玩家名字: " .. player.Name)
+Tab:AddLabel("玩家 DisplayName: " .. player.DisplayName)
+Tab:AddLabel("玩家 User ID: " .. player.UserId)
+Tab:AddLabel("账户年龄 (天): " .. player.AccountAge)
+Tab:AddLabel("会员类型: " .. tostring(player.MembershipType))
+Tab:AddLabel("当前团队: " .. (player.Team and player.Team.Name or "无"))
+
+-- 显示玩家状态信息
+if humanoid then
+    Tab:AddLabel("当前生命值: " .. humanoid.Health)
+    Tab:AddLabel("最大生命值: " .. humanoid.MaxHealth)
+    Tab:AddLabel("行走速度: " .. humanoid.WalkSpeed)
+    Tab:AddLabel("跳跃力: " .. humanoid.JumpPower)
+end
+
+-- 显示玩家位置信息
+if rootPart then
+    local position = rootPart.Position
+    Tab:AddLabel("当前位置: (" .. math.floor(position.X) .. ", " .. math.floor(position.Y) .. ", " .. math.floor(position.Z) .. ")")
+end
+
+-- 显示玩家排行榜统计数据
+local leaderstats = player:FindFirstChild("leaderstats")
+if leaderstats then
+    for _, stat in pairs(leaderstats:GetChildren()) do
+        Tab:AddLabel(stat.Name .. ": " .. stat.Value)
+    end
+end
+
+-- 显示玩家背包物品
+local backpack = player.Backpack
+for _, item in pairs(backpack:GetChildren()) do
+    Tab:AddLabel("背包物品: " .. item.Name)
+end
+
+-- 显示其他玩家信息
+for _, p in pairs(game.Players:GetPlayers()) do
+    Tab:AddLabel("玩家: " .. p.Name)
+end
+
+-- 显示游戏和服务器信息
+Tab:AddLabel("当前 Game ID: " .. game.GameId)
+Tab:AddLabel("Place ID: " .. game.PlaceId)
+local creatorName = game.CreatorType == Enum.CreatorType.Group and game.CreatorId or game.CreatorId
+Tab:AddLabel("游戏创建者: " .. creatorName)
+Tab:AddLabel("当前游戏人数: " .. #game.Players:GetPlayers())
+Tab:AddLabel("当前 Ping: " .. game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString())
+local serverPing = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+Tab:AddLabel("服务器 Ping: " .. serverPing)
+local fps = game:GetService("Stats").Workspace.Heartbeat:GetValue()
+Tab:AddLabel("服务器 FPS: " .. math.floor(1 / fps))
+Tab:AddLabel("服务器时间: " .. os.date("%Y-%m-%d %H:%M:%S", os.time()))
+
+-- 显示玩家设备类型
+local deviceType = game:GetService("UserInputService").TouchEnabled and "移动设备" or "PC"
+Tab:AddLabel("设备类型: " .. deviceType)
+
+-- 显示玩家是否为 Roblox 管理员
+Tab:AddLabel("是否为 Roblox 管理员: " .. tostring(player:IsInGroup(1200769)))
+
+-- 显示玩家是否处于安全模式
+local isSafeMode = player:FindFirstChild("SafeMode")
+Tab:AddLabel("安全模式: " .. (isSafeMode and "是" or "否"))
 
 local Tab2 = Window:MakeTab({
 	Name = "Criminaily",
