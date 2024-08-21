@@ -2086,11 +2086,198 @@ Tab11:AddTextbox({
 	end	  
 })
 
-Tab:AddLabel("前情提要")
-Tab:AddLabel("作者不玩IA")
-Tab:AddLabel("如果被禁止")
-Tab:AddLabel("并且在下一次进入游戏")
-Tab:AddLabel("观看你当小丑的画面")
-Tab:AddLabel("我们不负责----By nys195")
+Tab11:AddLabel("前情提要")
+Tab11:AddLabel("作者不玩IA")
+Tab11:AddLabel("如果被禁止")
+Tab11:AddLabel("并且在下一次进入游戏")
+Tab11:AddLabel("观看你当小丑的画面")
+Tab11:AddLabel("我们不负责----By nys195")
+
+local A1000 = false
+Tab3:AddToggle({
+	Name = "Auto A1000[可能不是本人做的]",
+	Default = false,
+	Callback = function(state)
+        A1000 = state
+
+        if A1000 then
+            if game.PlaceId ~= 6839171747 or game.ReplicatedStorage.GameData.Floor.Value ~= "Rooms" then
+                Notification:Notify(
+                    {Title = "执行失败❌", Description = "Error Floor"},
+                    {OutlineColor = Color3.fromRGB(255, 0, 0), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 0, 0)}
+                )
+                playSound("rbxassetid://550209561", 2.5, 3.5)
+                
+                
+                return
+            elseif workspace:FindFirstChild("PathFindPartsFolder") then
+                Notification:Notify(
+                    {Title = "警告⚠️", Description = "如果遇到问题无法正常运行请联系我 b站:Bootstrap_Noob"},
+                    {OutlineColor = Color3.fromRGB(255, 255, 0), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 0)}
+                )
+                playSound("rbxassetid://550209561", 2.5, 3.5)
+					
+                return
+            end
+
+            -- 如果验证通过，执行以下脚本
+            local PathfindingService = game:GetService("PathfindingService")
+            local VirtualInputManager = game:GetService('VirtualInputManager')
+            local LocalPlayer = game.Players.LocalPlayer
+            local LatestRoom = game.ReplicatedStorage.GameData.LatestRoom
+
+            local Cooldown = false
+
+            local GC = getconnections or get_signal_cons
+            if GC then
+                for i,v in pairs(GC(LocalPlayer.Idled)) do
+                    if v["Disable"] then
+                        v["Disable"](v)
+                    elseif v["Disconnect"] then
+                        v["Disconnect"](v)
+                    end
+                end
+            end
+
+            local Folder = Instance.new("Folder")
+            Folder.Parent = workspace
+            Folder.Name = "PathFindPartsFolder"
+
+            if LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") then
+                LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules.A90.Name = "lol"
+            end
+
+            function getLocker()
+                local Closest
+
+                for i,v in pairs(workspace.CurrentRooms:GetDescendants()) do
+                    if v.Name == "Rooms_Locker" then
+                        if v:FindFirstChild("Door") and v:FindFirstChild("HiddenPlayer") then
+                            if v.HiddenPlayer.Value == nil then
+                                if v.Door.Position.Y > -3 then
+                                    if Closest == nil then
+                                        Closest = v.Door
+                                    else
+                                        if (LocalPlayer.Character.HumanoidRootPart.Position - v.Door.Position).Magnitude < (Closest.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude then
+                                            Closest = v.Door
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                return Closest
+            end
+
+            function getPath()
+                local Part
+                
+                local Entity = workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120")
+                if Entity and Entity.Main.Position.Y > -4 then
+                    Part = getLocker()
+                else
+                    Part = workspace.CurrentRooms[LatestRoom.Value].Door.Door
+                end
+                return Part
+            end
+
+            LatestRoom:GetPropertyChangedSignal("Value"):Connect(function()
+                Notification:Notify(
+                    {Title = "出生[Rooms]", Description = "你正在的房间: " .. math.clamp(LatestRoom.Value, 1, 1000)},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+		playSound("rbxassetid://550209561", 2.5, 3.5)
+
+                if LatestRoom.Value ~= 1000 then
+                    LocalPlayer.DevComputerMovementMode = Enum.DevComputerMovementMode.Scriptable
+                else
+                    LocalPlayer.DevComputerMovementMode = Enum.DevComputerMovementMode.KeyboardMouse
+                
+                    Folder:ClearAllChildren()
+                
+                    playSound("rbxassetid://550209561", 2.5, 3.5)              
+                    Notification:Notify(
+                        {Title = "出生[End Rooms]", Description = "感谢使用出生 自动A1000"},
+                        {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 3, Type = "image"},
+                        {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+                    )
+                    return
+                end
+            end)
+
+            game:GetService("RunService").RenderStepped:connect(function()
+                LocalPlayer.Character.HumanoidRootPart.CanCollide = false
+                LocalPlayer.Character.Collision.CanCollide = false
+                LocalPlayer.Character.Collision.CustomPhysicalProperties = PhysicalProperties.new(9e9,9e9,9e9)
+
+                LocalPlayer.Character.Humanoid.WalkSpeed = 21
+
+                local Path = getPath()
+                
+                local Entity = workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120")
+                if Entity then
+                    if Path then
+                        if Path.Parent.Name == "Rooms_Locker" then
+                            if Entity.Main.Position.Y > -4 then
+                                if (LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude < 2 then
+                                    if LocalPlayer.Character.HumanoidRootPart.Anchored == false then
+                                        fireproximityprompt(Path.Parent.HidePrompt)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    if Entity.Main.Position.Y < -4 then
+                        if LocalPlayer.Character.HumanoidRootPart.Anchored == true then
+                            LocalPlayer.Character:SetAttribute("Hiding", false)
+                        end
+                    end
+                else
+                    if LocalPlayer.Character.HumanoidRootPart.Anchored == true then
+                        LocalPlayer.Character:SetAttribute("Hiding", false)
+                    end
+                end
+            end)
+
+            while A1000 do
+                local Destination = getPath()
+
+                local path = PathfindingService:CreatePath({ WaypointSpacing = 1, AgentRadius = 1, AgentCanJump = false })
+                path:ComputeAsync(LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0,2,0), Destination.Position)
+                local Waypoints = path:GetWaypoints()
+
+                if path.Status ~= Enum.PathStatus.NoPath then
+
+                    Folder:ClearAllChildren()
+
+                    for _, Waypoint in pairs(Waypoints) do
+                        local part = Instance.new("Part")
+                        part.Size = Vector3.new(1,1,1)
+                        part.Position = Waypoint.Position
+                        part.Shape = "Cylinder"
+                        part.Rotation = Vector3.new(0,0,90)
+                        part.Material = "SmoothPlastic"
+                        part.Anchored = true
+                        part.CanCollide = false
+                        part.Parent = Folder
+                    end
+
+                    for _, Waypoint in pairs(Waypoints) do
+                        if LocalPlayer.Character.HumanoidRootPart.Anchored == false then
+                            LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
+                            LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
+                        end
+                    end
+                end
+            end
+        else
+            Folder:ClearAllChildren()
+        end
+    end
+})
 
 OrionLib:Init()
