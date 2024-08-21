@@ -2094,10 +2094,9 @@ Tab11:AddLabel("观看你当小丑的画面")
 Tab11:AddLabel("我们不负责----By nys195")
 Tab3:AddLabel("Rooms--------------------")
 local isA1000Enabled = false
-local Folder = Instance.new("Folder", workspace)
-Folder.Name = "PathFindPartsFolder"
 
 local function startA1000Script()
+    -- Ensure game is in the correct place and floor
     if game.PlaceId ~= 6839171747 or game.ReplicatedStorage.GameData.Floor.Value ~= "Rooms" then
         Notification:Notify(
             {Title = "Auto A1000", Description = "Script initiation failed: Incorrect Place or Floor."},
@@ -2110,15 +2109,17 @@ local function startA1000Script()
     local PathfindingService = game:GetService("PathfindingService")
     local LocalPlayer = game.Players.LocalPlayer
     local LatestRoom = game.ReplicatedStorage.GameData.LatestRoom
+    local Folder = Instance.new("Folder", workspace)
+    Folder.Name = "PathFindPartsFolder"
 
     local function disableIdle()
         local GC = getconnections or get_signal_cons
         if GC then
             for _, v in pairs(GC(LocalPlayer.Idled)) do
                 if v["Disable"] then
-                    v["Disable"](v)
+                    pcall(v["Disable"], v)
                 elseif v["Disconnect"] then
-                    v["Disconnect"](v)
+                    pcall(v["Disconnect"], v)
                 end
             end
         end
@@ -2152,8 +2153,10 @@ local function startA1000Script()
     local function removeA90Module()
         local A90Module = LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
         if A90Module then
-            A90Module.Parent = nil
-            A90Module:Destroy()
+            pcall(function()
+                A90Module.Parent = nil
+                A90Module:Destroy()
+            end)
         end
     end
 
@@ -2171,8 +2174,11 @@ local function startA1000Script()
     end)
 
     game:GetService("RunService").RenderStepped:Connect(function()
-        LocalPlayer.Character.HumanoidRootPart.CanCollide = false
-        LocalPlayer.Character.Humanoid.WalkSpeed = 21
+        -- Disable collision and set walk speed
+        pcall(function()
+            LocalPlayer.Character.HumanoidRootPart.CanCollide = false
+            LocalPlayer.Character.Humanoid.WalkSpeed = 21
+        end)
 
         removeA90Module()  -- Check and remove the A90 module in each update
 
@@ -2182,7 +2188,9 @@ local function startA1000Script()
             if Path and Path.Parent.Name == "Rooms_Locker" then
                 if (LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude < 2 then
                     if not LocalPlayer.Character.HumanoidRootPart.Anchored then
-                        fireproximityprompt(Path.Parent.HidePrompt)
+                        pcall(function()
+                            fireproximityprompt(Path.Parent.HidePrompt)
+                        end)
                     end
                 end
             end
@@ -2191,14 +2199,23 @@ local function startA1000Script()
 
     while LatestRoom.Value < 1000 do
         local Destination = getPath()
-        local path = PathfindingService:CreatePath({ AgentRadius = 1, AgentCanJump = false })
-        path:ComputeAsync(LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0,2,0), Destination.Position)
+        if not Destination then
+            print("No destination found, retrying...")
+            wait(1)  -- Wait before retrying to avoid spamming
+            continue
+        end
 
-        if path.Status ~= Enum.PathStatus.NoPath then
+        local path = PathfindingService:CreatePath({
+            AgentRadius = 1,
+            AgentCanJump = false
+        })
+        path:ComputeAsync(LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 2, 0), Destination.Position)
+
+        if path.Status == Enum.PathStatus.Complete then
             Folder:ClearAllChildren()
             for _, Waypoint in pairs(path:GetWaypoints()) do
                 local part = Instance.new("Part", Folder)
-                part.Size = Vector3.new(1,1,1)
+                part.Size = Vector3.new(1, 1, 1)
                 part.Position = Waypoint.Position
                 part.Shape = "Cylinder"
                 part.Anchored = true
@@ -2207,11 +2224,17 @@ local function startA1000Script()
 
             for _, Waypoint in pairs(path:GetWaypoints()) do
                 if not LocalPlayer.Character.HumanoidRootPart.Anchored then
-                    LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
-                    LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
+                    pcall(function()
+                        LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
+                        LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
+                    end)
                 end
             end
+        else
+            print("Pathfinding failed with status: " .. tostring(path.Status))
         end
+
+        wait(1)  -- Add a short delay to prevent rapid execution
     end
 end
 
