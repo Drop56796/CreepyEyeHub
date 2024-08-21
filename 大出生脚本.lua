@@ -2114,7 +2114,7 @@ local function startA1000Script()
     local function disableIdle()
         local GC = getconnections or get_signal_cons
         if GC then
-            for _,v in pairs(GC(LocalPlayer.Idled)) do
+            for _, v in pairs(GC(LocalPlayer.Idled)) do
                 if v["Disable"] then
                     v["Disable"](v)
                 elseif v["Disconnect"] then
@@ -2128,7 +2128,7 @@ local function startA1000Script()
 
     local function getLocker()
         local Closest
-        for _,v in pairs(workspace.CurrentRooms:GetDescendants()) do
+        for _, v in pairs(workspace.CurrentRooms:GetDescendants()) do
             if v.Name == "Rooms_Locker" and v:FindFirstChild("Door") and v:FindFirstChild("HiddenPlayer") then
                 if v.HiddenPlayer.Value == nil and v.Door.Position.Y > -3 then
                     if not Closest or (LocalPlayer.Character.HumanoidRootPart.Position - v.Door.Position).Magnitude < (Closest.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude then
@@ -2149,6 +2149,14 @@ local function startA1000Script()
         end
     end
 
+    local function removeA90Module()
+        local A90Module = LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
+        if A90Module then
+            A90Module.Parent = nil
+            A90Module:Destroy()
+        end
+    end
+
     LatestRoom:GetPropertyChangedSignal("Value"):Connect(function()
         if LatestRoom.Value >= 1000 then
             Notification:Notify(
@@ -2156,19 +2164,17 @@ local function startA1000Script()
                 {OutlineColor = Color3.fromRGB(0, 255, 0), Time = 5, Type = "image"},
                 {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
             )
-            if Folder then
-                Folder:ClearAllChildren()
-            end
+            Folder:ClearAllChildren()
             isA1000Enabled = false
             return
         end
     end)
 
     game:GetService("RunService").RenderStepped:Connect(function()
-        if not isA1000Enabled then return end
-
         LocalPlayer.Character.HumanoidRootPart.CanCollide = false
         LocalPlayer.Character.Humanoid.WalkSpeed = 21
+
+        removeA90Module()  -- Check and remove the A90 module in each update
 
         local Entity = workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120")
         if Entity and Entity.Main.Position.Y > -4 then
@@ -2189,9 +2195,7 @@ local function startA1000Script()
         path:ComputeAsync(LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0,2,0), Destination.Position)
 
         if path.Status ~= Enum.PathStatus.NoPath then
-            if Folder then
-                Folder:ClearAllChildren()
-            end
+            Folder:ClearAllChildren()
             for _, Waypoint in pairs(path:GetWaypoints()) do
                 local part = Instance.new("Part", Folder)
                 part.Size = Vector3.new(1,1,1)
@@ -2229,25 +2233,6 @@ Tab3:AddToggle({
                 {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
             )
         end
-    end
-})
-
--- Function to toggle the visibility of the A90 module
-local A90Module = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
-if value then
-        A90Module.Parent = nil
-    else
-        A90Module.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-    end
-end
-
--- Add a toggle button to control the A1000 Script
-Tab3:AddToggle({
-    Name = "A90 Harmless",
-    Default = false,
-    Callback = function(val)
-        -- Call the function to toggle A1000 Script based on the toggle state
-        value = val
     end
 })
 
