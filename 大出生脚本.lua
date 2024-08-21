@@ -161,6 +161,8 @@ local Tab = Window:MakeTab({
 Tab:AddLabel("本脚本为 游戏 制作")
 Tab:AddLabel("不怕banned和被骂没母和被挂你就用")
 Tab:AddLabel("开始你的表演")
+Tab:AddLabel("目前版本 v" .. v)
+Tab:AddLabel("作者nys195")
 
 local Tab2 = Window:MakeTab({
 	Name = "Criminaily",
@@ -1895,6 +1897,93 @@ Tab3:AddToggle({
     end
 })
 
+local Tab11 = Window:MakeTab({
+	Name = "IA script",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
 
+Tab11:AddButton({
+	Name = "开自瞄(Only Gun)",
+	Callback = function()
+      		loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/Aimbot%20Pro(AI%20Create).lua?raw=true"))()
+  	end    
+})
+
+Tab11:AddToggle({
+	Name = "Player esp",
+	Default = false,
+	Callback = function(state)
+        if state then
+            _G.espInstances = {}
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player.Character then
+                    local espInstance = esp(player.Character, Color3.new(1, 0.25, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                    table.insert(_G.espInstances, espInstance)
+                end
+            end
+        else
+            if _G.espInstances then
+                for _, espInstance in pairs(_G.espInstances) do
+                    espInstance.delete()
+                end
+                _G.espInstances = nil
+            end
+        end
+    end
+})
+
+Tab11:AddToggle({
+	Name = "No cilp",
+	Default = false,
+	Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local char = player.Character
+        local runService = game:GetService("RunService")
+        if state then
+            _G.NoClip = runService.Stepped:Connect(function()
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end)
+        else
+            if _G.NoClip then
+                _G.NoClip:Disconnect()
+                _G.NoClip = nil
+            end
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+        end
+    end  
+})
+
+Tab11:AddTextbox({
+	Name = "speed",
+	Default = "box input",
+	TextDisappear = true,
+	Callback = function(Value)
+		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+	end	  
+})
+Tab11:AddTextbox({
+	Name = "fov",
+	Default = "default box input",
+	TextDisappear = true,
+	Callback = function(Value)
+		game:GetService("Workspace").CurrentCamera.FieldOfView = Value
+	end	  
+})
+
+Tab:AddLabel("前情提要")
+Tab:AddLabel("作者不玩IA")
+Tab:AddLabel("如果被禁止")
+Tab:AddLabel("并且在下一次进入游戏")
+Tab:AddLabel("观看你当小丑的画面")
+Tab:AddLabel("我们不负责----By nys195")
 
 OrionLib:Init()
