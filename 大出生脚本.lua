@@ -2094,6 +2094,8 @@ Tab11:AddLabel("观看你当小丑的画面")
 Tab11:AddLabel("我们不负责----By nys195")
 
 local isA1000Enabled = false
+local Folder = Instance.new("Folder", workspace)
+Folder.Name = "PathFindPartsFolder"
 
 local function startA1000Script()
     if game.PlaceId ~= 6839171747 or game.ReplicatedStorage.GameData.Floor.Value ~= "Rooms" then
@@ -2108,8 +2110,6 @@ local function startA1000Script()
     local PathfindingService = game:GetService("PathfindingService")
     local LocalPlayer = game.Players.LocalPlayer
     local LatestRoom = game.ReplicatedStorage.GameData.LatestRoom
-    local Folder = Instance.new("Folder", workspace)
-    Folder.Name = "PathFindPartsFolder"
 
     local function disableIdle()
         local GC = getconnections or get_signal_cons
@@ -2156,13 +2156,17 @@ local function startA1000Script()
                 {OutlineColor = Color3.fromRGB(0, 255, 0), Time = 5, Type = "image"},
                 {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
             )
-            Folder:ClearAllChildren()
+            if Folder then
+                Folder:ClearAllChildren()
+            end
             isA1000Enabled = false
             return
         end
     end)
 
     game:GetService("RunService").RenderStepped:Connect(function()
+        if not isA1000Enabled then return end
+
         LocalPlayer.Character.HumanoidRootPart.CanCollide = false
         LocalPlayer.Character.Humanoid.WalkSpeed = 21
 
@@ -2185,7 +2189,9 @@ local function startA1000Script()
         path:ComputeAsync(LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0,2,0), Destination.Position)
 
         if path.Status ~= Enum.PathStatus.NoPath then
-            Folder:ClearAllChildren()
+            if Folder then
+                Folder:ClearAllChildren()
+            end
             for _, Waypoint in pairs(path:GetWaypoints()) do
                 local part = Instance.new("Part", Folder)
                 part.Size = Vector3.new(1,1,1)
@@ -2206,14 +2212,17 @@ local function startA1000Script()
 end
 
 Tab3:AddToggle({
-    Name = "Auto A1000 Script[出生]",
+    Name = "Auto A1000 Script",
     Default = false,
     Callback = function(state)
         isA1000Enabled = state
         if state then
             startA1000Script()
         else
-            Folder:ClearAllChildren()
+            -- Cleanup or stop the script
+            if Folder then
+                Folder:ClearAllChildren()
+            end
             Notification:Notify(
                 {Title = "Auto A1000", Description = "Script disabled."},
                 {OutlineColor = Color3.fromRGB(255, 0, 0), Time = 3, Type = "image"},
