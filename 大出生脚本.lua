@@ -2233,20 +2233,11 @@ Tab3:AddToggle({
 })
 
 -- Function to toggle the visibility of the A90 module
-local function toggleA90(val)
-    -- Find the A90 module in the player's GUI
-    local A90Module = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
-
-    if val then
-        -- If enabled, remove the A90 module
-        if A90Module then
-            A90Module.Parent = nil
-        end
+local A90Module = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90")
+if value then
+        A90Module.Parent = nil
     else
-        -- If disabled, re-add the A90 module
-        if A90Module then
-            A90Module.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-        end
+        A90Module.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
     end
 end
 
@@ -2256,7 +2247,7 @@ Tab3:AddToggle({
     Default = false,
     Callback = function(val)
         -- Call the function to toggle A1000 Script based on the toggle state
-        toggleA90(val)
+        value = val
     end
 })
 
