@@ -1,26 +1,6 @@
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 local v = 1.0.0
-
-function oldwarnmessage(title, text)
-	Notification:Notify(
-		{Title = title, Description = text},
-		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
-		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 84, 84)}
-	)
-end
-if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
-	oldwarnmessage("出生v"..v, "You need in Doors execute it script", 10) 
-	return
-end
-local buttons = {
-        noclip = nil
-}
-
-local flags = {
-        noclip = false,
-}
-Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 local function playSound(soundId, volume, duration)
     -- 创建一个新的Sound对象
     local sound = Instance.new("Sound")
@@ -48,7 +28,7 @@ local function playSound(soundId, volume, duration)
         end)
     end
 end
--------------------------------------------
+
 local RunService = game:GetService("RunService")
 
 -- 创建 BoxHandleAdornment 实例
@@ -184,6 +164,28 @@ function esp(what, color, core, name)
 
     return ret
 end
+
+
+function oldwarnmessage(title, text)
+	Notification:Notify(
+		{Title = title, Description = text},
+		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
+		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 84, 84)}
+	)
+end
+if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
+	oldwarnmessage("出生v"..v, "You need in Doors execute it script", 10) 
+	return
+end
+local buttons = {
+        noclip = nil
+}
+
+local flags = {
+        noclip = false,
+}
+Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
+
 local window_player = GUI:CreateSection({
 	Name = "玩家"
 })
