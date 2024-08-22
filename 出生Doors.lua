@@ -331,3 +331,30 @@ task.spawn(function()
 		end
 	end)
 end)
+local window_esp = GUI:CreateSection({
+	Name = "esp"
+})
+
+
+local Player = window_esp:AddToggle({
+	Name = "Player esp",
+	Value = false,
+	Callback = function(state)
+	if state then
+            _G.espInstances = {}
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player.Character then
+                    local espInstance = esp(player.Character, Color3.new(1, 0.5, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                    table.insert(_G.espInstances, espInstance)
+                end
+            end
+        else
+            if _G.espInstances then
+                for _, espInstance in pairs(_G.espInstances) do
+                    espInstance.delete()
+                end
+                _G.espInstances = nil
+            end
+        end
+    end
+})
