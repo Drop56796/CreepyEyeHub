@@ -2259,4 +2259,43 @@ Tab3:AddToggle({
     end
 })
 
+-- Function to remove Seek Chase by destroying the TriggerEventCollision object
+local function RemoveSeekChase()
+    -- Loop through all rooms in the workspace
+    for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+        -- Attempt to find the "TriggerEventCollision" child in each room
+        local trigger = room:WaitForChild("TriggerEventCollision", 2)
+
+        -- If the trigger is found, destroy it
+        if trigger then
+            trigger:Destroy()
+            -- Notify the player that the Seek Chase trigger has been removed
+            Notification:Notify(
+                {Title = "Seek Chase Removed", Description = "The Seek Chase event has been successfully removed."},
+                {OutlineColor = Color3.fromRGB(255, 165, 0), Time = 5, Type = "image"},
+                {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 165, 0)}
+            )
+        end
+    end
+end
+
+-- Toggle to activate or deactivate the Remove Seek Chase script
+Tab3:AddToggle({
+    Name = "Remove Seek Chase",
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- Activate the Remove Seek Chase feature
+            RemoveSeekChase()
+        else
+            -- Notify the player that the script is inactive
+            Notification:Notify(
+                {Title = "Script Inactive", Description = "The Remove Seek Chase script is currently inactive."},
+                {OutlineColor = Color3.fromRGB(255, 0, 0), Time = 5, Type = "image"},
+                {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 0, 0)}
+            )
+        end
+    end
+})
+
 OrionLib:Init()
