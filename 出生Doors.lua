@@ -1257,6 +1257,7 @@ local PlayerESP_Toggle = window_esp:AddToggle({
     end
 })
 
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local markedTargets = {}
@@ -1287,7 +1288,7 @@ local function createBillboardGui(core, color, name)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
+    txt.Font = Enum.Font.Jura -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
@@ -1338,7 +1339,7 @@ end
 
 -- Anti Key ESP 功能
 local Player = window_esp:AddToggle({
-    Name = "Key ESP",
+    Name = "Anti Key ESP",
     Value = false,
     Callback = function(state)
         if state then
@@ -1375,8 +1376,8 @@ local Player = window_esp:AddToggle({
 
             -- 立即处理现有实例和玩家
             Invalidplayername("玩家名称", "玩家")
-	    Itemlocationname("钥匙", "钥匙")
-	    Itemlocationname("钥匙", "钥匙")
+            Itemlocationname("Key", "Key")
+            Itemlocationname(".", ".")
         else
             -- 清理标记
             for target, _ in pairs(markedTargets) do
