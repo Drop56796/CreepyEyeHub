@@ -19,11 +19,20 @@ local flags = {
         noclip = false,
         speed = 0,
         camfov = 70,
-	esprush = false
+	esprush = false,
+	espdoors = false,
+	esplocker = false,
+	espitems = false,
+	espbooks = false
 }
 local esptable = {
-        entity = {}	
+        entity = {},
+	doors = {},
+	lockers = {},
+	items = {},
+	books = {}
 }
+
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 local GUIWindow = Library:CreateWindow({
 	Name = "出生Doors v".. v,
@@ -230,7 +239,7 @@ task.spawn(function()
 	buttons.noclip = nocliptoggle
 end)
 local walkspeedslider = window_player:AddSlider({
-	Name = "Walkspeed",
+	Name = "Walkspeed(No silder)",
 	Value = 16,
 	Min = 16,
 	Max = 22,
@@ -245,7 +254,7 @@ local walkspeedslider = window_player:AddSlider({
 buttons.speed = walkspeedslider
 
 local walkspeedtglbtn = window_player:AddToggle({
-	Name = "Toggle Walkspeed",
+	Name = "Toggle Walkspeed(Stop work)",
 	Value = false,
 	Callback = function(val, oldval)
 		flags.walkspeedtoggle = val
@@ -394,6 +403,299 @@ local Enity = window_esp:AddToggle({
                     end
                 end
                 _G.entityESPInstances = nil
+            end
+        end
+    end
+})
+
+local DE = window_esp:AddToggle({
+	Name = "Door esp",
+	Value = false,
+	Callback = function(state)
+	if state then
+            _G.doorESPInstances = {}
+            flags.espdoors = state
+            local doorCounter = 0  -- Initialize a counter for the doors
+                
+            local function setup(room)
+                local door = room:WaitForChild("Door") -- Directly get the Door object
+                
+                task.wait(0.1)
+                
+                -- Increment the door counter and format it as a four-digit number starting from 0001
+                doorCounter = doorCounter + 1
+                local doorIndex = string.format("%04d", doorCounter)
+                
+                -- Set up ESP with the door index in the format "Door [0001]"
+                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]")
+                table.insert(esptable.doors, h)
+                
+                door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
+                    h.delete()
+                end)
+                
+                door.AncestryChanged:Connect(function()
+                    h.delete()
+                end)
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+
+            table.insert(_G.doorESPInstances, esptable)
+
+        else
+            if _G.doorESPInstances then
+                for _, instance in pairs(_G.doorESPInstances) do
+                    for _, v in pairs(instance.doors) do
+                        v.delete()
+                    end
+                end
+                _G.doorESPInstances = nil
+            end
+        end
+    end
+})
+
+local LWESP = window_esp:AddToggle({
+	Name = "locker/Wardrobe esp",
+	Value = false,
+	Callback = function(state)
+	if state then
+            _G.lockerESPInstances = {}
+	    flags.esplocker = state
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "Wardrobe" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
+                        table.insert(esptable.lockers, h) 
+                    elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker")
+                        table.insert(esptable.lockers, h) 
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.lockerESPInstances, esptable)
+
+	else
+            if _G.lockerESPInstances then
+                for _, instance in pairs(_G.lockerESPInstances) do
+                    for _, v in pairs(instance.lockers) do
+                        v.delete()
+                    end
+                end
+                _G.lockerESPInstances = nil
+            end
+        end
+    end
+})
+
+local fb = window_player:AddToggle({
+	Name = "fullbright",
+	Value = false,
+	Callback = function(state)
+	local Light = game:GetService("Lighting")
+
+        local function dofullbright()
+            Light.Ambient = Color3.new(1, 1, 1)
+            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
+            Light.ColorShift_Top = Color3.new(1, 1, 1)
+        end
+
+        local function resetLighting()
+            Light.Ambient = Color3.new(0, 0, 0)
+            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Light.ColorShift_Top = Color3.new(0, 0, 0)
+        end
+
+        if state then
+            _G.fullBrightEnabled = true
+            task.spawn(function()
+                while _G.fullBrightEnabled do
+                    dofullbright()
+                    task.wait(0)  -- 每秒检查一次
+                end
+            end)
+        else
+            _G.fullBrightEnabled = false
+            resetLighting()
+        end
+    end
+})
+
+local Player = window_esp:AddToggle({
+	Name = "item esp",
+	Value = false,
+	Callback = function(state)
+	if state then
+            _G.itemESPInstances = {}
+            flags.espitems = state
+
+	    local function check(v)
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+                    task.wait(0.1)
+                    
+                    local part = (v:FindFirstChild("Handle") or v:FindFirstChild("Prop"))
+                    local h = esp(part, Color3.fromRGB(255, 255, 255), part, v.Name)
+                    table.insert(esptable.items, h)
+                end
+            end
+            
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then  
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.espitems
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+
+            table.insert(_G.itemESPInstances, esptable)
+
+        else
+            if _G.itemESPInstances then
+                for _, instance in pairs(_G.itemESPInstances) do
+                    for _, v in pairs(instance.items) do
+                        v.delete()
+                    end
+                end
+                _G.itemESPInstances = nil
+            end
+        end
+    end
+})
+
+local Player = window_esp:AddToggle({
+    Name = "Book/Breaker esp",
+    Value = false,
+    Callback = function(state)
+        if state then
+            -- Initialize or reset ESP instances
+            _G.bookESPInstances = {}
+            flags.espbooks = state
+
+            -- Function to check and handle new models
+            local function check(v)
+                if v:IsA("Model") then
+                    local name = ""
+                    if v.Name == "LiveHintBook" then
+                        name = "Book"
+                    elseif v.Name == "LiveBreakerPolePickup" then
+                        name = "Breaker"
+                    end
+                    
+                    if name ~= "" then
+                        task.wait(0.1)
+                        
+                        local h = esp(v, Color3.fromRGB(255, 255, 255), v.PrimaryPart, name)
+                        table.insert(esptable.books, h)
+                        
+                        v.AncestryChanged:Connect(function()
+                            if not v:IsDescendantOf(room) then
+                                h.delete() 
+                            end
+                        end)
+                    end
+                end
+            end
+
+            -- Function to set up ESP for rooms
+            local function setup(room)
+                if room.Name == "50" or room.Name == "100" then
+                    room.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(room:GetDescendants()) do
+                        check(v)
+                    end
+                end
+            end
+
+            -- Connect to new rooms being added
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            -- Set up existing rooms
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            -- Store the ESP instances
+            table.insert(_G.bookESPInstances, esptable)
+
+        else
+            -- Remove all ESP instances if disabled
+            if _G.bookESPInstances then
+                for _, instance in pairs(_G.bookESPInstances) do
+                    for _, v in pairs(instance.books) do
+                        v.delete()
+                    end
+                end
+                _G.bookESPInstances = nil
             end
         end
     end
