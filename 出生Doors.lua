@@ -1,8 +1,9 @@
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
-local v = 1
+local v = 1.1
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 
 --function warnNofiy(title, text)
 --	Notification:Notify(
@@ -1356,7 +1357,7 @@ end
 
 -- Anti Key ESP 功能
 local Player = window_esp:AddToggle({
-    Name = "Anti Key ESP",
+    Name = "Key ESP[Anti Bypass]",
     Value = false,
     Callback = function(state)
         if state then
@@ -1403,6 +1404,87 @@ local Player = window_esp:AddToggle({
                 end
             end
             markedTargets = {}
+        end
+    end
+})
+
+local LWES_TextChannel = window_event:AddToggle({
+    Name = "Chat Nofiy",
+    Value = false,
+    Callback = function(state)
+        local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}
+        local plr = game.Players.LocalPlayer
+
+        if state then
+            -- 实体生成消息发送函数
+            local function sendEntityMessage(entity)
+                local message = "出生[Entity Event]: " .. entity.Name:gsub("Moving", ""):lower() .. " is spawned!!!!!"
+                textChannel:SendAsync(message)
+            end
+
+            -- 监控实体生成
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat task.wait() until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    if child:IsDescendantOf(workspace) then
+                        sendEntityMessage(child)
+                    end
+                end
+            end
+
+            -- 物品生成消息发送函数
+            local function sendItemMessage(itemName)
+                local message = "出生[Item Event]: " .. itemName .. " ia spawned"
+                textChannel:SendAsync(message)
+            end
+
+            -- 监控物品生成
+            local function check(v)
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+                    task.wait(0.1)
+                    local part = v:FindFirstChild("Handle") or v:FindFirstChild("Prop") or v:FindFirstChildWhichIsA("BasePart")
+                    if part then
+                        local itemName = v.Name
+                        sendItemMessage(itemName)
+                    end
+                end
+            end
+
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                if assets then
+                    local subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+                    for _, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    task.spawn(function()
+                        repeat task.wait() until not state
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            -- 监听房间变化
+            local addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+
+            -- 监听实体生成
+            local connection = workspace.ChildAdded:Connect(onChildAdded)
+
+            -- 关闭时断开连接
+            task.spawn(function()
+                repeat task.wait(1) until not state
+                connection:Disconnect()
+                addconnect:Disconnect()
+            end)
         end
     end
 })
