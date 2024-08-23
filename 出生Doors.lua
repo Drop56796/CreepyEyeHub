@@ -29,7 +29,7 @@ local flags = {
 	espitems = false,
 	espbooks = false,
 	espgold = false,
-	espKeyObtain = false
+	targetKeyObtain = false
 }
 local esptable = {
         entity = {},
@@ -38,7 +38,7 @@ local esptable = {
 	items = {},
 	books = {},
 	Gold = {},
-	Key = {}
+	key = {}
 }
 
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
@@ -1258,39 +1258,60 @@ local PlayerESP_Toggle = window_esp:AddToggle({
 })
 
 local Player = window_esp:AddToggle({
-    Name = "Key ESP",
+    Name = "[Anti beta] Key ESP",
     Value = false,
     Callback = function(state)
         if state then
-            _G.keyObtainESPInstances = {}
-            flags.espKeyObtain = state
+            _G.keyObtainTargetInstances = {}
+            flags.targetKeyObtain = state
+
+            local function isValidTarget(v)
+                -- 确保目标模型有效且存在
+                return v and v:IsA("Model") and v.Name == "KeyObtain" and v:FindFirstChild("Sign")
+            end
 
             local function check(v)
-                if v:IsA("Model") and v.Name == "KeyObtain" then
-                    -- 检查 PrimaryPart
-                    local primaryPart = v.PrimaryPart
-                    if primaryPart and primaryPart:FindFirstChild("Hitbox") then
-                        local hitbox = primaryPart:FindFirstChild("Hitbox")
-                        local keyHitbox = v:FindFirstChild("KeyHitbox")
-                        
-                        if keyHitbox then
-                            local soundFound = false
-                            -- 检查音频ID
-                            for _, obj in pairs(keyHitbox:GetDescendants()) do
-                                if obj:IsA("Sound") and (obj.SoundId == "rbxassetid://3144041977" or obj.SoundId == "rbxassetid://9125986205") then
-                                    soundFound = true
-                                    break
-                                end
-                            end
+                if isValidTarget(v) then
+                    local components = {"Ring", "Tag", "Inset", "End", "Key"}
+                    local allComponentsFound = true
 
-                            if soundFound then
-                                task.wait(0.1)
-                                
-                                -- 使用 Hitbox 或 PrimaryPart 显示 ESP
-                                local part = hitbox or v.PrimaryPart
-                                if part then
-                                    local h = esp(part, Color3.fromRGB(0, 255, 0), part, "Key")
-                                    table.insert(esptable.Key, h)
+                    for _, comp in ipairs(components) do
+                        if not v:FindFirstChild(comp) then
+                            allComponentsFound = false
+                            break
+                        end
+                    end
+
+                    if allComponentsFound then
+                        local manualWeldFound = false
+                        for _, comp in ipairs(components) do
+                            local component = v:FindFirstChild(comp)
+                            if component and component:FindFirstChild("ManualWeld") then
+                                manualWeldFound = true
+                                break
+                            end
+                        end
+
+                        if manualWeldFound then
+                            local sign = v:FindFirstChild("Sign")
+                            if sign and sign.Parent == v then
+                                local modulePrompt = v:FindFirstChild("ModulePrompt")
+                                if modulePrompt then
+                                    local labelFound = sign:FindFirstChild("Label")
+                                    if labelFound then
+                                        task.wait(0.1)
+                                        
+                                        -- 使用 Sign 添加 ESP
+                                        local part = sign
+                                        local espInstance = esp(part, Color3.fromRGB(0, 255, 0), part, "KeyObtain")
+                                        local target = {
+                                            model = v,
+                                            part = part,
+                                            espInstance = espInstance,
+                                            lastChecked = tick() -- 记录最后检查时间
+                                        }
+                                        table.insert(_G.keyObtainTargetInstances, target)
+                                    end
                                 end
                             end
                         end
@@ -1304,15 +1325,15 @@ local Player = window_esp:AddToggle({
                 if assets then  
                     local subaddcon
                     subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v) 
+                        pcall(function() check(v) end) -- 使用 pcall 捕获潜在的错误
                     end)
                     
                     for _, v in pairs(assets:GetDescendants()) do
-                        check(v)
+                        pcall(function() check(v) end) -- 使用 pcall 捕获潜在的错误
                     end
                     
                     task.spawn(function()
-                        repeat task.wait() until not flags.espKeyObtain
+                        repeat task.wait() until not flags.targetKeyObtain
                         subaddcon:Disconnect()  
                     end) 
                 end 
@@ -1329,16 +1350,30 @@ local Player = window_esp:AddToggle({
                 end
             end
 
-            table.insert(_G.keyObtainESPInstances, esptable)
-
-        else
-            if _G.keyObtainESPInstances then
-                for _, instance in pairs(_G.keyObtainESPInstances) do
-                    for _, v in pairs(instance.Key) do
-                        v.delete()
+            task.spawn(function()
+                while flags.targetKeyObtain do
+                    task.wait(10) -- 每10秒检查一次
+                    local currentTime = tick()
+                    for i = #_G.keyObtainTargetInstances, 1, -1 do
+                        local target = _G.keyObtainTargetInstances[i]
+                        if currentTime - target.lastChecked > 60 then
+                            if target.espInstance then
+                                target.espInstance.delete()
+                            end
+                            table.remove(_G.keyObtainTargetInstances, i)
+                        end
                     end
                 end
-                _G.keyObtainESPInstances = nil
+            end)
+
+        else
+            if _G.keyObtainTargetInstances then
+                for _, target in pairs(_G.keyObtainTargetInstances) do
+                    if target.espInstance then
+                        target.espInstance.delete()
+                    end
+                end
+                _G.keyObtainTargetInstances = nil
             end
         end
     end
