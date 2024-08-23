@@ -868,7 +868,7 @@ local PlayerESP_Toggle = window_esp:AddToggle({
     Name = "Player ESP",
     Value = false,
     Callback = function(state)
-        togglePlayerESP = state
+        togglePlayerESP(state)
     end
 })
 
