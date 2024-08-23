@@ -972,3 +972,79 @@ local LWES = window_event:AddToggle({
     end
 })
 
+local Player = window_player:AddToggle({
+	Name = "Look aura",
+	Value = false,
+	Callback = function(state)
+	if state then
+            -- open
+            autoInteract = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            autoInteract = false
+        end
+    end
+})
