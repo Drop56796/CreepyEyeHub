@@ -861,7 +861,7 @@ local LWES = window_event:AddToggle({
 
             local function notifyEntitySpawn(entity)
                 Notification:Notify(
-                    {Title = "出生Doors[实体事件]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {Title = "出生Doors[Enity Event]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
 		)
@@ -911,7 +911,11 @@ local LWES = window_event:AddToggle({
 
             -- 发送通知的函数
             local function notifyItem(itemName)
-                Notification("出生Doors[物品事件]".. v, itemName .. " is Spawned now!", 5)
+                Notification:Notify(
+                    {Title = "出生Doors[Item Event]", Description = itemName .. " is Spawned now!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+	        )
             end
 
             -- 监控新物品的出现
