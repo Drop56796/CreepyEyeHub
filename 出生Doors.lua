@@ -10,18 +10,16 @@ function oldwarnmessage(title, text)
 	)
 end
 local buttons = {
-        noclip = nil
-	fullbright = nil
-	speed = nil
-        camfov = nil,
+        noclip = nil,
+	speed = nil,
+        camfov = nil
 
 }
 
 local flags = {
-        noclip = false
-        fullbright = false
-        speed = 0
-        camfov = 70,
+        noclip = false,
+        speed = 0,
+        camfov = 70
 }
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 local GUIWindow = Library:CreateWindow({
@@ -228,43 +226,6 @@ task.spawn(function()
 	})
 	buttons.noclip = nocliptoggle
 end)
-
-local cfullbrightbtn = window_player:AddToggle({
-	Name = "Fullbright",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.fullbright = val
-
-		if val then
-			local oldAmbient = game:GetService("Lighting").Ambient
-			local oldColorShift_Bottom = game:GetService("Lighting").ColorShift_Bottom
-			local oldColorShift_Top = game:GetService("Lighting").ColorShift_Top
-
-			local function doFullbright()
-				if flags.fullbright == true then
-					game:GetService("Lighting").Ambient = Color3.new(1, 1, 1)
-					game:GetService("Lighting").ColorShift_Bottom = Color3.new(1, 1, 1)
-					game:GetService("Lighting").ColorShift_Top = Color3.new(1, 1, 1)
-				else
-					game:GetService("Lighting").Ambient = oldAmbient
-					game:GetService("Lighting").ColorShift_Bottom = oldColorShift_Bottom
-					game:GetService("Lighting").ColorShift_Top = oldColorShift_Top
-				end
-			end
-			doFullbright()
-
-			local coneee = game:GetService("Lighting").LightingChanged:Connect(doFullbright)
-			repeat task.wait() until NUNEZSCRIPTSLOADED == false or not flags.fullbright
-
-			coneee:Disconnect()
-			game:GetService("Lighting").Ambient = oldAmbient
-			game:GetService("Lighting").ColorShift_Bottom = oldColorShift_Bottom
-			game:GetService("Lighting").ColorShift_Top = oldColorShift_Top
-		end
-	end
-})
-buttons.fullbright = cfullbrightbtn
-
 local walkspeedslider = window_player:AddSlider({
 	Name = "Walkspeed",
 	Value = 16,
