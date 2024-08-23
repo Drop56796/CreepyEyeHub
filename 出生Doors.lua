@@ -13,13 +13,16 @@ local buttons = {
         noclip = nil,
 	speed = nil,
         camfov = nil
-
 }
 
 local flags = {
         noclip = false,
         speed = 0,
-        camfov = 70
+        camfov = 70,
+	esprush = false
+}
+local esptable = {
+        entity = {}	
 }
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 local GUIWindow = Library:CreateWindow({
@@ -315,6 +318,82 @@ local Player = window_esp:AddToggle({
                     espInstance.delete()
                 end
                 _G.espInstances = nil
+            end
+        end
+    end
+})
+
+local Enity = window_esp:AddToggle({
+	Name = "Enity esp",
+	Value = false,
+	Callback = function(state)
+	if state then
+            _G.entityESPInstances = {}
+            flags.esprush = state
+            local entitynames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "Eyes", "JeffTheKiller", "SeekMoving"}
+	    
+            local addconnect
+            addconnect = workspace.ChildAdded:Connect(function(v)
+                if table.find(entitynames, v.Name) then
+                    task.wait(0.1)
+                    
+                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""))
+                    table.insert(esptable.entity, h)
+                end
+            end)
+
+            local function setup(room)
+                if room.Name == "50" or room.Name == "100" then
+                    local figuresetup = room:WaitForChild("FigureSetup")
+                
+                    if figuresetup then
+                        local fig = figuresetup:WaitForChild("FigureRagdoll")
+                        task.wait(0.1)
+                        
+                        local h = esp(fig, Color3.fromRGB(255, 25, 25), fig.PrimaryPart, "Figure")
+                        table.insert(esptable.entity, h)
+                    end 
+                else
+                    local assets = room:WaitForChild("Assets")
+                    
+                    local function check(v)
+                        if v:IsA("Model") and table.find(entitynames, v.Name) then
+                            task.wait(0.1)
+                            
+                            local h = esp(v:WaitForChild("Base"), Color3.fromRGB(255, 25, 25), v.Base, "Snare")
+                            table.insert(esptable.entity, h)
+                        end
+                    end
+                    
+                    assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                end 
+            end
+            
+            local roomconnect
+            roomconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+	    end
+
+	    table.insert(_G.entityESPInstances, esptable)
+
+        else
+            if _G.entityESPInstances then
+                for _, instance in pairs(_G.entityESPInstances) do
+                    for _, v in pairs(instance.entity) do
+                        v.delete()
+                    end
+                end
+                _G.entityESPInstances = nil
             end
         end
     end
