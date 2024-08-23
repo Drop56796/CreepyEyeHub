@@ -700,145 +700,178 @@ local Player = window_esp:AddToggle({
         end
     end
 })
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local markedTargets = {}
 
-local LWESP = window_esp:AddToggle({
-    Name = "Key esp",
-    Value = false,
-    Callback = function(state)
-        local Players = game:GetService("Players")
-        local RunService = game:GetService("RunService")
-        local markedTargets = {}
+-- Define translation dictionary
+local translationDictionary = {
+    ["钥匙"] = "Key",  -- Example translation
+    ["玩家"] = "Player",
+    -- Add more translations as needed
+}
 
-        local function createCircularUI(parent, color)
-            local mid = Instance.new("Frame", parent)
-            mid.AnchorPoint = Vector2.new(0.5, 0.5)
-            mid.BackgroundColor3 = color
-            mid.Size = UDim2.new(0, 8, 0, 8)
-            mid.Position = UDim2.new(0.5, 0, 0.0001, 0) -- Adjusted position
-            Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-            Instance.new("UIStroke", mid)
+-- Function to translate Chinese to English
+local function translate(text)
+    return translationDictionary[text] or text
+end
 
-            return mid
+-- Function to create a circular UI element
+local function createCircularUI(parent, color)
+    local circularUI = Instance.new("Frame")
+    circularUI.AnchorPoint = Vector2.new(0.5, 0.5)
+    circularUI.BackgroundColor3 = color
+    circularUI.Size = UDim2.new(0, 12, 0, 12)
+    circularUI.Position = UDim2.new(0.5, 0, 0.5, 0)
+    circularUI.Parent = parent
+    local corner = Instance.new("UICorner", circularUI)
+    corner.CornerRadius = UDim.new(0.5, 0)
+    local stroke = Instance.new("UIStroke", circularUI)
+    stroke.Thickness = 2
+
+    return circularUI
+end
+
+-- Function to mark a target with a tag and highlight
+local function markTarget(target, customName)
+    if not target then return end
+    
+    -- Remove old tags and highlights if they exist
+    local oldTag = target:FindFirstChild("Tag")
+    if oldTag then
+        oldTag:Destroy()
+    end
+    
+    local oldHighlight = target:FindFirstChild("Highlight")
+    if oldHighlight then
+        oldHighlight:Destroy()
+    end
+    
+    -- Translate customName
+    local translatedName = translate(customName)
+    
+    -- Create new tag
+    local tag = Instance.new("BillboardGui")
+    tag.Name = "Tag"
+    tag.Size = UDim2.new(0, 200, 0, 50)
+    tag.StudsOffset = Vector3.new(0, 2, 0)
+    tag.AlwaysOnTop = true
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.Font = Enum.Font.Gotham
+    textLabel.TextScaled = true
+    textLabel.Text = translatedName
+    textLabel.Parent = tag
+    tag.Parent = target
+    
+    -- Create highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "Highlight"
+    highlight.Adornee = target
+    highlight.FillColor = Color3.fromRGB(0, 0, 255)
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+    highlight.Parent = target
+    
+    markedTargets[target] = translatedName
+    
+    -- Create circular UI
+    createCircularUI(tag, Color3.fromRGB(0, 255, 0))
+end
+
+-- Function to recursively find all instances by name
+local function recursiveFindAll(parent, name, targets)
+    for _, child in ipairs(parent:GetChildren()) do
+        if child.Name == name then
+            table.insert(targets, child)
         end
+        recursiveFindAll(child, name, targets)
+    end
+end
 
-        local function markTarget(target, customName)
-            if not target then return end
-            
-            -- Remove old tags and highlights if they exist
-            local oldTag = target:FindFirstChild("Batteries")
-            if oldTag then
-                oldTag:Destroy()
+-- Function to mark all instances of a specific name
+local function markInstancesByName(name, customName)
+    local targets = {}
+    recursiveFindAll(game, name, targets)
+    for _, target in ipairs(targets) do
+        markTarget(target, customName)
+    end
+end
+
+-- Function to mark a specific player's character head
+local function markPlayerHead(playerName, customName)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name == playerName and player.Character then
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                markTarget(head, customName)
             end
-            
-            local oldHighlight = target:FindFirstChild("Highlight")
-            if oldHighlight then
-                oldHighlight:Destroy()
-            end
-            
-            -- Create new tag
-            local tag = Instance.new("BillboardGui")
-            tag.Name = "Batteries"
-            tag.Size = UDim2.new(0, 200, 0, 50)
-            tag.StudsOffset = Vector3.new(0, 0.7, 0) -- Adjusted offset
-            tag.AlwaysOnTop = true
-            
-            local textLabel = Instance.new("TextLabel")
-            textLabel.Size = UDim2.new(1, 0, 1, 0)
-            textLabel.BackgroundTransparency = 1
-            textLabel.TextStrokeTransparency = 0 
-            textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            textLabel.Font = Enum.Font.SourceSans -- Changed to a font supporting a wide range of characters
-            textLabel.TextScaled = true
-            textLabel.Text = customName
-            textLabel.Parent = tag
-            tag.Parent = target
-            
-            -- Create highlight
-            local highlight = Instance.new("Highlight")
-            highlight.Name = "Highlight"
-            highlight.Adornee = target
-            highlight.FillColor = Color3.fromRGB(255, 255, 255)
-            highlight.OutlineColor = Color3.fromRGB(255, 255, 139)
-            highlight.Parent = target
-            
-            markedTargets[target] = customName
-            
-            -- Create circular UI
-            createCircularUI(tag, Color3.fromRGB(255, 255, 255))
-        end
-
-        local function recursiveFindAll(parent, name, targets)
-            for _, child in ipairs(parent:GetChildren()) do
-                if child.Name == name then
-                    table.insert(targets, child)
-                end
-                recursiveFindAll(child, name, targets)
-            end
-        end
-
-        local function Itemlocationname(name, customName)
-            local targets = {}
-            recursiveFindAll(game, name, targets)
-            for _, target in ipairs(targets) do
-                markTarget(target, customName)
-            end
-        end
-
-        local function Invalidplayername(playerName, customName)
-            for _, player in ipairs(Players:GetPlayers()) do
-                if player.Name == playerName and player.Character then
-                    local head = player.Character:FindFirstChild("Head")
-                    if head then
-                        markTarget(head, customName)
-                    end
-                end
-            end
-        end
-
-        if state then
-            Players.PlayerAdded:Connect(function(player)
-                player.CharacterAdded:Connect(function(character)
-                    local head = character:FindFirstChild("Head")
-                    if head then
-                        markTarget(head, player.Name)
-                    end
-                end)
-            end)
-
-            game.DescendantAdded:Connect(function(descendant)
-                if descendant.Name == "Key" then
-                    markTarget(descendant, "Key")
-                end
-            end)
-
-            RunService.RenderStepped:Connect(function()
-                for target, customName in pairs(markedTargets) do
-                    if target and target:FindFirstChild("Batteries") then
-                        target.Batteries.TextLabel.Text = customName
-                    else
-                        if target then
-                            markTarget(target, customName)
-                        end
-                    end
-                end
-            end)
-
-            Invalidplayername("player name", "player") -- Adjust these as needed
-            Itemlocationname("Key", "Key")
-        else
-            for target, _ in pairs(markedTargets) do
-                if target:FindFirstChild("Batteries") then
-                    target.Batteries:Destroy()
-                end
-                if target:FindFirstChild("Highlight") then
-                    target.Highlight:Destroy()
-                end
-            end
-            markedTargets = {}
         end
     end
+end
+
+-- Callback function to handle ESP toggle
+local function togglePlayerESP(state)
+    if state then
+        -- Enable ESP
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("Head") then
+                markTarget(player.Character.Head, player.Name)
+            end
+        end
+
+        -- Connect PlayerAdded event to create ESP for new players
+        Players.PlayerAdded:Connect(function(player)
+            player.CharacterAdded:Connect(function(character)
+                local head = character:FindFirstChild("Head")
+                if head then
+                    markTarget(head, player.Name)
+                end
+            end)
+        end)
+
+        -- Update ESP every frame
+        RunService.RenderStepped:Connect(function()
+            for target, customName in pairs(markedTargets) do
+                if target and target:FindFirstChild("Tag") then
+                    target.Tag.TextLabel.Text = translate(customName)
+                else
+                    if target then
+                        markTarget(target, customName)
+                    end
+                end
+            end
+        end)
+    else
+        -- Disable ESP
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("Head") then
+                local head = player.Character.Head
+                if head:FindFirstChild("Tag") then
+                    head.Tag:Destroy()
+                end
+                if head:FindFirstChild("Highlight") then
+                    head.Highlight:Destroy()
+                end
+            end
+        end
+        markedTargets = {}
+    end
+end
+
+-- Bind the toggle function to the player ESP toggle button
+local PlayerESP_Toggle = window_esp:AddToggle({
+    Name = "Player ESP",
+    Value = false,
+    Callback = function(state)
+        togglePlayerESP = state
+    end
 })
+
 
 local window_event = GUI:CreateSection({
 	Name = "Event"
@@ -911,7 +944,7 @@ local LWES = window_event:AddToggle({
             -- 发送通知的函数
             local function notifyItem(itemName)
                 Notification:Notify(
-                    {Title = "出生[物品事件]", Description = itemName .. " 已生成"},
+                    {Title = "出生[Item Event]", Description = itemName .. " 已生成"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
