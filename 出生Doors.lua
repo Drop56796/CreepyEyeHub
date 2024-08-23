@@ -1338,7 +1338,7 @@ end
 
 -- Anti Key ESP 功能
 local Player = window_esp:AddToggle({
-    Name = "Anti??? Key ESP",
+    Name = "Key ESP",
     Value = false,
     Callback = function(state)
         if state then
@@ -1375,7 +1375,7 @@ local Player = window_esp:AddToggle({
 
             -- 立即处理现有实例和玩家
             Invalidplayername("玩家名称", "玩家")
-            Itemlocationname("Key", "Key")
+	    Itemlocationname("_", "_")		
             Itemlocationname("KeyObtain", "KeyObtain")
         else
             -- 清理标记
