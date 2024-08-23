@@ -1375,8 +1375,7 @@ local Player = window_esp:AddToggle({
 
             -- 立即处理现有实例和玩家
             Invalidplayername("玩家名称", "玩家")
-	    Itemlocationname("钥匙[Key]", "钥匙[Key]")		
-            Itemlocationname("钥匙[Key]", "钥匙[Key]")
+	    Itemlocationname("钥匙[Key]", "钥匙[Key]")
         else
             -- 清理标记
             for target, _ in pairs(markedTargets) do
