@@ -4,13 +4,13 @@ local v = 1
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-function warnNofiy(title, text)
-	Notification:Notify(
-		{Title = title, Description = text},
-		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
-		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
-	)
-end
+--function warnNofiy(title, text)
+--	Notification:Notify(
+--		{Title = title, Description = text},
+--		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
+--		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
+--	)
+--end
 ---if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
 --	warnNofiy("出生Doors v"..v, "Go doors to run", 10) 
 --	return
@@ -34,7 +34,8 @@ local flags = {
     espbooks = false,
     espgold = false,
     targetKeyObtain = false,
-    noclip = false
+    noclip = false,
+    speedThreshold = 2	
 }
 local esptable = {
         entity = {},
@@ -300,21 +301,27 @@ local togglefovbtn = window_player:AddToggle({
 })
 buttons.camfovtoggle = togglefovbtn
 task.spawn(function()
+    local lastPosition = rootPart.Position
+    local lastTime = tick()
+
     RunService.RenderStepped:Connect(function()
-        if flags.tpwalktoggle and rootPart and hum then
-            local moveDirection = Vector3.new(0, 0, 0)
-
-            -- 获取用户输入并更新移动方向
-            local playerInput = userInputService:GetGamepadState(Enum.UserInputType.Gamepad1)
-            if playerInput then
-                local moveVector = Vector3.new(playerInput.LeftThumbstick.X, 0, playerInput.LeftThumbstick.Y)
-                moveDirection = rootPart.CFrame.LookVector * moveVector.Z + rootPart.CFrame.RightVector * moveVector.X
-            end
-
-            -- 更新角色的 CFrame 位置
-            local speed = flags.tpwalkspeed
-            local deltaTime = RunService.RenderStepped:Wait()  -- 获取时间增量
-            local newPosition = rootPart.Position + (moveDirection * speed * deltaTime)
+        if not rootPart or not hum then return end
+        
+        -- 计算时间增量
+        local currentTime = tick()
+        local deltaTime = currentTime - lastTime
+        lastTime = currentTime
+        
+        -- 计算移动速度
+        local currentPosition = rootPart.Position
+        local distanceMoved = (currentPosition - lastPosition).Magnitude
+        lastPosition = currentPosition
+        local speed = distanceMoved / deltaTime
+        
+        if flags.tpwalktoggle and speed > flags.speedThreshold then
+            local moveDirection = rootPart.CFrame.LookVector
+            local speedMultiplier = flags.tpwalkspeed
+            local newPosition = rootPart.Position + (moveDirection * speedMultiplier * deltaTime)
             rootPart.CFrame = CFrame.new(newPosition, newPosition + moveDirection)
         end
 
