@@ -23,7 +23,8 @@ local flags = {
 	espdoors = false,
 	esplocker = false,
 	espitems = false,
-	espbooks = false
+	espbooks = false，
+	notifitems = false
 }
 local esptable = {
         entity = {},
@@ -42,7 +43,7 @@ local GUI = GUIWindow:CreateTab({
 	Name = "主功能"
 })
 local window_player = GUI:CreateSection({
-	Name = "玩家"
+	Name = "Player"
 })
 
 local function playSound(soundId, volume, duration)
@@ -696,6 +697,280 @@ local Player = window_esp:AddToggle({
                     end
                 end
                 _G.bookESPInstances = nil
+            end
+        end
+    end
+})
+
+local LWESP = window_esp:AddToggle({
+    Name = "Key esp",
+    Value = false,
+    Callback = function(state)
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local markedTargets = {}
+
+        local function createCircularUI(parent, color)
+            local mid = Instance.new("Frame", parent)
+            mid.AnchorPoint = Vector2.new(0.5, 0.5)
+            mid.BackgroundColor3 = color
+            mid.Size = UDim2.new(0, 8, 0, 8)
+            mid.Position = UDim2.new(0.5, 0, 0.0001, 0) -- Adjusted position
+            Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+            Instance.new("UIStroke", mid)
+
+            return mid
+        end
+
+        local function markTarget(target, customName)
+            if not target then return end
+            
+            -- Remove old tags and highlights if they exist
+            local oldTag = target:FindFirstChild("Batteries")
+            if oldTag then
+                oldTag:Destroy()
+            end
+            
+            local oldHighlight = target:FindFirstChild("Highlight")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
+            
+            -- Create new tag
+            local tag = Instance.new("BillboardGui")
+            tag.Name = "Batteries"
+            tag.Size = UDim2.new(0, 200, 0, 50)
+            tag.StudsOffset = Vector3.new(0, 0.7, 0) -- Adjusted offset
+            tag.AlwaysOnTop = true
+            
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextStrokeTransparency = 0 
+            textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.Font = Enum.Font.SourceSans -- Changed to a font supporting a wide range of characters
+            textLabel.TextScaled = true
+            textLabel.Text = customName
+            textLabel.Parent = tag
+            tag.Parent = target
+            
+            -- Create highlight
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "Highlight"
+            highlight.Adornee = target
+            highlight.FillColor = Color3.fromRGB(255, 255, 255)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 139)
+            highlight.Parent = target
+            
+            markedTargets[target] = customName
+            
+            -- Create circular UI
+            createCircularUI(tag, Color3.fromRGB(255, 255, 255))
+        end
+
+        local function recursiveFindAll(parent, name, targets)
+            for _, child in ipairs(parent:GetChildren()) do
+                if child.Name == name then
+                    table.insert(targets, child)
+                end
+                recursiveFindAll(child, name, targets)
+            end
+        end
+
+        local function Itemlocationname(name, customName)
+            local targets = {}
+            recursiveFindAll(game, name, targets)
+            for _, target in ipairs(targets) do
+                markTarget(target, customName)
+            end
+        end
+
+        local function Invalidplayername(playerName, customName)
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Name == playerName and player.Character then
+                    local head = player.Character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, customName)
+                    end
+                end
+            end
+        end
+
+        if state then
+            Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function(character)
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, player.Name)
+                    end
+                end)
+            end)
+
+            game.DescendantAdded:Connect(function(descendant)
+                if descendant.Name == "Key" then
+                    markTarget(descendant, "Key")
+                end
+            end)
+
+            RunService.RenderStepped:Connect(function()
+                for target, customName in pairs(markedTargets) do
+                    if target and target:FindFirstChild("Batteries") then
+                        target.Batteries.TextLabel.Text = customName
+                    else
+                        if target then
+                            markTarget(target, customName)
+                        end
+                    end
+                end
+            end)
+
+            Invalidplayername("player name", "player") -- Adjust these as needed
+            Itemlocationname("Key", "Key")
+        else
+            for target, _ in pairs(markedTargets) do
+                if target:FindFirstChild("Batteries") then
+                    target.Batteries:Destroy()
+                end
+                if target:FindFirstChild("Highlight") then
+                    target.Highlight:Destroy()
+                end
+            end
+            markedTargets = {}
+        end
+    end
+})
+
+local window_event = GUI:CreateSection({
+	Name = "Event"
+})
+
+local LWES = window_event:AddToggle({
+    Name = "Enity Event",
+    Value = false,
+    Callback = function(state)
+    if state then
+            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+            playSound("rbxassetid://4590662766", 1, 3.5)
+
+            -- 确保 flags 和 plr 已定义
+            local flags = flags or {} -- 防止错误
+            local plr = game.Players.LocalPlayer -- 防止错误2
+
+            local function notifyEntitySpawn(entity)
+                Notification:Notify(
+                    {Title = "出生Doors[实体事件]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
+		)
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- 无限循环以保持脚本运行并检查 hintrush 标志
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- 根据需要调整等待时间
+                until not flags.hintrush or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- 关闭消息或进行其他清理（如有需要）
+            running = false
+        end
+    end
+})
+
+local LWES = window_event:AddToggle({
+    Name = "Item Event",
+    Value = false,
+    Callback = function(state)
+    if state then
+            _G.itemNotificationInstances = {}
+            flags.notifitems = state
+
+            -- 加载通知库
+            local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
+            local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
+
+            -- 发送通知的函数
+            local function notifyItem(itemName)
+                Notification:Notify(
+                    {Title = "出生Doors[物品事件]", Description = itemName .. " is Spawned now!"},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
+                    {Image = "http://www.roblox.com/asset/?id=18394059300", ImageColor = Color3.fromRGB(255, 255, 255)}
+                )
+            end
+
+            -- 监控新物品的出现
+            local function check(v)
+                if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+                    task.wait(0.1)
+
+                    -- 尝试找到物品的主部件
+                    local part = v:FindFirstChild("Handle") or v:FindFirstChild("Prop") or v:FindFirstChildWhichIsA("BasePart")
+                    
+                    -- 如果找到了部件，发送通知
+                    if part then
+                        local itemName = v.Name
+                        notifyItem(itemName)
+                    end
+                end
+            end
+
+            -- 设置监视器以处理现有和新添加的物品
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.notifitems
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+
+            table.insert(_G.itemNotificationInstances, flags)
+
+        else
+            if _G.itemNotificationInstances then
+                _G.itemNotificationInstances = nil
             end
         end
     end
