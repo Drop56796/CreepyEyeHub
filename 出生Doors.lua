@@ -255,10 +255,18 @@ local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:FindFirstChildOfClass("Humanoid")
 local rootPart = char:FindFirstChild("HumanoidRootPart")
-
--- 添加 tpwalk 开关
+local tpwalkspeedslider = window_player:AddSlider({
+    Name = "WalkSpeed",
+    Value = 16,
+    Min = 16,
+    Max = 22,
+    Callback = function(val, oldval)
+        flags.tpwalkspeed = val
+    end
+})
+buttons.tpwalkspeed = tpwalkspeedslider
 local tpwalktglbtn = window_player:AddToggle({
-    Name = "Toggle TP Walk",
+    Name = "Toggle Walk",
     Value = false,
     Callback = function(val, oldval)
         flags.tpwalktoggle = val
@@ -269,20 +277,6 @@ local tpwalktglbtn = window_player:AddToggle({
     end
 })
 buttons.tpwalktoggle = tpwalktglbtn
-
--- 添加 TP Walk 速度滑块
-local tpwalkspeedslider = window_player:AddSlider({
-    Name = "TP Walk Speed",
-    Value = 16,
-    Min = 16,
-    Max = 22,
-    Callback = function(val, oldval)
-        flags.tpwalkspeed = val
-    end
-})
-buttons.tpwalkspeed = tpwalkspeedslider
-
--- 添加 FOV 滑块
 local camfovslider = window_player:AddSlider({
     Name = "FOV",
     Value = 70,
@@ -293,8 +287,6 @@ local camfovslider = window_player:AddSlider({
     end
 })
 buttons.camfov = camfovslider
-
--- 添加 FOV 开关
 local togglefovbtn = window_player:AddToggle({
     Name = "Toggle FOV",
     Value = false,
@@ -307,24 +299,26 @@ local togglefovbtn = window_player:AddToggle({
     end
 })
 buttons.camfovtoggle = togglefovbtn
-
--- 实现 CFrame 步伐 (tpwalk) 逻辑
 task.spawn(function()
     RunService.RenderStepped:Connect(function()
-        if flags.tpwalktoggle then
-            local speed = flags.tpwalkspeed
-            if rootPart and hum then
-                -- 获取角色当前的朝向
-                local moveDirection = rootPart.CFrame.LookVector
-                -- 计算新的 CFrame
-                local newPosition = rootPart.Position + (moveDirection * speed * RunService.RenderStepped:Wait()) 
-                -- 更新 CFrame
-                rootPart.CFrame = CFrame.new(newPosition, newPosition + moveDirection)
-                -- 保持 WalkSpeed 和 TP Walk 速度一致
-                hum.WalkSpeed = speed
+        if flags.tpwalktoggle and rootPart and hum then
+            local moveDirection = Vector3.new(0, 0, 0)
+
+            -- 获取用户输入并更新移动方向
+            local playerInput = userInputService:GetGamepadState(Enum.UserInputType.Gamepad1)
+            if playerInput then
+                local moveVector = Vector3.new(playerInput.LeftThumbstick.X, 0, playerInput.LeftThumbstick.Y)
+                moveDirection = rootPart.CFrame.LookVector * moveVector.Z + rootPart.CFrame.RightVector * moveVector.X
             end
+
+            -- 更新角色的 CFrame 位置
+            local speed = flags.tpwalkspeed
+            local deltaTime = RunService.RenderStepped:Wait()  -- 获取时间增量
+            local newPosition = rootPart.Position + (moveDirection * speed * deltaTime)
+            rootPart.CFrame = CFrame.new(newPosition, newPosition + moveDirection)
         end
-        
+
+        -- 更新 FOV
         if flags.camfovtoggle then
             pcall(function()
                 game:GetService("Workspace").CurrentCamera.FieldOfView = flags.camfov
