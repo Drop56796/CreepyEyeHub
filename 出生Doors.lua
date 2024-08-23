@@ -23,8 +23,7 @@ local flags = {
 	espdoors = false,
 	esplocker = false,
 	espitems = false,
-	espbooks = false，
-	notifitems = false
+	espbooks = false
 }
 local esptable = {
         entity = {},
@@ -849,7 +848,7 @@ local LWES = window_event:AddToggle({
     Name = "Enity Event",
     Value = false,
     Callback = function(state)
-    if state then
+       if state then
             local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
             local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))() --Lib2
@@ -901,9 +900,9 @@ local LWES = window_event:AddToggle({
     Name = "Item Event",
     Value = false,
     Callback = function(state)
-    if state then
+       if state then
             _G.itemNotificationInstances = {}
-            flags.notifitems = state
+            local flags = {notifitems = true}
 
             -- 加载通知库
             local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))() --Lib1
@@ -912,10 +911,10 @@ local LWES = window_event:AddToggle({
             -- 发送通知的函数
             local function notifyItem(itemName)
                 Notification:Notify(
-                    {Title = "出生Doors[Item Event]", Description = itemName .. " is Spawned now!"},
+                    {Title = "出生[物品事件]", Description = itemName .. " 已生成"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
-	        )
+                )
             end
 
             -- 监控新物品的出现
