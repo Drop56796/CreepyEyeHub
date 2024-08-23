@@ -1084,3 +1084,99 @@ local Player = window_player:AddToggle({
         end
     end
 })
+
+local window_remove = GUI:CreateSection({
+	Name = "Remove class"
+})
+local lasfToggle = false
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Remove Light [Anti Lag]",
+    Value = false,
+    Callback = function(state)
+        lasfToggle = state
+    end
+})
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        if lasfToggle then
+            local latestRoomNumber = tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)
+            local latestRoom = game.workspace.CurrentRooms:FindFirstChild(latestRoomNumber)
+            
+            if latestRoom then
+                local assets = latestRoom:FindFirstChild("Assets")
+                
+                if assets then
+                    -- 尝试销毁吊灯
+                    local chandelier = assets:FindFirstChild("Chandelier")
+                    if chandelier then
+                        chandelier:Destroy()
+                    end
+
+                    -- 尝试销毁灯具
+                    local lightFixtures = assets:FindFirstChild("Light_Fixtures")
+                    if lightFixtures then
+                        lightFixtures:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+end)
+_G.Gates = false
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Remove Gate",
+    Value = false,
+    Callback = function(state)
+	_G.Gates = state
+        
+        -- 当 Gates 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.Gates then
+                        local latestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                        local currentRoom = game.workspace.CurrentRooms[tostring(latestRoom)]
+                        
+                        -- 销毁 Gate 对象
+                        if currentRoom:FindFirstChild("Gate") then
+                            currentRoom.Gate:Destroy()
+                        end
+                    end
+                end)
+            end)
+        end
+    end	
+})
+_G.SeekES = false
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Remove SeekArm/Fire",
+    Value = false,
+    Callback = function(state)
+        _G.SeekES = state
+        
+        -- 当 SeekES 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.SeekES then
+                        local latestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                        local currentRoom = game.workspace.CurrentRooms[tostring(latestRoom)]
+                        local assets = currentRoom:WaitForChild("Assets")
+
+                        -- 销毁 ChandelierObstruction 和 Seek_Arm
+                        if assets:FindFirstChild("ChandelierObstruction") then
+                            assets.ChandelierObstruction:Destroy()
+                        end
+
+                        for i = 1, 15 do
+                            if assets:FindFirstChild("Seek_Arm") then
+                                assets.Seek_Arm:Destroy()
+                            end
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
