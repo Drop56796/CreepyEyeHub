@@ -2,11 +2,11 @@ local NotificationHolder = loadstring(game:HttpGet("https://raw.githubuserconten
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 local v = 1
 
-function oldwarnmessage(title, text)
+function Notification(title, text)
 	Notification:Notify(
 		{Title = title, Description = text},
 		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
-		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 84, 84)}
+		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
 	)
 end
 local buttons = {
@@ -911,11 +911,7 @@ local LWES = window_event:AddToggle({
 
             -- 发送通知的函数
             local function notifyItem(itemName)
-                Notification:Notify(
-                    {Title = "出生Doors[物品事件]", Description = itemName .. " is Spawned now!"},
-                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
-                    {Image = "http://www.roblox.com/asset/?id=18394059300", ImageColor = Color3.fromRGB(255, 255, 255)}
-                )
+                Notification("出生Doors[物品事件]".. v, itemName .. " is Spawned now!", 5)
             end
 
             -- 监控新物品的出现
@@ -975,3 +971,4 @@ local LWES = window_event:AddToggle({
         end
     end
 })
+
