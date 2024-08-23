@@ -1,6 +1,8 @@
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 local v = 1
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 function warnNofiy(title, text)
 	Notification:Notify(
@@ -14,22 +16,25 @@ end
 --	return
 --end
 local buttons = {
-        noclip = nil,
-	speed = nil,
-        camfov = nil
+    tpwalktoggle = nil,  -- TP Walk 开关按钮
+    tpwalkspeed = nil,   -- TP Walk 速度滑块
+    camfov = nil,   -- FOV 滑块
+    noclip = nil
 }
 
 local flags = {
-        noclip = false,
-        speed = 0,
-        camfov = 70,
-	esprush = false,
-	espdoors = false,
-	esplocker = false,
-	espitems = false,
-	espbooks = false,
-	espgold = false,
-	targetKeyObtain = false
+    tpwalktoggle = false,  -- TP Walk 开关标志
+    tpwalkspeed = 16,      -- TP Walk 速度标志
+    camfov = 70,           -- FOV 标志
+    camfovtoggle = false,  -- FOV 开关标志（添加这个以匹配开关功能）
+    esprush = false,
+    espdoors = false,
+    esplocker = false,
+    espitems = false,
+    espbooks = false,
+    espgold = false,
+    targetKeyObtain = false,
+    noclip = false
 }
 local esptable = {
         entity = {},
@@ -246,71 +251,86 @@ task.spawn(function()
 	})
 	buttons.noclip = nocliptoggle
 end)
-local walkspeedslider = window_player:AddSlider({
-	Name = "Walkspeed(No silder)",
-	Value = 16,
-	Min = 16,
-	Max = 22,
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hum = char:FindFirstChildOfClass("Humanoid")
+local rootPart = char:FindFirstChild("HumanoidRootPart")
 
-	Callback = function(val, oldval)
-		flags.speed = val
-		if flags.walkspeedtoggle == true then
-			hum.WalkSpeed = val
-		end
-	end
+-- 添加 tpwalk 开关
+local tpwalktglbtn = window_player:AddToggle({
+    Name = "Toggle TP Walk",
+    Value = false,
+    Callback = function(val, oldval)
+        flags.tpwalktoggle = val
+        if not val then
+            -- 当 TP Walk 被禁用时，恢复默认的 WalkSpeed
+            hum.WalkSpeed = 16
+        end
+    end
 })
-buttons.speed = walkspeedslider
+buttons.tpwalktoggle = tpwalktglbtn
 
-local walkspeedtglbtn = window_player:AddToggle({
-	Name = "Toggle Walkspeed(Stop work)",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.walkspeedtoggle = val
-		if not val then
-			hum.WalkSpeed = 16
-		end
-	end
+-- 添加 TP Walk 速度滑块
+local tpwalkspeedslider = window_player:AddSlider({
+    Name = "TP Walk Speed",
+    Value = 16,
+    Min = 16,
+    Max = 22,
+    Callback = function(val, oldval)
+        flags.tpwalkspeed = val
+    end
 })
-buttons.walkspeedtoggle = walkspeedtglbtn
+buttons.tpwalkspeed = tpwalkspeedslider
 
+-- 添加 FOV 滑块
 local camfovslider = window_player:AddSlider({
-	Name = "FOV",
-	Value = 70,
-	Min = 50,
-	Max = 120,
-
-	Callback = function(val, oldval)
-		flags.camfov = val
-	end
+    Name = "FOV",
+    Value = 70,
+    Min = 50,
+    Max = 120,
+    Callback = function(val, oldval)
+        flags.camfov = val
+    end
 })
 buttons.camfov = camfovslider
 
+-- 添加 FOV 开关
 local togglefovbtn = window_player:AddToggle({
-	Name = "Toggle FOV",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.camfovtoggle = val
-		if not val then
-			waitframes(2)
-			game:GetService("Workspace").CurrentCamera.FieldOfView = 70
-		end
-	end
+    Name = "Toggle FOV",
+    Value = false,
+    Callback = function(val, oldval)
+        flags.camfovtoggle = val
+        if not val then
+            waitframes(2)
+            game:GetService("Workspace").CurrentCamera.FieldOfView = 70
+        end
+    end
 })
 buttons.camfovtoggle = togglefovbtn
 
+-- 实现 CFrame 步伐 (tpwalk) 逻辑
 task.spawn(function()
-	game:GetService("RunService").RenderStepped:Connect(function()
-		if flags.walkspeedtoggle == true then
-			if hum.WalkSpeed < flags.speed then
-				hum.WalkSpeed = flags.speed
-			end
-		end
-		if flags.camfovtoggle == true then
-			pcall(function()
-				game:GetService("Workspace").CurrentCamera.FieldOfView = flags.camfov
-			end)
-		end
-	end)
+    RunService.RenderStepped:Connect(function()
+        if flags.tpwalktoggle then
+            local speed = flags.tpwalkspeed
+            if rootPart and hum then
+                -- 获取角色当前的朝向
+                local moveDirection = rootPart.CFrame.LookVector
+                -- 计算新的 CFrame
+                local newPosition = rootPart.Position + (moveDirection * speed * RunService.RenderStepped:Wait()) 
+                -- 更新 CFrame
+                rootPart.CFrame = CFrame.new(newPosition, newPosition + moveDirection)
+                -- 保持 WalkSpeed 和 TP Walk 速度一致
+                hum.WalkSpeed = speed
+            end
+        end
+        
+        if flags.camfovtoggle then
+            pcall(function()
+                game:GetService("Workspace").CurrentCamera.FieldOfView = flags.camfov
+            end)
+        end
+    end)
 end)
 local window_esp = GUI:CreateSection({
 	Name = "esp"
@@ -1256,10 +1276,6 @@ local PlayerESP_Toggle = window_esp:AddToggle({
         end
     end
 })
-
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local markedTargets = {}
 
 -- 创建 BillboardGui
