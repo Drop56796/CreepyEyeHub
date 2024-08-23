@@ -2,13 +2,17 @@ local NotificationHolder = loadstring(game:HttpGet("https://raw.githubuserconten
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 local v = 1
 
-function Notification(title, text)
+function warnNofiy(title, text)
 	Notification:Notify(
 		{Title = title, Description = text},
 		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
 		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
 	)
 end
+---if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
+--	warnNofiy("出生Doors v"..v, "Go doors to run", 10) 
+--	return
+--end
 local buttons = {
         noclip = nil,
 	speed = nil,
@@ -23,14 +27,16 @@ local flags = {
 	espdoors = false,
 	esplocker = false,
 	espitems = false,
-	espbooks = false
+	espbooks = false,
+	espgold = false
 }
 local esptable = {
         entity = {},
 	doors = {},
 	lockers = {},
 	items = {},
-	books = {}
+	books = {},
+	Gold = {}
 }
 
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
@@ -1177,6 +1183,74 @@ local PlayerESP_Toggle = window_remove:AddToggle({
                     end
                 end)
             end)
+        end
+    end
+})
+
+local PlayerESP_Toggle = window_esp:AddToggle({
+    Name = "Gold esp",
+    Value = false,
+    Callback = function(state)
+        if state then
+            _G.goldESPInstances = {}
+            flags.espgold = state
+
+            local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "GoldPile" then
+                        local hitbox = v:WaitForChild("Hitbox")
+                        if hitbox then
+                            local goldValue = v:GetAttribute("GoldValue") or 0
+                            local formattedGoldValue = string.format("%04d", goldValue) -- Format the gold value as a four-digit number
+                            local displayText = string.format("Gold [%s]", formattedGoldValue)
+                            local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText)
+                            table.insert(_G.esptable.Gold, h)
+                        end
+                    end
+                end
+            end
+
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+
+                    for _, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not _G.flags.espgold
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.goldESPInstances, _G.esptable)
+
+        else
+            if _G.goldESPInstances then
+                for _, instance in pairs(_G.goldESPInstances) do
+                    for _, v in pairs(instance.Gold) do
+                        v.delete()
+                    end
+                end
+                _G.goldESPInstances = nil
+            end
         end
     end
 })
