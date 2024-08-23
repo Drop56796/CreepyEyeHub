@@ -135,7 +135,7 @@ local function createBillboardGui(core, color, name)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Jura -- 设置字体为 Jura
+    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
@@ -1257,124 +1257,134 @@ local PlayerESP_Toggle = window_esp:AddToggle({
     end
 })
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local markedTargets = {}
+
+-- 创建 BillboardGui
+local function createBillboardGui(core, color, name)
+    local bill = Instance.new("BillboardGui", game.CoreGui)
+    bill.AlwaysOnTop = true
+    bill.Size = UDim2.new(0, 100, 0, 50)
+    bill.Adornee = core
+    bill.MaxDistance = 2000
+
+    local mid = Instance.new("Frame", bill)
+    mid.AnchorPoint = Vector2.new(0.5, 0.5)
+    mid.BackgroundColor3 = color
+    mid.Size = UDim2.new(0, 8, 0, 8)
+    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", mid)
+
+    local txt = Instance.new("TextLabel", bill)
+    txt.AnchorPoint = Vector2.new(0.5, 0.5)
+    txt.BackgroundTransparency = 1
+    txt.BackgroundColor3 = color
+    txt.TextColor3 = color
+    txt.Size = UDim2.new(1, 0, 0, 20)
+    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+    txt.Text = name
+    txt.TextStrokeTransparency = 0.5
+    txt.TextSize = 18
+    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
+    Instance.new("UIStroke", txt)
+
+    return bill
+end
+
+-- 标记目标
+local function markTarget(target, customName)
+    if not target then return end
+    local oldBillboard = target:FindFirstChild("BillboardGui")
+    if oldBillboard then
+        oldBillboard:Destroy()
+    end
+    local bill = createBillboardGui(target, Color3.fromRGB(255, 255, 255), customName)
+    bill.Parent = target
+    markedTargets[target] = customName
+end
+
+-- 递归查找所有实例
+local function recursiveFindAll(parent, name, targets)
+    for _, child in ipairs(parent:GetChildren()) do
+        if child.Name == name then
+            table.insert(targets, child)
+        end
+        recursiveFindAll(child, name, targets)
+    end
+end
+
+-- 根据名称标记所有实例
+local function Itemlocationname(name, customName)
+    local targets = {}
+    recursiveFindAll(game, name, targets)
+    for _, target in ipairs(targets) do
+        markTarget(target, customName)
+    end
+end
+
+-- 标记指定玩家的头部
+local function Invalidplayername(playerName, customName)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name == playerName and player.Character then
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                markTarget(head, customName)
+            end
+        end
+    end
+end
+
+-- Anti Key ESP 功能
 local Player = window_esp:AddToggle({
-    Name = "[Anti beta] Key ESP",
+    Name = "Anti??? Key ESP",
     Value = false,
     Callback = function(state)
         if state then
-            _G.keyObtainTargetInstances = {}
-            flags.targetKeyObtain = state
-
-            local function isValidTarget(v)
-                -- 确保目标模型有效且存在
-                return v and v:IsA("Model") and v.Name == "KeyObtain" and v:FindFirstChild("Sign")
-            end
-
-            local function check(v)
-                if isValidTarget(v) then
-                    local components = {"Ring", "Tag", "Inset", "End", "Key"}
-                    local allComponentsFound = true
-
-                    for _, comp in ipairs(components) do
-                        if not v:FindFirstChild(comp) then
-                            allComponentsFound = false
-                            break
-                        end
+            -- 连接事件以处理新玩家和新实例
+            Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function(character)
+                    local head = character:FindFirstChild("Head")
+                    if head then
+                        markTarget(head, player.Name)
                     end
-
-                    if allComponentsFound then
-                        local manualWeldFound = false
-                        for _, comp in ipairs(components) do
-                            local component = v:FindFirstChild(comp)
-                            if component and component:FindFirstChild("ManualWeld") then
-                                manualWeldFound = true
-                                break
-                            end
-                        end
-
-                        if manualWeldFound then
-                            local sign = v:FindFirstChild("Sign")
-                            if sign and sign.Parent == v then
-                                local modulePrompt = v:FindFirstChild("ModulePrompt")
-                                if modulePrompt then
-                                    local labelFound = sign:FindFirstChild("Label")
-                                    if labelFound then
-                                        task.wait(0.1)
-                                        
-                                        -- 使用 Sign 添加 ESP
-                                        local part = sign
-                                        local espInstance = esp(part, Color3.fromRGB(0, 255, 0), part, "KeyObtain")
-                                        local target = {
-                                            model = v,
-                                            part = part,
-                                            espInstance = espInstance,
-                                            lastChecked = tick() -- 记录最后检查时间
-                                        }
-                                        table.insert(_G.keyObtainTargetInstances, target)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-                
-                if assets then  
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        pcall(function() check(v) end) -- 使用 pcall 捕获潜在的错误
-                    end)
-                    
-                    for _, v in pairs(assets:GetDescendants()) do
-                        pcall(function() check(v) end) -- 使用 pcall 捕获潜在的错误
-                    end
-                    
-                    task.spawn(function()
-                        repeat task.wait() until not flags.targetKeyObtain
-                        subaddcon:Disconnect()  
-                    end) 
-                end 
-            end
-
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
+                end)
             end)
-            
-            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                if room:FindFirstChild("Assets") then
-                    setup(room) 
-                end
-            end
 
-            task.spawn(function()
-                while flags.targetKeyObtain do
-                    task.wait(10) -- 每10秒检查一次
-                    local currentTime = tick()
-                    for i = #_G.keyObtainTargetInstances, 1, -1 do
-                        local target = _G.keyObtainTargetInstances[i]
-                        if currentTime - target.lastChecked > 60 then
-                            if target.espInstance then
-                                target.espInstance.delete()
+            game.DescendantAdded:Connect(function(descendant)
+                if descendant.Name == "Key" or descendant.Name == "KeyObtain" then
+                    markTarget(descendant, descendant.Name)
+                end
+            end)
+
+            RunService.RenderStepped:Connect(function()
+                for target, customName in pairs(markedTargets) do
+                    if target and target:FindFirstChild("BillboardGui") then
+                        local bill = target.BillboardGui
+                        if bill and bill:FindFirstChild("TextLabel") then
+                            bill.TextLabel.Text = customName
+                        else
+                            if target then
+                                markTarget(target, customName)
                             end
-                            table.remove(_G.keyObtainTargetInstances, i)
                         end
                     end
                 end
             end)
 
+            -- 立即处理现有实例和玩家
+            Invalidplayername("玩家名称", "玩家")
+            Itemlocationname("Key", "Key")
+            Itemlocationname("KeyObtain", "KeyObtain")
         else
-            if _G.keyObtainTargetInstances then
-                for _, target in pairs(_G.keyObtainTargetInstances) do
-                    if target.espInstance then
-                        target.espInstance.delete()
-                    end
+            -- 清理标记
+            for target, _ in pairs(markedTargets) do
+                if target:FindFirstChild("BillboardGui") then
+                    target.BillboardGui:Destroy()
                 end
-                _G.keyObtainTargetInstances = nil
             end
+            markedTargets = {}
         end
     end
 })
