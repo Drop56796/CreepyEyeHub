@@ -28,7 +28,8 @@ local flags = {
 	esplocker = false,
 	espitems = false,
 	espbooks = false,
-	espgold = false
+	espgold = false,
+	espKeyObtain = false
 }
 local esptable = {
         entity = {},
@@ -36,7 +37,8 @@ local esptable = {
 	lockers = {},
 	items = {},
 	books = {},
-	Gold = {}
+	Gold = {},
+	Key = {}
 }
 
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
@@ -1250,6 +1252,93 @@ local PlayerESP_Toggle = window_esp:AddToggle({
                     end
                 end
                 _G.goldESPInstances = nil
+            end
+        end
+    end
+})
+
+local Player = window_esp:AddToggle({
+    Name = "Key ESP",
+    Value = false,
+    Callback = function(state)
+        if state then
+            _G.keyObtainESPInstances = {}
+            flags.espKeyObtain = state
+
+            local function check(v)
+                if v:IsA("Model") and v.Name == "KeyObtain" then
+                    -- 检查 PrimaryPart
+                    local primaryPart = v.PrimaryPart
+                    if primaryPart and primaryPart:FindFirstChild("Hitbox") then
+                        local hitbox = primaryPart:FindFirstChild("Hitbox")
+                        local keyHitbox = v:FindFirstChild("KeyHitbox")
+                        
+                        if keyHitbox then
+                            local soundFound = false
+                            -- 检查音频ID
+                            for _, obj in pairs(keyHitbox:GetDescendants()) do
+                                if obj:IsA("Sound") and (obj.SoundId == "rbxassetid://3144041977" or obj.SoundId == "rbxassetid://9125986205") then
+                                    soundFound = true
+                                    break
+                                end
+                            end
+
+                            if soundFound then
+                                task.wait(0.1)
+                                
+                                -- 使用 Hitbox 或 PrimaryPart 显示 ESP
+                                local part = hitbox or v.PrimaryPart
+                                if part then
+                                    local h = esp(part, Color3.fromRGB(0, 255, 0), part, "Key")
+                                    table.insert(esptable.Key, h)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then  
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for _, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.espKeyObtain
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room) 
+                end
+            end
+
+            table.insert(_G.keyObtainESPInstances, esptable)
+
+        else
+            if _G.keyObtainESPInstances then
+                for _, instance in pairs(_G.keyObtainESPInstances) do
+                    for _, v in pairs(instance.Key) do
+                        v.delete()
+                    end
+                end
+                _G.keyObtainESPInstances = nil
             end
         end
     end
