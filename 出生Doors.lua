@@ -5,17 +5,17 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 
---function warnNofiy(title, text)
---	Notification:Notify(
---		{Title = title, Description = text},
---		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
---		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
---	)
---end
----if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
---	warnNofiy("出生Doors v"..v, "Go doors to run", 10) 
---	return
---end
+function warnNofiy(title, text)
+	Notification:Notify(
+		{Title = title, Description = text},
+		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
+		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
+	)
+end
+if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
+     warnNofiy("Chrysler Doors v"..v, "Go doors to run", 10) 
+     return
+end
 local buttons = {
     tpwalktoggle = nil,  -- TP Walk 开关按钮
     tpwalkspeed = nil,   -- TP Walk 速度滑块
@@ -50,7 +50,7 @@ local esptable = {
 
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 local GUIWindow = Library:CreateWindow({
-	Name = "出生Doors v".. v,
+	Name = "Chrysler Doors v".. v,
 	Themeable = false
 })
 local GUI = GUIWindow:CreateTab({
@@ -1004,7 +1004,7 @@ local LWES = window_event:AddToggle({
 
             local function notifyEntitySpawn(entity)
                 Notification:Notify(
-                    {Title = "出生Doors[Enity Event]", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
+                    {Title = "Enity Event", Description = entity.Name:gsub("Moving", ""):lower() .. " Spawned!"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
 		)
@@ -1055,7 +1055,7 @@ local LWES = window_event:AddToggle({
             -- 发送通知的函数
             local function notifyItem(itemName)
                 Notification:Notify(
-                    {Title = "出生[Item Event]", Description = itemName .. " 已生成"},
+                    {Title = "Item Event", Description = itemName .. " 已生成"},
                     {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "image"},
                     {Image = "http://www.roblox.com/asset/?id=10802751252", ImageColor = Color3.fromRGB(255, 255, 255)}
                 )
@@ -1499,7 +1499,7 @@ local LWES_TextChannel = window_event:AddToggle({
         if state then
             -- 实体生成消息发送函数
             local function sendEntityMessage(entity)
-                local message = "出生[Entity Event]: " .. entity.Name:gsub("Moving", ""):lower() .. " is spawned!!!!!"
+                local message = "Chrysler " .. entity.Name:gsub("Moving", ""):lower() .. " is spawned!!!!!"
                 textChannel:SendAsync(message)
             end
 
@@ -1515,7 +1515,7 @@ local LWES_TextChannel = window_event:AddToggle({
 
             -- 物品生成消息发送函数
             local function sendItemMessage(itemName)
-                local message = "出生[Item Event]: " .. itemName .. " ia spawned"
+                local message = "Chrysler " .. itemName .. " ia spawned"
                 textChannel:SendAsync(message)
             end
 
@@ -1643,7 +1643,7 @@ local window_troll = Troll:CreateSection({
 
 _G.PrankJeffWithBanana = false
 local PrankJeffWithBanana_Toggle = window_troll:AddToggle({
-    Name = "送杰夫一个《礼物》",
+    Name = "give jeff gift",
     Value = false,
     Callback = function(state)
         _G.PrankJeffWithBanana = state
