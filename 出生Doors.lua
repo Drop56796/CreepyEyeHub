@@ -143,7 +143,7 @@ local function createBillboardGui(core, color, name)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Jura -- 设置字体为 Jura
+    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
@@ -1565,6 +1565,31 @@ local LWES_TextChannel = window_event:AddToggle({
                 repeat task.wait(1) until not state
                 connection:Disconnect()
                 addconnect:Disconnect()
+            end)
+        end
+    end
+})
+
+_G.Banana = false
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Remove BananaPeel",
+    Value = false,
+    Callback = function(state)
+        _G.Banana = state
+        
+        -- 当 SeekES 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.Banana then
+                        -- 查找并删除 Workspace 中的所有 BananaPeel 对象
+                        for _, object in pairs(game.workspace:GetDescendants()) do
+                            if object.Name == "BananaPeel" then
+                                object:Destroy()
+                            end
+                        end
+                    end
+                end)
             end)
         end
     end
