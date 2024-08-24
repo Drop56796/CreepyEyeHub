@@ -1594,3 +1594,87 @@ local PlayerESP_Toggle = window_remove:AddToggle({
         end
     end
 })
+
+_G.RemoveJeff = false
+local RemoveJeff_Toggle = window_remove:AddToggle({
+    Name = "Remove JeffTheKiller",
+    Value = false,
+    Callback = function(state)
+        _G.RemoveJeff = state
+        
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.RemoveJeff then
+                        -- 遍历工作区中的所有房间
+                        for _, room in pairs(game.workspace.CurrentRooms:GetChildren()) do
+                            -- 遍历房间中的所有对象
+                            for _, object in pairs(room:GetDescendants()) do
+                                if (object:IsA("Model") or object:IsA("Part")) and object.Name == "JeffTheKiller" then
+                                    -- 如果 JeffTheKiller 是模型或部件，且包含 Humanoid（仅针对模型），则删除整个对象
+                                    if object:IsA("Model") and object:FindFirstChildOfClass("Humanoid") then
+                                        object:Destroy()  -- 删除 JeffTheKiller 模型本体
+                                    elseif object:IsA("Part") then
+                                        object:Destroy()  -- 直接删除 JeffTheKiller 部件
+                                    end
+
+                                    wait(0.5)  -- 等待 0.5 秒
+                                    
+                                    -- 删除 JeffTheKiller 对象的所有子对象
+                                    for _, child in pairs(object:GetDescendants()) do
+                                        child:Destroy()
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
+
+local Troll = GUIWindow:CreateTab({
+	Name = "恶搞"
+})
+local window_troll = Troll:CreateSection({
+	Name = "好玩的"
+})
+
+_G.PrankJeffWithBanana = false
+local PrankJeffWithBanana_Toggle = window_remove:AddToggle({
+    Name = "送杰夫一个《礼物》",
+    Value = false,
+    Callback = function(state)
+        _G.PrankJeffWithBanana = state
+
+        if state then
+            -- 关闭 RemoveJeff 和 Banana 脚本
+            _G.RemoveJeff = false
+            _G.Banana = false
+
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.PrankJeffWithBanana then
+                        -- 遍历工作区中的所有房间
+                        for _, room in pairs(game.workspace.CurrentRooms:GetChildren()) do
+                            -- 找到房间中的 JeffTheKiller
+                            local jeff = room:FindFirstChild("JeffTheKiller", true)
+
+                            -- 如果找到 JeffTheKiller
+                            if jeff then
+                                -- 在工作区中查找 BananaPeel
+                                local bananaPeel = game.workspace:FindFirstChild("BananaPeel", true)
+
+                                -- 如果找到 BananaPeel，将其传送到 JeffTheKiller 的位置
+                                if bananaPeel then
+                                    bananaPeel.CFrame = jeff:FindFirstChild("HumanoidRootPart").CFrame
+                                end
+                            end
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
