@@ -428,7 +428,7 @@ local Player = window_esp:AddToggle({
             _G.espInstances = {}
             for _, player in pairs(game.Players:GetPlayers()) do
                 if player.Character then
-                    local espInstance = esp(player.Character, Color3.new(1, 0.5, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name, true)
+                    local espInstance = esp(player.Character, Color3.new(1, 0.5, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
                     table.insert(_G.espInstances, espInstance)
                 end
             end
@@ -457,7 +457,7 @@ local Enity = window_esp:AddToggle({
                 if table.find(entitynames, v.Name) then
                     task.wait(0.1)
                     
-                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""), true)
+                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""))
                     table.insert(esptable.entity, h)
                 end
             end)
@@ -538,7 +538,7 @@ local DE = window_esp:AddToggle({
                 local doorIndex = string.format("%04d", doorCounter)
                 
                 -- Set up ESP with the door index in the format "Door [0001]"
-                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]", true)
+                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]")
                 table.insert(esptable.doors, h)
                 
                 door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
@@ -587,10 +587,10 @@ local LWESP = window_esp:AddToggle({
                 if v:IsA("Model") then
                     task.wait(0.1)
                     if v.Name == "Wardrobe" then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet", true)
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
                         table.insert(esptable.lockers, h) 
                     elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker", true)
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker")
                         table.insert(esptable.lockers, h) 
                     end
                 end
@@ -759,7 +759,7 @@ local Player = window_esp:AddToggle({
                     if name ~= "" then
                         task.wait(0.1)
                         
-                        local h = esp(v, Color3.fromRGB(255, 255, 255), v.PrimaryPart, name, true)
+                        local h = esp(v, Color3.fromRGB(255, 255, 255), v.PrimaryPart, name)
                         table.insert(esptable.books, h)
                         
                         v.AncestryChanged:Connect(function()
@@ -1309,7 +1309,7 @@ local PlayerESP_Toggle = window_esp:AddToggle({
                             local goldValue = v:GetAttribute("GoldValue") or 0
                             local formattedGoldValue = string.format("%04d", goldValue) -- Format the gold value as a four-digit number
                             local displayText = string.format("Gold [%s]", formattedGoldValue)
-                            local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText, true)
+                            local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText)
                             table.insert(_G.esptable.Gold, h)
                         end
                     end
@@ -1569,41 +1569,3 @@ local LWES_TextChannel = window_event:AddToggle({
         end
     end
 })
-if enableTracer and not isTracerVisible then
-        espObject.showTracer(false)
-    end
-
-    -- 将 espObject 存入全局表，以便控制其显示/隐藏
-    _G.espObjects = _G.espObjects or {}
-    table.insert(_G.espObjects, espObject)
-
-    -- 返回 ESP 对象
-    return espObject
-end
-
-local isTracerVisible = false  -- 默认情况下追踪线不可见
-
-local tpwalktglbtn = window_player:AddToggle({
-    Name = "Tracing lines",
-    Value = false,
-    Callback = function(val)
-        if val then
-            isTracerVisible = true  -- 启用追踪线
-            -- 显示所有现有的追踪线
-            for _, espObject in pairs(_G.espObjects or {}) do
-                if espObject.showTracer then
-                    espObject.showTracer(true)
-                end
-            end
-        else
-            isTracerVisible = false  -- 禁用追踪线
-            -- 隐藏所有现有的追踪线
-            for _, espObject in pairs(_G.espObjects or {}) do
-                if espObject.showTracer then
-                    espObject.showTracer(false)
-                end
-            end
-        end
-    end
-})
-    
