@@ -1642,7 +1642,7 @@ local window_troll = Troll:CreateSection({
 })
 
 _G.PrankJeffWithBanana = false
-local PrankJeffWithBanana_Toggle = window_remove:AddToggle({
+local PrankJeffWithBanana_Toggle = window_troll:AddToggle({
     Name = "送杰夫一个《礼物》",
     Value = false,
     Callback = function(state)
