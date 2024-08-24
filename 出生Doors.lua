@@ -1569,3 +1569,41 @@ local LWES_TextChannel = window_event:AddToggle({
         end
     end
 })
+if enableTracer and not isTracerVisible then
+        espObject.showTracer(false)
+    end
+
+    -- 将 espObject 存入全局表，以便控制其显示/隐藏
+    _G.espObjects = _G.espObjects or {}
+    table.insert(_G.espObjects, espObject)
+
+    -- 返回 ESP 对象
+    return espObject
+end
+
+local isTracerVisible = false  -- 默认情况下追踪线不可见
+
+local tpwalktglbtn = window_player:AddToggle({
+    Name = "Tracing lines",
+    Value = false,
+    Callback = function(val)
+        if val then
+            isTracerVisible = true  -- 启用追踪线
+            -- 显示所有现有的追踪线
+            for _, espObject in pairs(_G.espObjects or {}) do
+                if espObject.showTracer then
+                    espObject.showTracer(true)
+                end
+            end
+        else
+            isTracerVisible = false  -- 禁用追踪线
+            -- 隐藏所有现有的追踪线
+            for _, espObject in pairs(_G.espObjects or {}) do
+                if espObject.showTracer then
+                    espObject.showTracer(false)
+                end
+            end
+        end
+    end
+})
+    
