@@ -89,6 +89,7 @@ local function playSound(soundId, volume, duration)
 end
 -------------------------------------------
 local RunService = game:GetService("RunService")
+local Camera = game:GetService("Workspace").CurrentCamera
 
 -- 创建 BoxHandleAdornment 实例
 local function createBoxAdornment(part, color)
@@ -142,13 +143,44 @@ local function createBillboardGui(core, color, name)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
+    txt.Font = Enum.Font.Jura -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
 end
 
-function esp(what, color, core, name)
+-- 创建追踪线实例
+local function createTracer(target, color)
+    local line = Drawing.new("Line")
+    line.Color = color
+    line.Thickness = 2
+    line.Transparency = 1
+
+    local function updateTracer()
+        if target and target:IsDescendantOf(workspace) then
+            local targetPos = Camera:WorldToViewportPoint(target.Position)
+            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- 从屏幕中心底部开始
+
+            line.From = screenPos
+            line.To = Vector2.new(targetPos.X, targetPos.Y)
+            line.Visible = true
+        else
+            line.Visible = false
+        end
+    end
+
+    RunService.RenderStepped:Connect(updateTracer)
+
+    return line
+end
+
+-- 主 ESP 函数
+function esp(what, color, core, name, enableTracer)
+    -- 检查是否传入 enableTracer 参数，如果未传入，则默认为 false
+    if enableTracer == nil then
+        enableTracer = false
+    end
+
     local parts = {}
     if typeof(what) == "Instance" then
         if what:IsA("Model") then
@@ -168,15 +200,23 @@ function esp(what, color, core, name)
         end
     end
 
-    -- 创建和管理 BoxHandleAdornment 和 Highlight 实例
+    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
     local boxes = {}
     local highlights = {}
+    local tracers = {}
+
     for _, part in ipairs(parts) do
         local box = createBoxAdornment(part, color)
         table.insert(boxes, box)
         
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
+
+        -- 追踪线仅针对第一个有效部件
+        if enableTracer and #tracers == 0 then
+            local tracer = createTracer(part, color)
+            table.insert(tracers, tracer)
+        end
     end
 
     local bill
@@ -193,13 +233,20 @@ function esp(what, color, core, name)
         end
         
         for _, highlight in ipairs(highlights) do
-            if not highlight.Adornee or not highlight.Adornee:IsDescendantOf(workspace) then
+            if not highlight.Adornee or not highlight:IsDescendantOf(workspace) then
                 highlight:Destroy()
             end
         end
 
         if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
             bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
         end
     end
 
@@ -216,6 +263,35 @@ function esp(what, color, core, name)
             highlight:Destroy()
         end
 
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
+    end
+
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    local ret = {}
+
+    ret.delete = function()
+        for _, box in ipairs(boxes) do
+            box:Destroy()
+        end
+        
+        for _, highlight in ipairs(highlights) do
+            highlight:Destroy()
+        end
+
+        for _, tracer in ipairs(tracers) do
+            tracer:Remove()
+        end
+
         if bill then
             bill:Destroy()
         end
@@ -223,7 +299,12 @@ function esp(what, color, core, name)
 
     return ret
 end
-
+-----------
+--Example:
+--     local espObject = esp(workspace.Part, Color3.new(1, 0, 0), workspace.Part, "Test Object")
+--     local espObject = esp(workspace.Part, Color3.new(1, 0, 0), workspace.Part, "Test Object", true)
+---end
+-----------
 task.spawn(function()
 	--	repeat task.wait(1) until flags.anticheatbypass == true
 	local nocliptoggle = window_player:AddToggle({
@@ -347,7 +428,7 @@ local Player = window_esp:AddToggle({
             _G.espInstances = {}
             for _, player in pairs(game.Players:GetPlayers()) do
                 if player.Character then
-                    local espInstance = esp(player.Character, Color3.new(1, 0.5, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name)
+                    local espInstance = esp(player.Character, Color3.new(1, 0.5, 0), player.Character:FindFirstChild("HumanoidRootPart"), player.Name, true)
                     table.insert(_G.espInstances, espInstance)
                 end
             end
@@ -376,7 +457,7 @@ local Enity = window_esp:AddToggle({
                 if table.find(entitynames, v.Name) then
                     task.wait(0.1)
                     
-                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""))
+                    local h = esp(v, Color3.fromRGB(255, 25, 25), v.PrimaryPart, v.Name:gsub("Moving", ""), true)
                     table.insert(esptable.entity, h)
                 end
             end)
@@ -457,7 +538,7 @@ local DE = window_esp:AddToggle({
                 local doorIndex = string.format("%04d", doorCounter)
                 
                 -- Set up ESP with the door index in the format "Door [0001]"
-                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]")
+                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]", true)
                 table.insert(esptable.doors, h)
                 
                 door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
@@ -506,10 +587,10 @@ local LWESP = window_esp:AddToggle({
                 if v:IsA("Model") then
                     task.wait(0.1)
                     if v.Name == "Wardrobe" then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet", true)
                         table.insert(esptable.lockers, h) 
                     elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker")
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker", true)
                         table.insert(esptable.lockers, h) 
                     end
                 end
@@ -678,7 +759,7 @@ local Player = window_esp:AddToggle({
                     if name ~= "" then
                         task.wait(0.1)
                         
-                        local h = esp(v, Color3.fromRGB(255, 255, 255), v.PrimaryPart, name)
+                        local h = esp(v, Color3.fromRGB(255, 255, 255), v.PrimaryPart, name, true)
                         table.insert(esptable.books, h)
                         
                         v.AncestryChanged:Connect(function()
@@ -1228,7 +1309,7 @@ local PlayerESP_Toggle = window_esp:AddToggle({
                             local goldValue = v:GetAttribute("GoldValue") or 0
                             local formattedGoldValue = string.format("%04d", goldValue) -- Format the gold value as a four-digit number
                             local displayText = string.format("Gold [%s]", formattedGoldValue)
-                            local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText)
+                            local h = esp(hitbox, Color3.fromRGB(255, 255, 255), hitbox, displayText, true)
                             table.insert(_G.esptable.Gold, h)
                         end
                     end
