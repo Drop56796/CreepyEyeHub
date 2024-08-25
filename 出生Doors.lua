@@ -5,6 +5,10 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
+local rootPart = char:WaitForChild("HumanoidRootPart")
 
 function warnNofiy(title, text)
 	Notification:Notify(
@@ -353,12 +357,6 @@ task.spawn(function()
 	})
 	buttons.noclip = nocliptoggle
 end)
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-
-local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
-local rootPart = char:WaitForChild("HumanoidRootPart")  -- Ensure HumanoidRootPart exists
-
 local tpwalkspeedslider = window_player:AddSlider({
     Name = "WalkSpeed",
     Value = 16,
