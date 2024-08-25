@@ -1505,8 +1505,47 @@ local Player = window_esp:AddToggle({
     end
 })
 
-local LWES_TextChannel = window_event:AddToggle({
-    Name = "Chat Nofiy",
+_G.Banana = false
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Remove BananaPeel",
+    Value = false,
+    Callback = function(state)
+        _G.Banana = state
+        
+        -- 当 SeekES 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if _G.Banana then
+                        -- 查找并删除 Workspace 中的所有 BananaPeel 对象
+                        for _, object in pairs(game.workspace:GetDescendants()) do
+                            if object.Name == "BananaPeel" then
+                                object:Destroy()
+                            end
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
+local window_chat = GUI:CreateSection({
+	Name = "Setting chat notification"
+})
+local SaveCurrentEntityName = window_chat:AddTextbox({
+    Name = 'Entity Message',
+    Value = "stop watch entity spawned!!!",
+    Multiline = false
+})
+
+local SaveCurrentItemName = window_chat:AddTextbox({
+    Name = 'Item Message',
+    Value = "is spawned in this time",
+    Multiline = false
+})
+
+local LWES_TextChannel = window_chat:AddToggle({
+    Name = "Chat Notify",
     Value = false,
     Callback = function(state)
         local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}
@@ -1515,7 +1554,8 @@ local LWES_TextChannel = window_event:AddToggle({
         if state then
             -- 实体生成消息发送函数
             local function sendEntityMessage(entity)
-                local message = "Chrysler " .. entity.Name:gsub("Moving", ""):lower() .. " is spawned!!!!!"
+                local suffix = SaveCurrentEntityName.Value or "stop watch entity spawned!!!"
+                local message = "Entity: " .. entity.Name:gsub("Moving", ""):lower() .. " " .. suffix
                 textChannel:SendAsync(message)
             end
 
@@ -1531,7 +1571,8 @@ local LWES_TextChannel = window_event:AddToggle({
 
             -- 物品生成消息发送函数
             local function sendItemMessage(itemName)
-                local message = "Chrysler " .. itemName .. " ia spawned"
+                local suffix = SaveCurrentItemName.Value or "is spawned in this time"
+                local message = "Item: " .. itemName .. " " .. suffix
                 textChannel:SendAsync(message)
             end
 
@@ -1581,31 +1622,6 @@ local LWES_TextChannel = window_event:AddToggle({
                 repeat task.wait(1) until not state
                 connection:Disconnect()
                 addconnect:Disconnect()
-            end)
-        end
-    end
-})
-
-_G.Banana = false
-local PlayerESP_Toggle = window_remove:AddToggle({
-    Name = "Remove BananaPeel",
-    Value = false,
-    Callback = function(state)
-        _G.Banana = state
-        
-        -- 当 SeekES 为 true 时，运行 RenderStepped 事件
-        if state then
-            game:GetService("RunService").RenderStepped:Connect(function()
-                pcall(function()
-                    if _G.Banana then
-                        -- 查找并删除 Workspace 中的所有 BananaPeel 对象
-                        for _, object in pairs(game.workspace:GetDescendants()) do
-                            if object.Name == "BananaPeel" then
-                                object:Destroy()
-                            end
-                        end
-                    end
-                end)
             end)
         end
     end
