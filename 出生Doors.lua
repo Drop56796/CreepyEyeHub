@@ -34,7 +34,7 @@ function newNofiy(title, text, text2, id)
 end
 
 ----- 示例调用 NewNotify 函数
-newNotify("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
+newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
 
 if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
      warnNofiy("Hydraulic Doors v"..v, "Go doors to run", 10) 
