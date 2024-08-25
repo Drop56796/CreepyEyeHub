@@ -60,7 +60,8 @@ local flags = {
     espgold = false,
     targetKeyObtain = false,
     noclip = false,
-    speedThreshold = 2	
+    speedThreshold = 2,
+    getcode = false
 }
 local esptable = {
         entity = {},
@@ -1690,6 +1691,74 @@ local PrankJeffWithBanana_Toggle = window_troll:AddToggle({
                     end
                 end)
             end)
+        end
+    end
+})
+
+-- Original function to decipher code from LibraryHintPaper
+local function decipherCode()
+    local paper = char:FindFirstChild("LibraryHintPaper")
+    local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+
+    local code = {[1]="_",[2]="_",[3]="_",[4]="_",[5]="_"}
+
+    if paper then
+        for i, v in pairs(paper:WaitForChild("UI"):GetChildren()) do
+            if v:IsA("ImageLabel") and v.Name ~= "Image" then
+                for j, img in pairs(hints:GetChildren()) do
+                    if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
+                        local num = img:FindFirstChild("TextLabel").Text
+                        code[tonumber(v.Name)] = num 
+                    end
+                end
+            end
+        end 
+    end
+
+    return code
+end
+
+-- Original function to notify code
+local function notifyCode(code)
+    if apart == nil then
+        apart = Instance.new("Part", game.ReplicatedStorage)
+        apart.CanCollide = false
+        apart.Anchored = true
+        apart.Position = game.Players.LocalPlayer.Character.PrimaryPart.Position
+        apart.Transparency = 1
+        Nofiy("ROOM 50", "The code is '" .. code .. "'.", "", 5)
+        repeat task.wait(.1) until game:GetService("ReplicatedStorage").GameData.LatestRoom.Value ~= 50
+        apart:Destroy()
+        apart = nil
+    end
+end
+
+-- Original Toggle Button Logic
+local getcodebtn = window_player:AddToggle({
+    Name = "Auto Library Code",
+    Value = false,
+    Callback = function(val, oldval)
+        flags.getcode = val
+
+        if val then
+            local addconnect
+            addconnect = char.ChildAdded:Connect(function(v)
+                if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
+                    task.wait()
+                    local code = table.concat(decipherCode())
+
+                    if code:find("_") then
+                        warnNofiy("ROOM 50", "You are still missing some books!", "The current code is: '" .. code .. "'", 7)
+                    else
+                        notifyCode(code)
+                    end
+                end
+            end)
+        else
+            -- Disconnect the event if the toggle is turned off
+            if addconnect then
+                addconnect:Disconnect()
+            end
         end
     end
 })
