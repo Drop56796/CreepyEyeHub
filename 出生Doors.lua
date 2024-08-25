@@ -113,20 +113,31 @@ local function playSound(soundId, volume, duration)
     end
 end
 -------------------------------------------
-local Camera = game:GetService("Workspace").CurrentCamera
-
--- 创建 BoxHandleAdornment 实例
-local function createBoxAdornment(part, color)
+local Camera = workspace.CurrentCamera
+-- 创建 BoxHandleAdornment 实例，并带有圆角效果
+local function createBoxAdornment(part, color, cornerRadius)
     local box = Instance.new("BoxHandleAdornment")
     box.Size = part.Size
     box.AlwaysOnTop = true
-    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
+    box.ZIndex = 10
     box.AdornCullingMode = Enum.AdornCullingMode.Never
     box.Color3 = color
     box.Transparency = 0.5
     box.Adornee = part
     box.Parent = game.CoreGui
-    return box
+    
+    -- 创建一个外层的框架，带有圆角效果
+    local outerBox = Instance.new("BoxHandleAdornment")
+    outerBox.Size = part.Size + Vector3.new(0.2, 0.2, 0.2)  -- 略大于原框
+    outerBox.AlwaysOnTop = true
+    outerBox.ZIndex = 9
+    outerBox.AdornCullingMode = Enum.AdornCullingMode.Never
+    outerBox.Color3 = color
+    outerBox.Transparency = 0.3
+    outerBox.Adornee = part
+    outerBox.Parent = game.CoreGui
+    
+    return {box, outerBox}
 end
 
 -- 创建 Highlight 实例
@@ -154,20 +165,19 @@ local function createBillboardGui(core, color, name)
     mid.BackgroundColor3 = color
     mid.Size = UDim2.new(0, 8, 0, 8)
     mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+    mid.CornerRadius = UDim.new(1, 0) -- 圆角
     Instance.new("UIStroke", mid)
 
     local txt = Instance.new("TextLabel", bill)
     txt.AnchorPoint = Vector2.new(0.5, 0.5)
     txt.BackgroundTransparency = 1
-    txt.BackgroundColor3 = color
     txt.TextColor3 = color
     txt.Size = UDim2.new(1, 0, 0, 20)
     txt.Position = UDim2.new(0.5, 0, 0.7, 0)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
+    txt.Font = Enum.Font.Oswald
     Instance.new("UIStroke", txt)
 
     return bill
@@ -183,8 +193,7 @@ local function createTracer(target, color)
     local function updateTracer()
         if target and target:IsDescendantOf(workspace) then
             local targetPos = Camera:WorldToViewportPoint(target.Position)
-            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- 从屏幕中心底部开始
-
+            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
             line.From = screenPos
             line.To = Vector2.new(targetPos.X, targetPos.Y)
             line.Visible = true
@@ -194,16 +203,12 @@ local function createTracer(target, color)
     end
 
     RunService.RenderStepped:Connect(updateTracer)
-
     return line
 end
 
 -- 主 ESP 函数
 function esp(what, color, core, name, enableTracer)
-    -- 检查是否传入 enableTracer 参数，如果未传入，则默认为 false
-    if enableTracer == nil then
-        enableTracer = false
-    end
+    enableTracer = enableTracer or false
 
     local parts = {}
     if typeof(what) == "Instance" then
@@ -224,19 +229,17 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
-    local boxes = {}
-    local highlights = {}
-    local tracers = {}
+    local boxes, highlights, tracers = {}, {}, {}
 
     for _, part in ipairs(parts) do
-        local box = createBoxAdornment(part, color)
-        table.insert(boxes, box)
+        local adornments = createBoxAdornment(part, color, UDim.new(0, 6))
+        for _, adornment in ipairs(adornments) do
+            table.insert(boxes, adornment)
+        end
         
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
 
-        -- 追踪线仅针对第一个有效部件
         if enableTracer and #tracers == 0 then
             local tracer = createTracer(part, color)
             table.insert(tracers, tracer)
@@ -249,7 +252,6 @@ function esp(what, color, core, name, enableTracer)
     end
 
     local function checkAndUpdate()
-        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
         for _, box in ipairs(boxes) do
             if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
                 box:Destroy()
@@ -266,9 +268,8 @@ function esp(what, color, core, name, enableTracer)
             bill:Destroy()
         end
 
-        -- 检查 Tracer 是否需要更新
         for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
+            if not tracer.Visible then
                 tracer:Remove()
             end
         end
@@ -276,52 +277,14 @@ function esp(what, color, core, name, enableTracer)
 
     RunService.Stepped:Connect(checkAndUpdate)
 
-    local ret = {}
-
-    ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
+    return {
+        delete = function()
+            for _, box in ipairs(boxes) do box:Destroy() end
+            for _, highlight in ipairs(highlights) do highlight:Destroy() end
+            if bill then bill:Destroy() end
+            for _, tracer in ipairs(tracers) do tracer:Remove() end
         end
-        
-        for _, highlight in ipairs(highlights) do
-            highlight:Destroy()
-        end
-
-        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
-            bill:Destroy()
-        end
-
-        -- 检查 Tracer 是否需要更新
-        for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
-                tracer:Remove()
-            end
-        end
-    end
-
-    RunService.Stepped:Connect(checkAndUpdate)
-
-    local ret = {}
-
-    ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
-        end
-        
-        for _, highlight in ipairs(highlights) do
-            highlight:Destroy()
-        end
-
-        for _, tracer in ipairs(tracers) do
-            tracer:Remove()
-        end
-
-        if bill then
-            bill:Destroy()
-        end
-    end
-
-    return ret
+    }
 end
 -----------
 --Example:
