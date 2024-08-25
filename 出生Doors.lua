@@ -334,10 +334,6 @@ task.spawn(function()
 	})
 	buttons.noclip = nocliptoggle
 end)
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hum = char:FindFirstChildOfClass("Humanoid")
-local rootPart = char:FindFirstChild("HumanoidRootPart")
 local tpwalkspeedslider = window_player:AddSlider({
     Name = "WalkSpeed",
     Value = 16,
@@ -345,21 +341,25 @@ local tpwalkspeedslider = window_player:AddSlider({
     Max = 22,
     Callback = function(val, oldval)
         flags.tpwalkspeed = val
+        hum.WalkSpeed = val  -- Directly set the WalkSpeed
     end
 })
 buttons.tpwalkspeed = tpwalkspeedslider
+
 local tpwalktglbtn = window_player:AddToggle({
     Name = "Toggle Walk",
     Value = false,
     Callback = function(val, oldval)
         flags.tpwalktoggle = val
         if not val then
-            -- 当 TP Walk 被禁用时，恢复默认的 WalkSpeed
-            hum.WalkSpeed = 16
+            hum.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
+        else
+            hum.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
         end
     end
 })
 buttons.tpwalktoggle = tpwalktglbtn
+
 local camfovslider = window_player:AddSlider({
     Name = "FOV",
     Value = 70,
@@ -370,6 +370,7 @@ local camfovslider = window_player:AddSlider({
     end
 })
 buttons.camfov = camfovslider
+
 local togglefovbtn = window_player:AddToggle({
     Name = "Toggle FOV",
     Value = false,
@@ -382,32 +383,12 @@ local togglefovbtn = window_player:AddToggle({
     end
 })
 buttons.camfovtoggle = togglefovbtn
-task.spawn(function()
-    local lastPosition = rootPart.Position
-    local lastTime = tick()
 
+task.spawn(function()
     RunService.RenderStepped:Connect(function()
         if not rootPart or not hum then return end
-        
-        -- 计算时间增量
-        local currentTime = tick()
-        local deltaTime = currentTime - lastTime
-        lastTime = currentTime
-        
-        -- 计算移动速度
-        local currentPosition = rootPart.Position
-        local distanceMoved = (currentPosition - lastPosition).Magnitude
-        lastPosition = currentPosition
-        local speed = distanceMoved / deltaTime
-        
-        if flags.tpwalktoggle and speed > flags.speedThreshold then
-            local moveDirection = rootPart.CFrame.LookVector
-            local speedMultiplier = flags.tpwalkspeed
-            local newPosition = rootPart.Position + (moveDirection * speedMultiplier * deltaTime)
-            rootPart.CFrame = CFrame.new(newPosition, newPosition + moveDirection)
-        end
 
-        -- 更新 FOV
+        -- Update FOV
         if flags.camfovtoggle then
             pcall(function()
                 game:GetService("Workspace").CurrentCamera.FieldOfView = flags.camfov
