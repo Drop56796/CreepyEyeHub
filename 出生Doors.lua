@@ -20,7 +20,7 @@ function Nofiy(title, text)
 		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
 	)
 end
-function newNofiy(title, text, text2, id)
+function newNotify(title, text, text2, id)
     achievementGiver({
         Title = title,   
         Desc = text,     
