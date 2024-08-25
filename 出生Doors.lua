@@ -88,7 +88,6 @@ local function playSound(soundId, volume, duration)
     end
 end
 -------------------------------------------
-local RunService = game:GetService("RunService")
 local Camera = game:GetService("Workspace").CurrentCamera
 
 -- 创建 BoxHandleAdornment 实例
