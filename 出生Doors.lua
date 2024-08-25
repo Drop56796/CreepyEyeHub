@@ -366,7 +366,7 @@ local tpwalkspeedslider = window_player:AddSlider({
     Callback = function(val, oldval)
         flags.tpwalkspeed = val
         if flags.tpwalktoggle then
-            player.Character.Humanoid.WalkSpeed = val  -- Directly set WalkSpeed if toggle is on
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = val  -- Directly set WalkSpeed if toggle is on
         end
     end
 })
@@ -392,7 +392,6 @@ RunService.RenderStepped:Connect(function()
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Enforce the selected WalkSpeed
     end
 end)
-
 
 local camfovslider = window_player:AddSlider({
     Name = "FOV",
