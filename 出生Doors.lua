@@ -2,10 +2,10 @@ local NotificationHolder = loadstring(game:HttpGet("https://raw.githubuserconten
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 local v = 1.2
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 local player = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
@@ -357,6 +357,7 @@ task.spawn(function()
 	})
 	buttons.noclip = nocliptoggle
 end)
+local RunService = game:GetService("RunService")
 local tpwalkspeedslider = window_player:AddSlider({
     Name = "WalkSpeed",
     Value = 16,
@@ -364,8 +365,8 @@ local tpwalkspeedslider = window_player:AddSlider({
     Max = 22,
     Callback = function(val, oldval)
         flags.tpwalkspeed = val
-        if hum then
-            hum.WalkSpeed = val  -- Safely set WalkSpeed
+        if flags.tpwalktoggle then
+            player.Character.Humanoid.WalkSpeed = val  -- Directly set WalkSpeed if toggle is on
         end
     end
 })
@@ -376,16 +377,22 @@ local tpwalktglbtn = window_player:AddToggle({
     Value = false,
     Callback = function(val, oldval)
         flags.tpwalktoggle = val
-        if hum then
-            if not val then
-                hum.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
-            else
-                hum.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
-            end
+        if val then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
+        else
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
         end
     end
 })
 buttons.tpwalktoggle = tpwalktglbtn
+
+-- Create a loop using RunService to enforce WalkSpeed
+RunService.RenderStepped:Connect(function()
+    if flags.tpwalktoggle then
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Enforce the selected WalkSpeed
+    end
+end)
+
 
 local camfovslider = window_player:AddSlider({
     Name = "FOV",
@@ -423,6 +430,7 @@ task.spawn(function()
         end
     end)
 end)
+
 local window_esp = GUI:CreateSection({
 	Name = "esp"
 })
