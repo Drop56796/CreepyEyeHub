@@ -4,6 +4,7 @@ local v = 1.2
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
+local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
 function warnNofiy(title, text)
 	Notification:Notify(
@@ -12,8 +13,27 @@ function warnNofiy(title, text)
 		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 0, 0)}
 	)
 end
+function Nofiy(title, text)
+	Notification:Notify(
+		{Title = title, Description = text},
+		{OutlineColor = Color3.fromRGB(80, 80, 80),Time = timee or 5, Type = "image"},
+		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
+	)
+end
+function newNofiy(title, text, text2, id)
+    achievementGiver({
+        Title = title,   
+        Desc = text,     
+        Reason = text2,  
+        Image = id 
+    })
+end
+
+----- 示例调用 NewNotify 函数
+newNotify("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
+
 if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
-     warnNofiy("Chrysler Doors v"..v, "Go doors to run", 10) 
+     warnNofiy("Hydraulic Doors v"..v, "Go doors to run", 10) 
      return
 end
 local buttons = {
@@ -50,7 +70,7 @@ local esptable = {
 
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
 local GUIWindow = Library:CreateWindow({
-	Name = "Chrysler Doors v".. v,
+	Name = "Hydraulic Doors v".. v,
 	Themeable = false
 })
 local GUI = GUIWindow:CreateTab({
@@ -333,6 +353,12 @@ task.spawn(function()
 	})
 	buttons.noclip = nocliptoggle
 end)
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+
+local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
+local rootPart = char:WaitForChild("HumanoidRootPart")  -- Ensure HumanoidRootPart exists
+
 local tpwalkspeedslider = window_player:AddSlider({
     Name = "WalkSpeed",
     Value = 16,
@@ -340,7 +366,9 @@ local tpwalkspeedslider = window_player:AddSlider({
     Max = 22,
     Callback = function(val, oldval)
         flags.tpwalkspeed = val
-        hum.WalkSpeed = val  -- Directly set the WalkSpeed
+        if hum then
+            hum.WalkSpeed = val  -- Safely set WalkSpeed
+        end
     end
 })
 buttons.tpwalkspeed = tpwalkspeedslider
@@ -350,10 +378,12 @@ local tpwalktglbtn = window_player:AddToggle({
     Value = false,
     Callback = function(val, oldval)
         flags.tpwalktoggle = val
-        if not val then
-            hum.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
-        else
-            hum.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
+        if hum then
+            if not val then
+                hum.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
+            else
+                hum.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
+            end
         end
     end
 })
