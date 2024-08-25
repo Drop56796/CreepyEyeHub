@@ -115,58 +115,19 @@ end
 -------------------------------------------
 local Camera = game:GetService("Workspace").CurrentCamera
 
--- 创建 BoxHandleAdornment 实例
 local function createBoxAdornment(part, color)
-    -- 创建 SurfaceGui 并附加到部件的每个面
-    local function createRoundedSurface(part, color, sizeAdjustment)
-        for _, surface in pairs(Enum.NormalId:GetEnumItems()) do
-            local surfaceGui = Instance.new("SurfaceGui", part)
-            surfaceGui.Adornee = part
-            surfaceGui.Face = surface
-            surfaceGui.AlwaysOnTop = true
-
-            local frame = Instance.new("Frame", surfaceGui)
-            frame.Size = UDim2.new(1, sizeAdjustment, 1, sizeAdjustment)
-            frame.Position = UDim2.new(0, -sizeAdjustment/2, 0, -sizeAdjustment/2)
-            frame.BackgroundColor3 = color
-            frame.BackgroundTransparency = 0.5
-
-            -- 添加圆角
-            local corner = Instance.new("UICorner", frame)
-            corner.CornerRadius = UDim.new(0.5, 0)
-
-            -- 添加外层圆角框
-            local outerFrame = Instance.new("Frame", frame)
-            outerFrame.Size = UDim2.new(1.2, 0, 1.2, 0)
-            outerFrame.Position = UDim2.new(-0.1, 0, -0.1, 0)
-            outerFrame.BackgroundTransparency = 1 -- 只显示边框
-            local outerCorner = Instance.new("UICorner", outerFrame)
-            outerCorner.CornerRadius = UDim.new(0.5, 0)
-
-            local outerStroke = Instance.new("UIStroke", outerFrame)
-            outerStroke.Color = color
-            outerStroke.Thickness = 2
-
-            -- 添加内层圆角框
-            local innerFrame = Instance.new("Frame", frame)
-            innerFrame.Size = UDim2.new(0.8, 0, 0.8, 0)
-            innerFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
-            innerFrame.BackgroundTransparency = 1 -- 只显示边框
-            local innerCorner = Instance.new("UICorner", innerFrame)
-            innerCorner.CornerRadius = UDim.new(0.5, 0)
-
-            local innerStroke = Instance.new("UIStroke", innerFrame)
-            innerStroke.Color = color
-            innerStroke.Thickness = 2
-        end
-    end
-
-    -- 调用创建圆角框的函数
-    createRoundedSurface(part, color, 0)
-
-    return nil -- 因为没有使用 BoxHandleAdornment, 此处返回 nil
+    local box = Instance.new("BoxHandleAdornment")
+    box.Size = part.Size
+    box.AlwaysOnTop = true
+    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
+    box.AdornCullingMode = Enum.AdornCullingMode.Never
+    box.Color3 = color
+    box.Transparency = 0.75
+    box.Adornee = part
+    box.Parent = game.CoreGui
+    return box
 end
-
+    
 -- 创建 Highlight 实例
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
