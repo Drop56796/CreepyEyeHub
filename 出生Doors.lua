@@ -8,7 +8,6 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
-local Camera = game:GetService("Workspace").CurrentCamera
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
 function warnNofiy(title, text)
@@ -111,6 +110,8 @@ local function playSound(soundId, volume, duration)
     end
 end
 -------------------------------------------
+local Camera = game:GetService("Workspace").CurrentCamera
+
 local function createBoxAdornment(part, color)
     local box = Instance.new("BoxHandleAdornment")
     box.Size = part.Size
@@ -118,33 +119,11 @@ local function createBoxAdornment(part, color)
     box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
     box.AdornCullingMode = Enum.AdornCullingMode.Never
     box.Color3 = color
-    box.Transparency = 0.75
+    box.Transparency = 0.9178
     box.Adornee = part
     box.Parent = game.CoreGui
-
-    -- 设置边框的 CFrame 和 Size 以适应实际边界
-    local function updateAdornment()
-        if part and part:IsDescendantOf(workspace) then
-            -- 获取部件的 CFrame 和 Size
-            local partCFrame = part.CFrame
-            local partSize = part.Size
-
-            -- 调整 BoxHandleAdornment 的 CFrame 和 Size
-            box.CFrame = partCFrame
-            box.Size = partSize
-        else
-            -- 隐藏或删除 BoxHandleAdornment
-            box:Destroy()
-        end
-    end
-
-    -- 绑定到 RenderStepped，以在每帧更新边框
-    RunService.RenderStepped:Connect(updateAdornment)
-
     return box
 end
-
-
     
 -- 创建 Highlight 实例
 local function createHighlight(part, color)
