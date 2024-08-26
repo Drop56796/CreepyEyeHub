@@ -112,71 +112,39 @@ end
 -------------------------------------------
 local Camera = game:GetService("Workspace").CurrentCamera
 
-local function createBorder(part, color)
-    local border = Drawing.new("Line")
-    border.Color = color
-    border.Thickness = 2
-    border.Transparency = 0.5
-    border.Visible = false
+local function createBoxAdornment(part, color)
+    local box = Instance.new("BoxHandleAdornment")
+    box.Size = part.Size
+    box.AlwaysOnTop = true
+    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
+    box.AdornCullingMode = Enum.AdornCullingMode.Never
+    box.Color3 = color
+    box.Transparency = 0.75
+    box.Adornee = part
+    box.Parent = game.CoreGui
 
-    local function updateBorder()
+    -- 设置边框的 CFrame 和 Size 以适应实际边界
+    local function updateAdornment()
         if part and part:IsDescendantOf(workspace) then
-            local partPos = part.Position
+            -- 获取部件的 CFrame 和 Size
+            local partCFrame = part.CFrame
             local partSize = part.Size
 
-            -- 计算部件的世界坐标系的四个角
-            local corners = {
-                partPos + Vector3.new(partSize.X / 2, partSize.Y / 2, partSize.Z / 2),
-                partPos + Vector3.new(-partSize.X / 2, partSize.Y / 2, partSize.Z / 2),
-                partPos + Vector3.new(-partSize.X / 2, -partSize.Y / 2, partSize.Z / 2),
-                partPos + Vector3.new(partSize.X / 2, -partSize.Y / 2, partSize.Z / 2),
-                partPos + Vector3.new(partSize.X / 2, partSize.Y / 2, -partSize.Z / 2),
-                partPos + Vector3.new(-partSize.X / 2, partSize.Y / 2, -partSize.Z / 2),
-                partPos + Vector3.new(-partSize.X / 2, -partSize.Y / 2, -partSize.Z / 2),
-                partPos + Vector3.new(partSize.X / 2, -partSize.Y / 2, -partSize.Z / 2),
-            }
-
-            local function toScreenSpace(pos)
-                local screenPos = Camera:WorldToViewportPoint(pos)
-                return Vector2.new(screenPos.X, screenPos.Y)
-            end
-
-            -- 计算屏幕坐标系下的角点
-            local screenCorners = {}
-            for _, corner in ipairs(corners) do
-                table.insert(screenCorners, toScreenSpace(corner))
-            end
-
-            -- 绘制边框（连接角点）
-            local function drawLine(from, to)
-                border.From = from
-                border.To = to
-                border.Visible = true
-            end
-
-            drawLine(screenCorners[1], screenCorners[2])
-            drawLine(screenCorners[2], screenCorners[3])
-            drawLine(screenCorners[3], screenCorners[4])
-            drawLine(screenCorners[4], screenCorners[1])
-
-            drawLine(screenCorners[5], screenCorners[6])
-            drawLine(screenCorners[6], screenCorners[7])
-            drawLine(screenCorners[7], screenCorners[8])
-            drawLine(screenCorners[8], screenCorners[5])
-
-            drawLine(screenCorners[1], screenCorners[5])
-            drawLine(screenCorners[2], screenCorners[6])
-            drawLine(screenCorners[3], screenCorners[7])
-            drawLine(screenCorners[4], screenCorners[8])
+            -- 调整 BoxHandleAdornment 的 CFrame 和 Size
+            box.CFrame = partCFrame
+            box.Size = partSize
         else
-            border.Visible = false
+            -- 隐藏或删除 BoxHandleAdornment
+            box:Destroy()
         end
     end
 
-    RunService.RenderStepped:Connect(updateBorder)
+    -- 绑定到 RenderStepped，以在每帧更新边框
+    RunService.RenderStepped:Connect(updateAdornment)
 
-    return border
+    return box
 end
+
 
 -- 创建 Highlight 实例
 local function createHighlight(part, color)
@@ -274,13 +242,13 @@ function esp(what, color, core, name, enableTracer)
     end
 
     -- 创建和管理 Border、Highlight 和 Tracer 实例
-    local borders = {}
+    local box = {}
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local border = createBorder(part, color)
-        table.insert(borders, border)
+        local box = createBorder(part, color)
+        table.insert(boxs, box)
         
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
@@ -299,9 +267,9 @@ function esp(what, color, core, name, enableTracer)
 
     local function checkAndUpdate()
         -- 检查 Border 和 Highlight 是否需要更新
-        for _, border in ipairs(borders) do
-            if not border or not border.Visible then
-                border:Remove()
+        for _, box in ipairs(box) do
+            if not border or not box.Visible then
+                box:Remove()
             end
         end
         
@@ -328,8 +296,8 @@ function esp(what, color, core, name, enableTracer)
     local ret = {}
 
     ret.delete = function()
-        for _, border in ipairs(borders) do
-            border:Remove()
+        for _, box in ipairs(box) do
+            box:Remove()
         end
         
         for _, highlight in ipairs(highlights) do
