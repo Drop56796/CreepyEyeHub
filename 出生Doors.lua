@@ -3,12 +3,12 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 local v = 1.2
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
-local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 local player = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
+--local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
 function warnNofiy(title, text)
 	Notification:Notify(
@@ -24,22 +24,18 @@ function Nofiy(title, text)
 		{Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 255, 255)}
 	)
 end
-function newNofiy(title, text, text2, id)
-    achievementGiver({
-        Title = title,   
-        Desc = text,     
-        Reason = text2,  
-        Image = id 
-    })
-end
+--function newNofiy(title, text, text2, id)
+--    achievementGiver({
+--        Title = title,   
+--        Desc = text,     
+--        Reason = text2,  
+--        Image = id 
+--    })
+--end
 
 ----- 示例调用 NewNotify 函数
-newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
+--newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
 
-if game.PlaceId ~= 6839171747 and game.PlaceId ~= 6516141723 then 
-     warnNofiy("Hydraulic Doors v"..v, "Go doors to run", 10) 
-     return
-end
 local buttons = {
     tpwalktoggle = nil,  -- TP Walk 开关按钮
     tpwalkspeed = nil,   -- TP Walk 速度滑块
