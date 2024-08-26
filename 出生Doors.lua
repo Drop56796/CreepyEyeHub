@@ -61,7 +61,8 @@ local flags = {
     targetKeyObtain = false,
     noclip = false,
     speedThreshold = 2,
-    getcode = false
+    getcode = false,
+    itemaura = false
 }
 local esptable = {
         entity = {},
@@ -1152,8 +1153,6 @@ local Player = window_player:AddToggle({
                         local prompt = nil
                         if descendant.Name == "DrawerContainer" then
                             prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
-                        elseif descendant.Name == "GoldPile" then
-                            prompt = descendant:WaitForChild("LootPrompt")
                         elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
                             prompt = descendant:WaitForChild("ActivateEventPrompt")
                         end
@@ -1182,8 +1181,6 @@ local Player = window_player:AddToggle({
                         local prompt = nil
                         if descendant.Name == "DrawerContainer" then
                             prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
-                        elseif descendant.Name == "GoldPile" then
-                            prompt = descendant:WaitForChild("LootPrompt")
                         elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
                             prompt = descendant:WaitForChild("ActivateEventPrompt")
                         end
@@ -1774,6 +1771,172 @@ local getcodebtn = window_player:AddToggle({
             if addconnect then
                 addconnect:Disconnect()
             end
+        end
+    end
+})
+
+-- Initialize flags table
+-- Function to handle proximity prompts
+local function handlePrompt(prompt)
+    local interactions = prompt:GetAttribute("Interactions")
+    if not interactions then
+        task.spawn(function()
+            while flags.itemaura and not prompt:GetAttribute("Interactions") do
+                task.wait(0.1)
+                if game.Players.LocalPlayer:DistanceFromCharacter(prompt.Parent.PrimaryPart.Position) <= 12 then
+                    fireproximityprompt(prompt)
+                end
+            end
+        end)
+    end
+end
+
+-- Function to check items and handle prompts
+local function check(v)
+    if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+        task.wait(0.1)
+        local part = v:FindFirstChild("Handle") or v:FindFirstChild("Prop")
+        if part then
+            -- Check if the item has a ModulePrompt
+            local prompt = v:FindFirstChild("ModulePrompt")
+            if prompt then
+                handlePrompt(prompt)
+            end
+        end
+    end
+end
+
+-- Function to setup items in a room
+local function setup(room)
+    local assets = room:WaitForChild("Assets")
+    
+    if assets then  
+        local subaddcon
+        subaddcon = assets.DescendantAdded:Connect(function(v)
+            check(v)
+        end)
+        
+        for _, v in pairs(assets:GetDescendants()) do
+            check(v)
+        end
+        
+        -- Manage the disconnect when item aura is turned off
+        return subaddcon
+    end
+end
+
+-- Function to start room detection
+local function startRoomDetection()
+    -- Connect to detect new rooms being added
+    local roomAddedConnection
+    roomAddedConnection = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+        if flags.itemaura then
+            setup(room)
+        end
+    end)
+    
+    -- Setup existing rooms
+    for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+        if room:FindFirstChild("Assets") then
+            setup(room)
+        end
+    end
+    
+    -- Return the connection to manage its lifecycle
+    return roomAddedConnection
+end
+
+-- Toggle for item aura (playerESP)
+local playerESP = window_player:AddToggle({
+    Name = "Item aura",
+    Default = false,
+    Callback = function(state)
+        flags.itemaura = state
+        
+        if flags.itemaura then
+            -- Start room detection
+            local roomAddedConnection = startRoomDetection()
+            
+            -- Manage disconnection when item aura is turned off
+            task.spawn(function()
+                repeat task.wait() until not flags.itemaura
+                roomAddedConnection:Disconnect()
+            end)
+        else
+            -- Stop room detection
+            if roomAddedConnection then
+                roomAddedConnection:Disconnect()
+            end
+            -- Clear or reset any related data here if needed
+        end
+    end
+})
+
+local Player = window_player:AddToggle({
+	Name = "Gold aura",
+	Value = false,
+	Callback = function(state)
+	if state then
+            -- open
+            autoInteract = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            autoInteract = false
         end
     end
 })
