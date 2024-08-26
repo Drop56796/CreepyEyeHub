@@ -8,6 +8,7 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
+local Camera = game:GetService("Workspace").CurrentCamera
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
 function warnNofiy(title, text)
@@ -110,8 +111,6 @@ local function playSound(soundId, volume, duration)
     end
 end
 -------------------------------------------
-local Camera = game:GetService("Workspace").CurrentCamera
-
 local function createBoxAdornment(part, color)
     local box = Instance.new("BoxHandleAdornment")
     box.Size = part.Size
@@ -146,6 +145,7 @@ local function createBoxAdornment(part, color)
 end
 
 
+    
 -- 创建 Highlight 实例
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
@@ -184,13 +184,13 @@ local function createBillboardGui(core, color, name)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Oswald -- 设置字体为 Oswald
+    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
 end
 
--- 创建 Tracer 实例
+-- 创建追踪线实例
 local function createTracer(target, color)
     local line = Drawing.new("Line")
     line.Color = color
@@ -241,19 +241,19 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    -- 创建和管理 Border、Highlight 和 Tracer 实例
-    local box = {}
+    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
+    local boxes = {}
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local box = createBorder(part, color)
-        table.insert(boxs, box)
+        local box = createBoxAdornment(part, color)
+        table.insert(boxes, box)
         
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
 
-        --追踪线仅针对第一个有效部件
+        -- 追踪线仅针对第一个有效部件
         if enableTracer and #tracers == 0 then
             local tracer = createTracer(part, color)
             table.insert(tracers, tracer)
@@ -266,10 +266,10 @@ function esp(what, color, core, name, enableTracer)
     end
 
     local function checkAndUpdate()
-        -- 检查 Border 和 Highlight 是否需要更新
-        for _, box in ipairs(box) do
-            if not border or not box.Visible then
-                box:Remove()
+        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
+        for _, box in ipairs(boxes) do
+            if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
+                box:Destroy()
             end
         end
         
@@ -296,24 +296,52 @@ function esp(what, color, core, name, enableTracer)
     local ret = {}
 
     ret.delete = function()
-        for _, box in ipairs(box) do
-            box:Remove()
+        for _, box in ipairs(boxes) do
+            box:Destroy()
         end
         
         for _, highlight in ipairs(highlights) do
             highlight:Destroy()
         end
 
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
         for _, tracer in ipairs(tracers) do
-            if tracer then
+            if not tracer or not tracer.Visible then
                 tracer:Remove()
             end
         end
+    end
 
-        if bill then
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    local ret = {}
+
+    ret.delete = function()
+        for _, box in ipairs(boxes) do
+            box:Destroy()
+        end
+        
+        for _, highlight in ipairs(highlights) do
+            highlight:Destroy()
+        end
+
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
             bill:Destroy()
         end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
     end
+
+    RunService.Stepped:Connect(checkAndUpdate)
 
     return ret
 end
