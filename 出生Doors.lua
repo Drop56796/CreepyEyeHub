@@ -8,6 +8,7 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
+--------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
 function warnNofiy(title, text)
@@ -56,9 +57,10 @@ local flags = {
     espgold = false,
     targetKeyObtain = false,
     noclip = false,
-    speedThreshold = 2,
     getcode = false,
-    itemaura = false
+    itemaura = false,
+    error = false,
+    noa90 = false
 }
 local esptable = {
         entity = {},
@@ -1941,3 +1943,201 @@ local Player = window_player:AddToggle({
         end
     end
 })
+local window_rooms = GUI:CreateSection({
+	Name = "rooms"
+})
+local PlayerESP_Toggle = window_player:AddToggle({
+    Name = "no a90[nil]",
+    Value = false, -- 初始状态为关闭
+    Callback = function(state)
+        flags.error = state -- 更新 flag 为当前 state
+        
+        if flags.error then
+            if LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") then
+                LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules.A90.Name = "lol"
+	    end
+        end
+    end
+})
+
+local PlayerESP_Toggle = window_player:AddToggle({
+    Name = "no a90[Destroy]",
+    Value = false, -- 初始状态为关闭
+    Callback = function(state)
+        flags.noa90 = state -- 更新 flag 为当前 state
+        
+        if flags.noa90 then
+            local A90 = game.ReplicatedStorage.RemotesFolder:FindFirstChild("A90")
+            if A90 then
+                -- 当 noa90 为 true 且 A90 存在时，删除 A90
+                A90:Destroy()
+            end
+        end
+    end
+})
+
+-- 创建一个 Toggle 控制自动 A1000 的功能
+local PlayerESP_Toggle = window_rooms:AddToggle({
+    Name = "Auto A1000[Rooms]",
+    Value = false, -- 初始状态为关闭
+    Callback = function(state)
+        if state then
+            -- 开启自动 A1000
+            startAutoA1000()
+        else
+            -- 关闭自动 A1000
+            stopAutoA1000()
+        end
+    end
+})
+
+-- 开始自动 A1000 的功能
+function startAutoA1000()
+    -- 检查是否在指定的游戏和“Rooms”楼层
+    if game.PlaceId == 6839171747 and game.ReplicatedStorage.GameData.Floor.Value == "Rooms" then
+        
+        -- 获取服务和玩家
+        local PathfindingService = game:GetService("PathfindingService")
+        local LocalPlayer = game.Players.LocalPlayer
+        local LatestRoom = game.ReplicatedStorage.GameData.LatestRoom
+
+        -- 防止玩家因长时间不活动而被踢出游戏
+        local GC = getconnections or get_signal_cons
+        if GC then
+            for _, v in pairs(GC(LocalPlayer.Idled)) do
+                if v["Disable"] then
+                    v["Disable"](v)
+                elseif v["Disconnect"] then
+                    v["Disconnect"](v)
+                end
+            end
+        end
+
+        -- 创建一个用于存储路径点的文件夹
+        local Folder = Instance.new("Folder")
+        Folder.Parent = workspace
+        Folder.Name = "PathFindPartsFolder"
+
+        -- 更改特定模块的名称（绕过机制）
+        if LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") then
+            LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules.A90.Name = "lol"
+        end
+
+        -- 获取最近的柜子
+        local function getLocker()
+            local Closest
+            for _, v in pairs(workspace.CurrentRooms:GetDescendants()) do
+                if v.Name == "Rooms_Locker" then
+                    if v:FindFirstChild("Door") and v:FindFirstChild("HiddenPlayer") then
+                        if v.HiddenPlayer.Value == nil and v.Door.Position.Y > -3 then
+                            if Closest == nil then
+                                Closest = v.Door
+                            else
+                                if (LocalPlayer.Character.HumanoidRootPart.Position - v.Door.Position).Magnitude < 
+                                (Closest.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude then
+                                    Closest = v.Door
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            return Closest
+        end
+
+        -- 获取路径
+        local function getPath()
+            local Entity = workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120")
+            if Entity and Entity.Main.Position.Y > -4 then
+                return getLocker()
+            else
+                return workspace.CurrentRooms[LatestRoom.Value].Door.Door
+            end
+        end
+
+        -- 房间变化时更新路径和通知
+        LatestRoom:GetPropertyChangedSignal("Value"):Connect(function()
+            local currentRoom = LatestRoom.Value
+            -- 房间更新通知
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Room Update",
+                Text = "Current Room: " .. currentRoom
+            })
+
+            -- 检查是否达到房间1000
+            if currentRoom == 1000 then
+                LocalPlayer.DevComputerMovementMode = Enum.DevComputerMovementMode.KeyboardMouse
+                Folder:ClearAllChildren()
+                
+                -- 显示到达房间1000的通知
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "Milestone Reached",
+                    Text = "You have reached Room 1000!"
+                })
+                
+                -- 自定义通知
+                Notification:Notify(
+                    {Title = "Congratulations!", Description = "You have successfully reached Room 1000."},
+                    {OutlineColor = Color3.fromRGB(80, 80, 80), Time = 5, Type = "default"}
+                )
+                stopAutoA1000()
+                return
+            else
+                LocalPlayer.DevComputerMovementMode = Enum.DevComputerMovementMode.Scriptable
+            end
+        end)
+
+        -- 每帧更新
+        autoA1000Connection = game:GetService("RunService").RenderStepped:Connect(function()
+            LocalPlayer.Character.HumanoidRootPart.CanCollide = false
+            LocalPlayer.Character.Collision.CanCollide = false
+            LocalPlayer.Character.Collision.Size = Vector3.new(8, LocalPlayer.Character.Collision.Size.Y, 8)
+            LocalPlayer.Character.Humanoid.WalkSpeed = 21
+
+            local Path = getPath()
+            local Entity = workspace:FindFirstChild("A60") or workspace:FindFirstChild("A120")
+            
+            if Entity and Path and Path.Parent.Name == "Rooms_Locker" and Entity.Main.Position.Y > -4 then
+                if (LocalPlayer.Character.HumanoidRootPart.Position - Path.Position).Magnitude < 2 and not LocalPlayer.Character.HumanoidRootPart.Anchored then
+                    fireproximityprompt(Path.Parent.HidePrompt)
+                end
+            end
+        end)
+
+        -- 主循环，计算并移动路径
+        autoA1000Coroutine = coroutine.create(function()
+            while true do
+                local Destination = getPath()
+                local path = PathfindingService:CreatePath({ WaypointSpacing = 1, AgentRadius = 0.1, AgentCanJump = false })
+                path:ComputeAsync(LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(0, 3, 0), Destination.Position)
+                local Waypoints = path:GetWaypoints()
+
+                if path.Status ~= Enum.PathStatus.NoPath then
+                    Folder:ClearAllChildren()
+                    for _, Waypoint in pairs(Waypoints) do
+                        if not LocalPlayer.Character.HumanoidRootPart.Anchored then
+                            LocalPlayer.Character.Humanoid:MoveTo(Waypoint.Position)
+                            LocalPlayer.Character.Humanoid.MoveToFinished:Wait()
+                        end
+                    end
+                end
+
+                -- 避免占用过多资源
+                wait(0.1)
+            end
+        end)
+        coroutine.resume(autoA1000Coroutine)
+    end
+end
+
+-- 停止自动 A1000 的功能
+function stopAutoA1000()
+    if autoA1000Connection then
+        autoA1000Connection:Disconnect()
+        autoA1000Connection = nil
+    end
+    if autoA1000Coroutine then
+        coroutine.close(autoA1000Coroutine)
+        autoA1000Coroutine = nil
+    end
+end
