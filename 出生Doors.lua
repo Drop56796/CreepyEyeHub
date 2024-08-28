@@ -42,8 +42,6 @@ local buttons = {
     tpwalkspeed = nil,   -- TP Walk 速度滑块
     camfov = nil,   -- FOV 滑块
     noclip = nil,
-    noscreech = nil,
-    notimothy = nil,
     noseek = nil
 }
 
@@ -64,9 +62,8 @@ local flags = {
     itemaura = false,
     error = false,
     noa90 = false,
-    noscreech = false,
-    notimothy = false,
-    noseek = false
+    noseek = false,
+    esploc = false
 }
 local esptable = {
         entity = {},
@@ -75,7 +72,8 @@ local esptable = {
 	items = {},
 	books = {},
 	Gold = {},
-	key = {}
+	key = {},
+	loc = {}
 }
 
 Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSuffer/BasicallyAnDoors-EDITED/main/uilibs/Mobile.lua"))()
@@ -2174,42 +2172,206 @@ local noseekbtn = window_remove:AddToggle({
 })
 
 buttons.noseek = noseekbtn
+local Player = window_player:AddToggle({
+	Name = "Book/Breaker aura",
+	Value = false,
+	Callback = function(state)
+	if state then
+            -- open
+            Bookaura = true
 
--- 初始化 SpiderJumpscareModule 变量
-local SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
+            -- getplayer
+            local player = game.Players.LocalPlayer
 
--- 添加一个 Toggle 按钮
-local notimothybtn = window_remove:AddToggle({
-    Name = "No Timothy (Spider) Jumpscare",
-    Value = false,
-    Callback = function(val, oldval)
-        flags.notimothy = val  -- 设置 flags.notimothy 的值
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LiveBreakerPolePickup" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			elseif descendant.Name == "LiveHintBook" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
 
-        if flags.notimothy then
-            SpiderJumpscareModule.Parent = nil  -- 移除 SpiderJumpscareModule
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LiveBreakerPolePickup" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			elseif descendant.Name == "LiveHintBook" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
         else
-            SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules  -- 恢复 SpiderJumpscareModule
+            -- close
+            Bookaura = false
         end
     end
 })
 
-buttons.notimothy = notimothybtn
--- 初始化 ScreechModule 变量
-local ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
+local Player = window_esp:AddToggle({
+	Name = "Lever esp",
+	Value = false,
+	Callback = function(state)
+	if state then
+            _G.locESPInstances = {}
+	    flags.esploc = state
 
--- 添加一个 Toggle 按钮
-local noscreechbtn = window_remove:AddToggle({
-    Name = "Remove Screech",
-    Value = false,
-    Callback = function(val, oldval)
-        flags.noscreech = val  -- 设置 flags.noscreech 的值
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "LeverForGate" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(25, 55, 5), v.PrimaryPart, "Lever")
+                        table.insert(esptable.lockers, h)
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
 
-        if flags.noscreech then
-            ScreechModule.Parent = nil  -- 移除 ScreechModule
-        else
-            ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules  -- 恢复 ScreechModule
+            table.insert(_G.locESPInstances, esptable)
+
+	else
+            if _G.locESPInstances then
+                for _, instance in pairs(_G.locESPInstances) do
+                    for _, v in pairs(instance.loc) do
+                        v.delete()
+                    end
+                end
+                _G.locESPInstances = nil
+            end
         end
     end
 })
 
-buttons.noscreech = noscreechbtn
+local Player = window_player:AddToggle({
+	Name = "Lever aura",
+	Value = false,
+	Callback = function(state)
+	if state then
+            -- open
+            Leveraura = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LeverForGate" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LeverForGate" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            Leveraura = false
+        end
+    end
+})
