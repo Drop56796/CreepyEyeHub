@@ -117,95 +117,74 @@ local function playSound(soundId, volume, duration)
 end
 -------------------------------------------
 local Camera = game:GetService("Workspace").CurrentCamera
-local RunService = game:GetService("RunService")
-local Drawing = Drawing or require(game:GetService("Drawing"))
 
--- Create a custom box using Drawing API
-local function createBoxDrawing(part, color)
-    local box = Drawing.new("Square")
-    box.Color = color
-    box.Thickness = 2
-    box.Transparency = 1
-
-    local function updateBox()
-        if part and part:IsDescendantOf(workspace) then
-            local partPos, partSize = Camera:WorldToViewportPoint(part.Position), part.Size
-            local halfSizeX = partSize.X / 2
-            local halfSizeY = partSize.Y / 2
-
-            local corners = {
-                Camera:WorldToViewportPoint(part.Position + part.CFrame.RightVector * halfSizeX + part.CFrame.UpVector * halfSizeY),
-                Camera:WorldToViewportPoint(part.Position + part.CFrame.RightVector * halfSizeX - part.CFrame.UpVector * halfSizeY),
-                Camera:WorldToViewportPoint(part.Position - part.CFrame.RightVector * halfSizeX - part.CFrame.UpVector * halfSizeY),
-                Camera:WorldToViewportPoint(part.Position - part.CFrame.RightVector * halfSizeX + part.CFrame.UpVector * halfSizeY)
-            }
-
-            box.PointA = Vector2.new(corners[1].X, corners[1].Y)
-            box.PointB = Vector2.new(corners[2].X, corners[2].Y)
-            box.PointC = Vector2.new(corners[3].X, corners[3].Y)
-            box.PointD = Vector2.new(corners[4].X, corners[4].Y)
-            box.Visible = true
-        else
-            box.Visible = false
-        end
-    end
-
-    RunService.RenderStepped:Connect(updateBox)
+local function createBoxAdornment(part, color)
+    local box = Instance.new("BoxHandleAdornment")
+    box.Size = part.Size
+    box.AlwaysOnTop = true
+    box.ZIndex = 10
+    box.AdornCullingMode = Enum.AdornCullingMode.Never
+    box.Color3 = color
+    box.Transparency = 0.5
+    box.LineThickness = 0.1  -- 自定义边框厚度
+    box.Adornee = part
+    box.Parent = game.CoreGui
     return box
 end
 
--- Create a highlight effect for a part
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
     highlight.Adornee = part
     highlight.FillColor = color
     highlight.OutlineColor = color
-    highlight.OutlineTransparency = 0.4
-    highlight.FillTransparency = 0.4
+    highlight.OutlineTransparency = 0.3  -- 更透明的轮廓
+    highlight.FillTransparency = 0.4  -- 更透明的填充
     highlight.Parent = part
     return highlight
 end
 
--- Create a custom BillboardGui
 local function createBillboardGui(core, color, name)
-    local bill = Instance.new("BillboardGui")
-    bill.Parent = game.CoreGui
+    local bill = Instance.new("BillboardGui", game.CoreGui)
     bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 150, 0, 40)
+    bill.Size = UDim2.new(0, 150, 0, 75)  -- 自定义大小
     bill.Adornee = core
     bill.MaxDistance = 2000
 
-    local background = Instance.new("Frame", bill)
-    background.AnchorPoint = Vector2.new(0.5, 0.5)
-    background.BackgroundColor3 = color
-    background.Size = UDim2.new(0, 120, 0, 30)
-    background.Position = UDim2.new(0.5, 0, 0, 0)
+    local mid = Instance.new("Frame", bill)
+    mid.AnchorPoint = Vector2.new(0.5, 0.5)
+    mid.BackgroundColor3 = color
+    mid.Size = UDim2.new(0, 12, 0, 12)  -- 自定义尺寸
+    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+    local gradient = Instance.new("UIGradient", mid)  -- 添加渐变色
+    gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, color), ColorSequenceKeypoint.new(1, color:Lerp(Color3.new(1,1,1), 0.5))})
 
-    local textLabel = Instance.new("TextLabel", bill)
-    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = color
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-    textLabel.Text = name
-    textLabel.TextStrokeTransparency = 0.3
-    textLabel.TextSize = 18
-    textLabel.Font = Enum.Font.Oswald
+    local txt = Instance.new("TextLabel", bill)
+    txt.AnchorPoint = Vector2.new(0.5, 0.5)
+    txt.BackgroundTransparency = 1
+    txt.TextColor3 = color
+    txt.Size = UDim2.new(1, 0, 0, 30)
+    txt.Position = UDim2.new(0.5, 0, 0.5, 0)
+    txt.Text = name
+    txt.TextStrokeTransparency = 0.3  -- 更清晰的文本边缘
+    txt.TextSize = 24
+    txt.Font = Enum.Font.Oswald -- 自定义字体
+    Instance.new("UIStroke", txt)
 
     return bill
 end
 
--- Create a tracer line
+-- 创建追踪线实例
 local function createTracer(target, color)
     local line = Drawing.new("Line")
     line.Color = color
     line.Thickness = 2
-    line.Transparency = 0.8
+    line.Transparency = 1
 
     local function updateTracer()
         if target and target:IsDescendantOf(workspace) then
             local targetPos = Camera:WorldToViewportPoint(target.Position)
-            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- 从屏幕中心底部开始
 
             line.From = screenPos
             line.To = Vector2.new(targetPos.X, targetPos.Y)
@@ -216,12 +195,16 @@ local function createTracer(target, color)
     end
 
     RunService.RenderStepped:Connect(updateTracer)
+
     return line
 end
 
--- Main ESP function
+-- 主 ESP 函数
 function esp(what, color, core, name, enableTracer)
-    enableTracer = enableTracer or false
+    -- 检查是否传入 enableTracer 参数，如果未传入，则默认为 false
+    if enableTracer == nil then
+        enableTracer = false
+    end
 
     local parts = {}
     if typeof(what) == "Instance" then
@@ -242,17 +225,19 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
+    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
     local boxes = {}
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local box = createBoxDrawing(part, color)
+        local box = createBoxAdornment(part, color)
         table.insert(boxes, box)
-
+        
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
 
+        -- 追踪线仅针对第一个有效部件
         if enableTracer and #tracers == 0 then
             local tracer = createTracer(part, color)
             table.insert(tracers, tracer)
@@ -265,12 +250,13 @@ function esp(what, color, core, name, enableTracer)
     end
 
     local function checkAndUpdate()
+        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
         for _, box in ipairs(boxes) do
-            if not box or not box.Visible then
-                box:Remove()
+            if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
+                box:Destroy()
             end
         end
-
+        
         for _, highlight in ipairs(highlights) do
             if not highlight.Adornee or not highlight:IsDescendantOf(workspace) then
                 highlight:Destroy()
@@ -281,6 +267,7 @@ function esp(what, color, core, name, enableTracer)
             bill:Destroy()
         end
 
+        -- 检查 Tracer 是否需要更新
         for _, tracer in ipairs(tracers) do
             if not tracer or not tracer.Visible then
                 tracer:Remove()
@@ -291,11 +278,12 @@ function esp(what, color, core, name, enableTracer)
     RunService.Stepped:Connect(checkAndUpdate)
 
     local ret = {}
+
     ret.delete = function()
         for _, box in ipairs(boxes) do
-            box:Remove()
+            box:Destroy()
         end
-
+        
         for _, highlight in ipairs(highlights) do
             highlight:Destroy()
         end
@@ -304,12 +292,40 @@ function esp(what, color, core, name, enableTracer)
             bill:Destroy()
         end
 
+        -- 检查 Tracer 是否需要更新
         for _, tracer in ipairs(tracers) do
             if not tracer or not tracer.Visible then
                 tracer:Remove()
             end
         end
     end
+
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    local ret = {}
+
+    ret.delete = function()
+        for _, box in ipairs(boxes) do
+            box:Destroy()
+        end
+        
+        for _, highlight in ipairs(highlights) do
+            highlight:Destroy()
+        end
+
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
+    end
+
+    RunService.Stepped:Connect(checkAndUpdate)
 
     return ret
 end
