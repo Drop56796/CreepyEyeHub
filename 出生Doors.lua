@@ -117,75 +117,88 @@ local function playSound(soundId, volume, duration)
 end
 -------------------------------------------
 local Camera = game:GetService("Workspace").CurrentCamera
+local RunService = game:GetService("RunService")
+local Drawing = Drawing or require(game:GetService("Drawing"))
 
-local function createBoxAdornment(part, color)
-    local box = Instance.new("BoxHandleAdornment")
-    box.Size = part.Size
-    box.AlwaysOnTop = true
-    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
-    box.AdornCullingMode = Enum.AdornCullingMode.Never
-    box.Color3 = color
-    box.Transparency = 0.9178
-    box.Adornee = part
-    box.Parent = game.CoreGui
+-- Create a custom box using Drawing API
+local function createBoxDrawing(part, color)
+    local box = Drawing.new("Square")
+    box.Color = color
+    box.Thickness = 2
+    box.Transparency = 0.811111111
+
+    local function updateBox()
+        if part and part:IsDescendantOf(workspace) then
+            local partPos, partSize = Camera:WorldToViewportPoint(part.Position), part.Size
+            local halfSize = Camera:WorldToViewportPoint(part.Position + part.CFrame.RightVector * partSize.X / 2).X - partPos.X
+            local halfSizeY = Camera:WorldToViewportPoint(part.Position + part.CFrame.UpVector * partSize.Y / 2).Y - partPos.Y
+            
+            box.Size = Vector2.new(halfSize * 2, halfSizeY * 2)
+            box.Position = Vector2.new(partPos.X - halfSize, partPos.Y - halfSizeY)
+            box.Visible = true
+        else
+            box.Visible = false
+        end
+    end
+
+    RunService.RenderStepped:Connect(updateBox)
     return box
 end
-    
--- 创建 Highlight 实例
+
+-- Create a highlight effect for a part
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
     highlight.Adornee = part
     highlight.FillColor = color
     highlight.OutlineColor = color
-    highlight.OutlineTransparency = 0.5
-    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0.4
+    highlight.FillTransparency = 0.4
     highlight.Parent = part
     return highlight
 end
 
--- 创建 BillboardGui 实例
+-- Create a custom BillboardGui
 local function createBillboardGui(core, color, name)
-    local bill = Instance.new("BillboardGui", game.CoreGui)
+    local bill = Instance.new("BillboardGui")
+    bill.Parent = game.CoreGui
     bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 100, 0, 50)
+    bill.Size = UDim2.new(0, 200, 0, 60)
     bill.Adornee = core
     bill.MaxDistance = 2000
 
-    local mid = Instance.new("Frame", bill)
-    mid.AnchorPoint = Vector2.new(0.5, 0.5)
-    mid.BackgroundColor3 = color
-    mid.Size = UDim2.new(0, 8, 0, 8)
-    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-    Instance.new("UIStroke", mid)
+    local background = Instance.new("Frame", bill)
+    background.AnchorPoint = Vector2.new(0.5, 0.5)
+    background.BackgroundColor3 = color
+    background.Size = UDim2.new(0, 120, 0, 30)
+    background.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", background).CornerRadius = UDim.new(0.1, 0)
+    Instance.new("UIStroke", background).ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    local txt = Instance.new("TextLabel", bill)
-    txt.AnchorPoint = Vector2.new(0.5, 0.5)
-    txt.BackgroundTransparency = 1
-    txt.BackgroundColor3 = color
-    txt.TextColor3 = color
-    txt.Size = UDim2.new(1, 0, 0, 20)
-    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
-    txt.Text = name
-    txt.TextStrokeTransparency = 0.5
-    txt.TextSize = 18
-    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
-    Instance.new("UIStroke", txt)
+    local textLabel = Instance.new("TextLabel", bill)
+    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = color
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+    textLabel.Text = name
+    textLabel.TextStrokeTransparency = 0.3
+    textLabel.TextSize = 20
+    textLabel.Font = Enum.Font.SourceSansBold
 
     return bill
 end
 
--- 创建追踪线实例
+-- Create a tracer line
 local function createTracer(target, color)
     local line = Drawing.new("Line")
     line.Color = color
     line.Thickness = 2
-    line.Transparency = 1
+    line.Transparency = 0.8
 
     local function updateTracer()
         if target and target:IsDescendantOf(workspace) then
             local targetPos = Camera:WorldToViewportPoint(target.Position)
-            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- 从屏幕中心底部开始
+            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
 
             line.From = screenPos
             line.To = Vector2.new(targetPos.X, targetPos.Y)
@@ -196,16 +209,12 @@ local function createTracer(target, color)
     end
 
     RunService.RenderStepped:Connect(updateTracer)
-
     return line
 end
 
--- 主 ESP 函数
+-- Main ESP function
 function esp(what, color, core, name, enableTracer)
-    -- 检查是否传入 enableTracer 参数，如果未传入，则默认为 false
-    if enableTracer == nil then
-        enableTracer = false
-    end
+    enableTracer = enableTracer or false
 
     local parts = {}
     if typeof(what) == "Instance" then
@@ -226,19 +235,17 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
     local boxes = {}
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local box = createBoxAdornment(part, color)
+        local box = createBoxDrawing(part, color)
         table.insert(boxes, box)
-        
+
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
 
-        -- 追踪线仅针对第一个有效部件
         if enableTracer and #tracers == 0 then
             local tracer = createTracer(part, color)
             table.insert(tracers, tracer)
@@ -251,13 +258,12 @@ function esp(what, color, core, name, enableTracer)
     end
 
     local function checkAndUpdate()
-        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
         for _, box in ipairs(boxes) do
-            if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
-                box:Destroy()
+            if not box or not box.Visible then
+                box:Remove()
             end
         end
-        
+
         for _, highlight in ipairs(highlights) do
             if not highlight.Adornee or not highlight:IsDescendantOf(workspace) then
                 highlight:Destroy()
@@ -268,65 +274,12 @@ function esp(what, color, core, name, enableTracer)
             bill:Destroy()
         end
 
-        -- 检查 Tracer 是否需要更新
         for _, tracer in ipairs(tracers) do
             if not tracer or not tracer.Visible then
                 tracer:Remove()
             end
         end
     end
-
-    RunService.Stepped:Connect(checkAndUpdate)
-
-    local ret = {}
-
-    ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
-        end
-        
-        for _, highlight in ipairs(highlights) do
-            highlight:Destroy()
-        end
-
-        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
-            bill:Destroy()
-        end
-
-        -- 检查 Tracer 是否需要更新
-        for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
-                tracer:Remove()
-            end
-        end
-    end
-
-    RunService.Stepped:Connect(checkAndUpdate)
-
-    local ret = {}
-
-    ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
-        end
-        
-        for _, highlight in ipairs(highlights) do
-            highlight:Destroy()
-        end
-
-        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
-            bill:Destroy()
-        end
-
-        -- 检查 Tracer 是否需要更新
-        for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
-                tracer:Remove()
-            end
-        end
-    end
-
-    RunService.Stepped:Connect(checkAndUpdate)
 
     return ret
 end
