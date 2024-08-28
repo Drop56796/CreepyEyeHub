@@ -539,73 +539,75 @@ local Enity = window_esp:AddToggle({
 })
 
 local DE = window_esp:AddToggle({
-	Name = "Door esp",
-	Value = false,
-	Callback = function(state)
-		if state then
-			_G.doorESPInstances = {}
-			flags.espdoors = state
-			local doorCounter = 0  -- Initialize a counter for the doors
+    Name = "Door ESP with Lock Detection",
+    Value = false,
+    Callback = function(state)
+        if state then
+            _G.doorESPInstances = {}
+            flags.espdoors = state
+            local doorCounter = 0
 
-			local function setup(room)
-				local door = room:WaitForChild("Door") -- Directly get the Door object
-				if not door then return end -- If the door doesn't exist, skip this room
-				
-				task.wait(0.1) -- Wait to ensure all children of the door are fully loaded
+            local function isLocked(door)
+                -- Example: Check if the door has a Lock object or if an attribute like "IsLocked" exists and is true.
+                local lock = door:FindFirstChild("Lock")  -- You might need to adjust the name
+                if lock then
+                    return true
+                end
+                
+                local isLockedAttr = door:FindFirstChild("Lock")
+                if isLockedAttr and isLockedAttr.Value == true then
+                    return true
+                end
+                
+                return false
+            end
 
-				-- Increment the door counter and format it as a four-digit number starting from 0001
-				doorCounter = doorCounter + 1
-				local doorIndex = string.format("%04d", doorCounter)
+            local function setup(room)
+                local door = room:WaitForChild("Door")
+                task.wait(0.1)
 
-				-- Check if the door has a Lock object to determine the label
-				local doorLabel = "Door [" .. doorIndex .. "]"
-				local lock = door:FindFirstChild("Lock")
-				if lock then
-					doorLabel = doorLabel .. " - Locked"
-				end
+                doorCounter = doorCounter + 1
+                local doorIndex = string.format("%04d", doorCounter)
 
-				-- Set up ESP with the door label
-				local h = esp(door, Color3.fromRGB(10, 5, 100), door, doorLabel)
-				table.insert(_G.doorESPInstances, h)
+                local color = isLocked(door) and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(90, 255, 40)
+                local lockStatus = isLocked(door) and "Locked" or "Unlocked"
+                
+                local h = esp(door, color, door, "Door [" .. doorIndex .. "] - " .. lockStatus)
+                table.insert(esptable.doors, h)
 
-				-- Update ESP dynamically if the lock status changes or the door opens
-				if lock then
-					lock.AncestryChanged:Connect(function()
-						local currentStatus = lock:IsDescendantOf(workspace) and "Locked" or ""
-						h.updateLabel("Door [" .. doorIndex .. "]" .. (currentStatus ~= "" and " - " .. currentStatus or ""))
-					end)
-				end
+                door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
+                    h.delete()
+                end)
 
-				door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
-					h.delete()
-				end)
+                door.AncestryChanged:Connect(function()
+                    h.delete()
+                end)
+            end
 
-				door.AncestryChanged:Connect(function()
-					h.delete()
-				end)
-			end
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
 
-			-- Connect to new rooms being added
-			local addconnect
-			addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-				setup(room)
-			end)
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
 
-			-- Initialize the ESP for all existing rooms
-			for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-				setup(room)
-			end
+            table.insert(_G.doorESPInstances, esptable)
 
-		else
-			-- Clear all ESP instances when the toggle is turned off
-			if _G.doorESPInstances then
-				for _, h in pairs(_G.doorESPInstances) do
-					h.delete()
-				end
-				_G.doorESPInstances = nil
-			end
-		end
-	end
+        else
+            if _G.doorESPInstances then
+                for _, instance in pairs(_G.doorESPInstances) do
+                    for _, v in pairs(instance.doors) do
+                        v.delete()
+                    end
+                end
+                _G.doorESPInstances = nil
+            end
+        end
+    end
 })
 
 local LWESP = window_esp:AddToggle({
