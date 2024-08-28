@@ -1,6 +1,6 @@
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
-local v = 1.2
+local v = 1.3
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -542,57 +542,63 @@ local DE = window_esp:AddToggle({
 	Name = "Door esp",
 	Value = false,
 	Callback = function(state)
-	if state then
-            _G.doorESPInstances = {}
-            flags.espdoors = state
-            local doorCounter = 0  -- Initialize a counter for the doors
-                
-            local function setup(room)
-                local door = room:WaitForChild("Door") -- Directly get the Door object
-                
-                task.wait(0.1)
-                
-                -- Increment the door counter and format it as a four-digit number starting from 0001
-                doorCounter = doorCounter + 1
-                local doorIndex = string.format("%04d", doorCounter)
-                
-                -- Set up ESP with the door index in the format "Door [0001]"
-                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]")
-                table.insert(esptable.doors, h)
-                
-                door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
-                    h.delete()
-                end)
-                
-                door.AncestryChanged:Connect(function()
-                    h.delete()
-                end)
-            end
-            
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-            
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                if room:FindFirstChild("Assets") then
-                    setup(room) 
-                end
-            end
+		if state then
+			_G.doorESPInstances = {}
+			flags.espdoors = state
+			local doorCounter = 0  -- Initialize a counter for the doors
 
-            table.insert(_G.doorESPInstances, esptable)
+			local function setup(room)
+				local door = room:WaitForChild("Door") -- Directly get the Door object
 
-        else
-            if _G.doorESPInstances then
-                for _, instance in pairs(_G.doorESPInstances) do
-                    for _, v in pairs(instance.doors) do
-                        v.delete()
-                    end
-                end
-                _G.doorESPInstances = nil
-            end
-        end
-    end
+				task.wait(0.1)
+
+				-- Increment the door counter and format it as a four-digit number starting from 0001
+				doorCounter = doorCounter + 1
+				local doorIndex = string.format("%04d", doorCounter)
+
+				-- Check if the door has a Lock object to determine if it's Locked or Unlocked
+				local doorStatus = "Unlocked"
+				if door:FindFirstChild("Lock") then
+					doorStatus = "Locked"
+				end
+
+				-- Set up ESP with the door index and status (Locked/Unlocked)
+				local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "] - " .. doorStatus)
+				table.insert(esptable.doors, h)
+
+				door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
+					h.delete()
+				end)
+
+				door.AncestryChanged:Connect(function()
+					h.delete()
+				end)
+			end
+
+			local addconnect
+			addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+				setup(room)
+			end)
+
+			for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+				if room:FindFirstChild("Assets") then
+					setup(room)
+				end
+			end
+
+			table.insert(_G.doorESPInstances, esptable)
+
+		else
+			if _G.doorESPInstances then
+				for _, instance in pairs(_G.doorESPInstances) do
+					for _, v in pairs(instance.doors) do
+						v.delete()
+					end
+				end
+				_G.doorESPInstances = nil
+			end
+		end
+	end
 })
 
 local LWESP = window_esp:AddToggle({
