@@ -125,16 +125,25 @@ local function createBoxDrawing(part, color)
     local box = Drawing.new("Square")
     box.Color = color
     box.Thickness = 2
-    box.Transparency = 0.811111111
+    box.Transparency = 1
 
     local function updateBox()
         if part and part:IsDescendantOf(workspace) then
             local partPos, partSize = Camera:WorldToViewportPoint(part.Position), part.Size
-            local halfSize = Camera:WorldToViewportPoint(part.Position + part.CFrame.RightVector * partSize.X / 2).X - partPos.X
-            local halfSizeY = Camera:WorldToViewportPoint(part.Position + part.CFrame.UpVector * partSize.Y / 2).Y - partPos.Y
-            
-            box.Size = Vector2.new(halfSize * 2, halfSizeY * 2)
-            box.Position = Vector2.new(partPos.X - halfSize, partPos.Y - halfSizeY)
+            local halfSizeX = partSize.X / 2
+            local halfSizeY = partSize.Y / 2
+
+            local corners = {
+                Camera:WorldToViewportPoint(part.Position + part.CFrame.RightVector * halfSizeX + part.CFrame.UpVector * halfSizeY),
+                Camera:WorldToViewportPoint(part.Position + part.CFrame.RightVector * halfSizeX - part.CFrame.UpVector * halfSizeY),
+                Camera:WorldToViewportPoint(part.Position - part.CFrame.RightVector * halfSizeX - part.CFrame.UpVector * halfSizeY),
+                Camera:WorldToViewportPoint(part.Position - part.CFrame.RightVector * halfSizeX + part.CFrame.UpVector * halfSizeY)
+            }
+
+            box.PointA = Vector2.new(corners[1].X, corners[1].Y)
+            box.PointB = Vector2.new(corners[2].X, corners[2].Y)
+            box.PointC = Vector2.new(corners[3].X, corners[3].Y)
+            box.PointD = Vector2.new(corners[4].X, corners[4].Y)
             box.Visible = true
         else
             box.Visible = false
@@ -162,7 +171,7 @@ local function createBillboardGui(core, color, name)
     local bill = Instance.new("BillboardGui")
     bill.Parent = game.CoreGui
     bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 200, 0, 60)
+    bill.Size = UDim2.new(0, 150, 0, 40)
     bill.Adornee = core
     bill.MaxDistance = 2000
 
@@ -170,9 +179,7 @@ local function createBillboardGui(core, color, name)
     background.AnchorPoint = Vector2.new(0.5, 0.5)
     background.BackgroundColor3 = color
     background.Size = UDim2.new(0, 120, 0, 30)
-    background.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", background).CornerRadius = UDim.new(0.1, 0)
-    Instance.new("UIStroke", background).ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    background.Position = UDim2.new(0.5, 0, 0, 0)
 
     local textLabel = Instance.new("TextLabel", bill)
     textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -182,8 +189,8 @@ local function createBillboardGui(core, color, name)
     textLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
     textLabel.Text = name
     textLabel.TextStrokeTransparency = 0.3
-    textLabel.TextSize = 20
-    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.TextSize = 18
+    textLabel.Font = Enum.Font.Oswald
 
     return bill
 end
@@ -268,6 +275,29 @@ function esp(what, color, core, name, enableTracer)
             if not highlight.Adornee or not highlight:IsDescendantOf(workspace) then
                 highlight:Destroy()
             end
+        end
+
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
+    end
+
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    local ret = {}
+    ret.delete = function()
+        for _, box in ipairs(boxes) do
+            box:Remove()
+        end
+
+        for _, highlight in ipairs(highlights) do
+            highlight:Destroy()
         end
 
         if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
