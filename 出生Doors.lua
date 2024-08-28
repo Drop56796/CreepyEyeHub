@@ -539,59 +539,44 @@ local Enity = window_esp:AddToggle({
 })
 
 local DE = window_esp:AddToggle({
-    Name = "Door ESP with Lock Detection",
-    Value = false,
-    Callback = function(state)
-        if state then
+	Name = "Door esp",
+	Value = false,
+	Callback = function(state)
+	if state then
             _G.doorESPInstances = {}
             flags.espdoors = state
-            local doorCounter = 0
-
-            local function isLocked(door)
-                -- Example: Check if the door has a Lock object or if an attribute like "IsLocked" exists and is true.
-                local lock = door:FindFirstChild("Lock")  -- You might need to adjust the name
-                if lock then
-                    return true
-                end
+            local doorCounter = 0  -- Initialize a counter for the doors
                 
-                local isLockedAttr = door:FindFirstChild("Lock")
-                if isLockedAttr and isLockedAttr.Value == true then
-                    return true
-                end
-                
-                return false
-            end
-
             local function setup(room)
-                local door = room:WaitForChild("Door")
+                local door = room:WaitForChild("Door") -- Directly get the Door object
+                
                 task.wait(0.1)
-
+                
+                -- Increment the door counter and format it as a four-digit number starting from 0001
                 doorCounter = doorCounter + 1
                 local doorIndex = string.format("%04d", doorCounter)
-
-                local color = isLocked(door) and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(90, 255, 40)
-                local lockStatus = isLocked(door) and "Locked" or "Unlocked"
                 
-                local h = esp(door, color, door, "Door [" .. doorIndex .. "] - " .. lockStatus)
+                -- Set up ESP with the door index in the format "Door [0001]"
+                local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "]")
                 table.insert(esptable.doors, h)
-
+                
                 door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
                     h.delete()
                 end)
-
+                
                 door.AncestryChanged:Connect(function()
                     h.delete()
                 end)
             end
-
+            
             local addconnect
             addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
                 setup(room)
             end)
-
+            
             for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
                 if room:FindFirstChild("Assets") then
-                    setup(room)
+                    setup(room) 
                 end
             end
 
