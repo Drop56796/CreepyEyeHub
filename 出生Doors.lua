@@ -8,6 +8,9 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
+local CF = CFrame.new
+local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
+local ChaseStart = game:GetService("ReplicatedStorage").GameData.ChaseStart
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -60,7 +63,9 @@ local flags = {
     getcode = false,
     itemaura = false,
     error = false,
-    noa90 = false
+    noa90 = false,
+    Antiscreech = false,
+    Winhb = false
 }
 local esptable = {
         entity = {},
@@ -2141,3 +2146,37 @@ function stopAutoA1000()
         autoA1000Coroutine = nil
     end
 end
+
+local old
+old = hookmetamethod(game,"__namecall",function(self,...)
+    local args = {...}
+    local method = getnamecallmethod()
+    
+    if tostring(self) == 'Screech' and method == "FireServer" and flags.Antiscreech then
+        args[1] = true
+        return old(self,unpack(args))
+    end
+    if tostring(self) == 'ClutchHeartbeat' and method == "FireServer" and flags.Winhb then
+        args[2] = true
+        return old(self,unpack(args))
+    end
+    
+    return old(self,...)
+end)
+
+
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Anti Screech (+Remove)",
+    Value = false,
+    Callback = function(state)
+        flags.Antiscreech = state
+    end
+})
+
+local PlayerESP_Toggle = window_remove:AddToggle({
+    Name = "Win heartbeat",
+    Value = false,
+    Callback = function(state)
+        flags.Winhb = state
+    end
+})
