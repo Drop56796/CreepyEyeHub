@@ -2225,7 +2225,7 @@ local notimothybtn = window_remove:AddToggle({
 	end
 })
 buttons.notimothy = notimothybtn
-local noscreechbtn = window_entities:AddToggle({
+local noscreechbtn = window_remove:AddToggle({
 	Name = "Remove Screech Damage",
 	Value = false,
 	Callback = function(val, oldval)
