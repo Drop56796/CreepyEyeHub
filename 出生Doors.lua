@@ -548,23 +548,32 @@ local DE = window_esp:AddToggle({
 			local doorCounter = 0  -- Initialize a counter for the doors
 
 			local function setup(room)
-				local door = room:WaitForChild("Door") -- Directly get the Door object
+				-- Ensure room is fully loaded before proceeding
+				local door = room:WaitForChild("Door", 5) -- Wait for 5 seconds max for the Door to appear
+				if not door then return end -- If no door, skip this room
 
-				task.wait(0.1)
+				task.wait(0.1) -- Short delay to ensure all children are loaded
 
 				-- Increment the door counter and format it as a four-digit number starting from 0001
 				doorCounter = doorCounter + 1
 				local doorIndex = string.format("%04d", doorCounter)
 
-				-- Check if the door has a Lock object to determine if it's Locked or Unlocked
-				local doorStatus = "Unlocked"
-				if door:FindFirstChild("Lock") then
-					doorStatus = "Locked"
+				-- Function to update the ESP label with the correct lock status
+				local function updateESP()
+					local doorStatus = door:FindFirstChild("Lock") and "Locked" or "Unlocked"
+					return "Door [" .. doorIndex .. "] - " .. doorStatus
 				end
 
-				-- Set up ESP with the door index and status (Locked/Unlocked)
-				local h = esp(door:WaitForChild("Door"), Color3.fromRGB(90, 255, 40), door, "Door [" .. doorIndex .. "] - " .. doorStatus)
+				-- Set up ESP with the initial status
+				local h = esp(door, Color3.fromRGB(260, 65, 85), door, updateESP())
 				table.insert(esptable.doors, h)
+
+				-- Update ESP dynamically if lock status changes or door opens
+				if door:FindFirstChild("Lock") then
+					door.Lock.AncestryChanged:Connect(function()
+						h.updateLabel(updateESP())
+					end)
+				end
 
 				door:WaitForChild("Door"):WaitForChild("Open").Played:Connect(function()
 					h.delete()
