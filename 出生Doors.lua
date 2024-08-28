@@ -11,6 +11,8 @@ local rootPart = char:WaitForChild("HumanoidRootPart")
 local CF = CFrame.new
 local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
 local ChaseStart = game:GetService("ReplicatedStorage").GameData.ChaseStart
+local SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
+local ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -44,7 +46,10 @@ local buttons = {
     tpwalktoggle = nil,  -- TP Walk 开关按钮
     tpwalkspeed = nil,   -- TP Walk 速度滑块
     camfov = nil,   -- FOV 滑块
-    noclip = nil
+    noclip = nil,
+    noseek = nil,
+    notimothy = nil,
+    noscreech = nil
 }
 
 local flags = {
@@ -65,7 +70,9 @@ local flags = {
     error = false,
     noa90 = false,
     Antiscreech = false,
-    Winhb = false
+    Winhb = false,
+    noseek = false,
+    notimothy = false
 }
 local esptable = {
         entity = {},
@@ -2180,3 +2187,56 @@ local PlayerESP_Toggle = window_remove:AddToggle({
         flags.Winhb = state
     end
 })
+
+local noseekbtn = window_remove:AddToggle({
+	Name = "Remove Seek chase",
+	Value = false,
+	Callback = function(val, oldval)
+		flags.noseek = val
+
+		if val then
+			local addconnect
+			addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+				local trigger = room:WaitForChild("TriggerEventCollision",2)
+
+				if trigger then
+					trigger:Destroy() 
+				end
+			end)
+
+			repeat task.wait() or not flags.noseek
+			addconnect:Disconnect()
+		end
+	end
+})
+buttons.noseek = noseekbtn
+local notimothybtn = window_remove:AddToggle({
+	Name = "Remove Timothy Jumpscare",
+	Value = false,
+	Callback = function(val, oldval)
+		flags.notimothy = val
+
+		if val then
+			if not SpiderJumpscareModule then SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare") end
+			SpiderJumpscareModule.Parent = nil
+		else
+			SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+		end
+	end
+})
+buttons.notimothy = notimothybtn
+local noscreechbtn = window_entities:AddToggle({
+	Name = "Remove Screech Damage",
+	Value = false,
+	Callback = function(val, oldval)
+		flags.noscreech = val
+
+		if val then
+			if not ScreechModule then ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech") end
+			ScreechModule.Parent = nil
+		else
+			ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+		end
+	end
+})
+buttons.noscreech = noscreechbtn	
