@@ -8,11 +8,6 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
-local CF = CFrame.new
-local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom
-local ChaseStart = game:GetService("ReplicatedStorage").GameData.ChaseStart
-local SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
-local ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -47,9 +42,9 @@ local buttons = {
     tpwalkspeed = nil,   -- TP Walk 速度滑块
     camfov = nil,   -- FOV 滑块
     noclip = nil,
-    noseek = nil,
+    noscreech = nil,
     notimothy = nil,
-    noscreech = nil
+    noseek = nil
 }
 
 local flags = {
@@ -69,10 +64,9 @@ local flags = {
     itemaura = false,
     error = false,
     noa90 = false,
-    Antiscreech = false,
-    Winhb = false,
-    noseek = false,
-    notimothy = false
+    noscreech = false,
+    notimothy = false,
+    noseek = false
 }
 local esptable = {
         entity = {},
@@ -2154,89 +2148,68 @@ function stopAutoA1000()
     end
 end
 
-local old
-old = hookmetamethod(game,"__namecall",function(self,...)
-    local args = {...}
-    local method = getnamecallmethod()
-    
-    if tostring(self) == 'Screech' and method == "FireServer" and flags.Antiscreech then
-        args[1] = true
-        return old(self,unpack(args))
-    end
-    if tostring(self) == 'ClutchHeartbeat' and method == "FireServer" and flags.Winhb then
-        args[2] = true
-        return old(self,unpack(args))
-    end
-    
-    return old(self,...)
-end)
 
-
-local PlayerESP_Toggle = window_remove:AddToggle({
-    Name = "Anti Screech (+Remove)",
-    Value = false,
-    Callback = function(state)
-        flags.Antiscreech = state
-    end
-})
-
-local PlayerESP_Toggle = window_remove:AddToggle({
-    Name = "Win heartbeat",
-    Value = false,
-    Callback = function(state)
-        flags.Winhb = state
-    end
-})
-
+-- 添加一个 Toggle 按钮
 local noseekbtn = window_remove:AddToggle({
-	Name = "Remove Seek chase",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.noseek = val
+    Name = "Disable Seek chase",
+    Value = false,
+    Callback = function(val, oldval)
+        flags.noseek = val  -- 直接设置 flags.noseek 的值
 
-		if val then
-			local addconnect
-			addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-				local trigger = room:WaitForChild("TriggerEventCollision",2)
+        if flags.noseek then
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                local trigger = room:WaitForChild("TriggerEventCollision", 2)
 
-				if trigger then
-					trigger:Destroy() 
-				end
-			end)
+                if trigger then
+                    trigger:Destroy()
+                end
+            end)
 
-			repeat task.wait() or not flags.noseek
-			addconnect:Disconnect()
-		end
-	end
+            -- 等待直到 noseek 被关闭，然后断开连接
+            repeat task.wait() until not flags.noseek
+            addconnect:Disconnect()
+        end
+    end
 })
+
 buttons.noseek = noseekbtn
+
+-- 初始化 SpiderJumpscareModule 变量
+local SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
+
+-- 添加一个 Toggle 按钮
 local notimothybtn = window_remove:AddToggle({
-	Name = "Remove Timothy Jumpscare",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.notimothy = val
+    Name = "No Timothy (Spider) Jumpscare",
+    Value = false,
+    Callback = function(val, oldval)
+        flags.notimothy = val  -- 设置 flags.notimothy 的值
 
-		if val then
-			if not SpiderJumpscareModule then SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare") end
-			SpiderJumpscareModule.Parent = nil
-		else
-			SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-		end
-	end
+        if flags.notimothy then
+            SpiderJumpscareModule.Parent = nil  -- 移除 SpiderJumpscareModule
+        else
+            SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules  -- 恢复 SpiderJumpscareModule
+        end
+    end
 })
+
 buttons.notimothy = notimothybtn
-local noscreechbtn = window_remove:AddToggle({
-	Name = "Remove Screech Damage",
-	Value = false,
-	Callback = function(val, oldval)
-		flags.noscreech = val
+-- 初始化 ScreechModule 变量
+local ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
 
-		if val then
-			if not ScreechModule then ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech") end
-			ScreechModule.Parent = nil
-		else
-			ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-		end
-	end
+-- 添加一个 Toggle 按钮
+local noscreechbtn = window_remove:AddToggle({
+    Name = "Remove Screech",
+    Value = false,
+    Callback = function(val, oldval)
+        flags.noscreech = val  -- 设置 flags.noscreech 的值
+
+        if flags.noscreech then
+            ScreechModule.Parent = nil  -- 移除 ScreechModule
+        else
+            ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules  -- 恢复 ScreechModule
+        end
+    end
 })
-buttons.noscreech = noscreechbtn	
+
+buttons.noscreech = noscreechbtn
