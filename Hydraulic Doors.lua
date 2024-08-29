@@ -280,7 +280,10 @@ local flags = {
     error = false,
     noa90 = false,
     noseek = false,
-    esploc = false
+    esploc = false,
+    r1 = false,
+    r2 = false,
+    r3 = false
 }
 local esptable = {
     entity = {},
@@ -327,7 +330,7 @@ local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(
 		FrameCounter = 0;
 	end;
 
-	Library:SetWatermark(('Doors  | %s fps | %s ms'):format(
+	Library:SetWatermark(('Doors | %s fps | %s ms'):format(
 		math.floor(FPS),
 		math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
 	));
@@ -464,8 +467,6 @@ task.spawn(function()
     end)
 end)
 
-
-MainGroup:AddLabel('---------------------', true)
 MainGroup:AddToggle('No Clip', {
     Text = 'No Clip',
     Default = false,
@@ -1564,37 +1565,117 @@ MainGroup:AddToggle('pe', {
     Text = 'Full bright',
     Default = false,
     Tooltip = 'Walk through walls',
-    Callback = function(state)
-        local Light = game:GetService("Lighting")
-
-        local function dofullbright()
-            Light.Ambient = Color3.new(1, 1, 1)
-            Light.ColorShift_Bottom = Color3.new(1, 1, 1)
-            Light.ColorShift_Top = Color3.new(1, 1, 1)
-        end
-
-        local function resetLighting()
-            Light.Ambient = Color3.new(0, 0, 0)
-            Light.ColorShift_Bottom = Color3.new(0, 0, 0)
-            Light.ColorShift_Top = Color3.new(0, 0, 0)
-        end
-
-        if state then
-            _G.fullBrightEnabled = true
-            task.spawn(function()
-                while _G.fullBrightEnabled do
-                    dofullbright()
-                    task.wait(0)  -- 每秒检查一次
-                end
-            end)
+    Callback = function(v)
+        if v then
+            game:GetService("Lighting").Brightness = 2
+            game:GetService("Lighting").ClockTime = 14
+            game:GetService("Lighting").FogEnd = 100000
+            game:GetService("Lighting").GlobalShadows = false
+            game:GetService("Lighting").OutdoorAmbient = Color3.fromRGB(128, 128, 128)
         else
-            _G.fullBrightEnabled = false
-            resetLighting()
+            game:GetService("Lighting").Brightness = 3
+            game:GetService("Lighting").ClockTime = 20
+            game:GetService("Lighting").FogEnd = 1.1111111533265e+16
+            game:GetService("Lighting").GlobalShadows = true
+            game:GetService("Lighting").OutdoorAmbient = Color3.fromRGB(0.5, 0.5, 0.5)
+        end		
+    end
+})
+
+MainGroup:AddLabel('---------------------')
+MainGroup:AddToggle('pe', {
+    Text = 'Remove Light [Anti Lag]',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(v)
+        flags.r1 = state	
+    end
+})
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        if flags.r1 then
+            local latestRoomNumber = tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)
+            local latestRoom = game.workspace.CurrentRooms:FindFirstChild(latestRoomNumber)
+            
+            if latestRoom then
+                local assets = latestRoom:FindFirstChild("Assets")
+                
+                if assets then
+                    -- 尝试销毁吊灯
+                    local chandelier = assets:FindFirstChild("Chandelier")
+                    if chandelier then
+                        chandelier:Destroy()
+                    end
+
+                    -- 尝试销毁灯具
+                    local lightFixtures = assets:FindFirstChild("Light_Fixtures")
+                    if lightFixtures then
+                        lightFixtures:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+end)
+
+MainGroup:AddToggle('pe', {
+    Text = 'Remove Gate',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(v)
+        flags.r2 = state
+        
+        -- 当 Gates 为 true 时，运行 RenderStepped 事件
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if flags.r2 then
+                        local latestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                        local currentRoom = game.workspace.CurrentRooms[tostring(latestRoom)]
+                        
+                        -- 销毁 Gate 对象
+                        if currentRoom:FindFirstChild("Gate") then
+                            currentRoom.Gate:Destroy()
+                        end
+                    end
+                end)
+            end)
         end
     end
 })
 
+MainGroup:AddToggle('pe', {
+    Text = 'Remove Seek Arm / Fire',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(v)
+	flags.r3 = state
+	
+        if state then
+            game:GetService("RunService").RenderStepped:Connect(function()
+                pcall(function()
+                    if flags.r3 then
+                        local latestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                        local currentRoom = game.workspace.CurrentRooms[tostring(latestRoom)]
+                        local assets = currentRoom:WaitForChild("Assets")
 
+                        -- 销毁 ChandelierObstruction 和 Seek_Arm
+                        if assets:FindFirstChild("ChandelierObstruction") then
+                            assets.ChandelierObstruction:Destroy()
+                        end
+
+                        for i = 1, 15 do
+                            if assets:FindFirstChild("Seek_Arm") then
+                                assets.Seek_Arm:Destroy()
+                            end
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
 
 RightGroup:AddLabel('---------------------')
 RightGroup:AddToggle('pe', {
