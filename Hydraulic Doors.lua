@@ -111,7 +111,7 @@ local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(
 		FrameCounter = 0;
 	end;
 
-	Library:SetWatermark(('Doors ' .. v ' | %s fps | %s ms'):format(
+	Library:SetWatermark(('Doors  | %s fps | %s ms'):format(
 		math.floor(FPS),
 		math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
 	));
@@ -178,7 +178,7 @@ MainGroup:AddSlider('Speed', {
 	Compact = false,
 
 	Callback = function(val)
-		flags.tpwalkspeed = val
+	flags.tpwalkspeed = val
         if flags.tpwalktoggle then
             game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = val  -- Directly set WalkSpeed if toggle is on
         end
