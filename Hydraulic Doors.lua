@@ -93,7 +93,6 @@ local Tabs = {
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
-local OtherGroup = Tabs.Other:AddLeftGroupbox('Other Hub')
 local RightGroup = Tabs.Main:AddRightGroupbox('esp')
 
 Library:SetWatermarkVisibility(true)
