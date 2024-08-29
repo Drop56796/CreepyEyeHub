@@ -122,53 +122,54 @@ local function createBoxAdornment(part, color)
     local box = Instance.new("BoxHandleAdornment")
     box.Size = part.Size
     box.AlwaysOnTop = true
-    box.ZIndex = 10
+    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
     box.AdornCullingMode = Enum.AdornCullingMode.Never
     box.Color3 = color
-    box.Transparency = 0.5
-    box.LineThickness = 0.1  -- 自定义边框厚度
+    box.Transparency = 0.9178
     box.Adornee = part
     box.Parent = game.CoreGui
     return box
 end
-
+    
+-- 创建 Highlight 实例
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
     highlight.Adornee = part
     highlight.FillColor = color
     highlight.OutlineColor = color
-    highlight.OutlineTransparency = 0.3  -- 更透明的轮廓
-    highlight.FillTransparency = 0.4  -- 更透明的填充
+    highlight.OutlineTransparency = 0.5
+    highlight.FillTransparency = 0.5
     highlight.Parent = part
     return highlight
 end
 
+-- 创建 BillboardGui 实例
 local function createBillboardGui(core, color, name)
     local bill = Instance.new("BillboardGui", game.CoreGui)
     bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 150, 0, 75)  -- 自定义大小
+    bill.Size = UDim2.new(0, 100, 0, 50)
     bill.Adornee = core
     bill.MaxDistance = 2000
 
     local mid = Instance.new("Frame", bill)
     mid.AnchorPoint = Vector2.new(0.5, 0.5)
     mid.BackgroundColor3 = color
-    mid.Size = UDim2.new(0, 12, 0, 12)  -- 自定义尺寸
+    mid.Size = UDim2.new(0, 8, 0, 8)
     mid.Position = UDim2.new(0.5, 0, 0.5, 0)
     Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-    local gradient = Instance.new("UIGradient", mid)  -- 添加渐变色
-    gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, color), ColorSequenceKeypoint.new(1, color:Lerp(Color3.new(1,1,1), 0.5))})
+    Instance.new("UIStroke", mid)
 
     local txt = Instance.new("TextLabel", bill)
     txt.AnchorPoint = Vector2.new(0.5, 0.5)
     txt.BackgroundTransparency = 1
+    txt.BackgroundColor3 = color
     txt.TextColor3 = color
-    txt.Size = UDim2.new(1, 0, 0, 30)
-    txt.Position = UDim2.new(0.5, 0, 0.5, 0)
+    txt.Size = UDim2.new(1, 0, 0, 20)
+    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
     txt.Text = name
-    txt.TextStrokeTransparency = 0.3  -- 更清晰的文本边缘
-    txt.TextSize = 24
-    txt.Font = Enum.Font.Oswald -- 自定义字体
+    txt.TextStrokeTransparency = 0.5
+    txt.TextSize = 18
+    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
