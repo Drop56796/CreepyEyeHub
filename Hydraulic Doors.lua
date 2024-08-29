@@ -960,7 +960,7 @@ RightGroup:AddToggle('pe', {
 })
 
 RightGroup:AddToggle('No Clip', {
-    Text = 'No Clip',
+    Text = 'Lever esp',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
