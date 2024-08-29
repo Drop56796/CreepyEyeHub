@@ -88,12 +88,11 @@ local Window = Library:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab('Main'),
+    Main = Window:AddTab('Main'),   
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
-local OtherGroup = Tabs.Other:AddLeftGroupbox('Other Hub')
 local RightGroup = Tabs.Main:AddRightGroupbox('esp')
 
 Library:SetWatermarkVisibility(true)
