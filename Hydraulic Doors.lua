@@ -38,6 +38,222 @@ end
 
 ----- 示例调用 NewNotify 函数
 --newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
+local Camera = game:GetService("Workspace").CurrentCamera
+
+local function createBoxAdornment(part, color)
+    local box = Instance.new("BoxHandleAdornment")
+    box.Size = part.Size
+    box.AlwaysOnTop = true
+    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
+    box.AdornCullingMode = Enum.AdornCullingMode.Never
+    box.Color3 = color
+    box.Transparency = 0.9178
+    box.Adornee = part
+    box.Parent = game.CoreGui
+    return box
+end
+    
+-- 创建 Highlight 实例
+local function createHighlight(part, color)
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = part
+    highlight.FillColor = color
+    highlight.OutlineColor = color
+    highlight.OutlineTransparency = 0.5
+    highlight.FillTransparency = 0.5
+    highlight.Parent = part
+    return highlight
+end
+
+-- 创建 BillboardGui 实例
+local function createBillboardGui(core, color, name)
+    local bill = Instance.new("BillboardGui", game.CoreGui)
+    bill.AlwaysOnTop = true
+    bill.Size = UDim2.new(0, 100, 0, 50)
+    bill.Adornee = core
+    bill.MaxDistance = 2000
+
+    local mid = Instance.new("Frame", bill)
+    mid.AnchorPoint = Vector2.new(0.5, 0.5)
+    mid.BackgroundColor3 = color
+    mid.Size = UDim2.new(0, 8, 0, 8)
+    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", mid)
+
+    local txt = Instance.new("TextLabel", bill)
+    txt.AnchorPoint = Vector2.new(0.5, 0.5)
+    txt.BackgroundTransparency = 1
+    txt.BackgroundColor3 = color
+    txt.TextColor3 = color
+    txt.Size = UDim2.new(1, 0, 0, 20)
+    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+    txt.Text = name
+    txt.TextStrokeTransparency = 0.5
+    txt.TextSize = 18
+    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
+    Instance.new("UIStroke", txt)
+
+    return bill
+end
+
+-- 创建追踪线实例
+local function createTracer(target, color)
+    local line = Drawing.new("Line")
+    line.Color = color
+    line.Thickness = 2
+    line.Transparency = 1
+
+    local function updateTracer()
+        if target and target:IsDescendantOf(workspace) then
+            local targetPos = Camera:WorldToViewportPoint(target.Position)
+            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- 从屏幕中心底部开始
+
+            line.From = screenPos
+            line.To = Vector2.new(targetPos.X, targetPos.Y)
+            line.Visible = true
+        else
+            line.Visible = false
+        end
+    end
+
+    RunService.RenderStepped:Connect(updateTracer)
+
+    return line
+end
+
+-- 主 ESP 函数
+function esp(what, color, core, name, enableTracer)
+    -- 检查是否传入 enableTracer 参数，如果未传入，则默认为 false
+    if enableTracer == nil then
+        enableTracer = false
+    end
+
+    local parts = {}
+    if typeof(what) == "Instance" then
+        if what:IsA("Model") then
+            for _, v in ipairs(what:GetChildren()) do
+                if v:IsA("BasePart") then
+                    table.insert(parts, v)
+                end
+            end
+        elseif what:IsA("BasePart") then
+            table.insert(parts, what)
+        end
+    elseif typeof(what) == "table" then
+        for _, v in ipairs(what) do
+            if v:IsA("BasePart") then
+                table.insert(parts, v)
+            end
+        end
+    end
+
+    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
+    local boxes = {}
+    local highlights = {}
+    local tracers = {}
+
+    for _, part in ipairs(parts) do
+        local box = createBoxAdornment(part, color)
+        table.insert(boxes, box)
+        
+        local highlight = createHighlight(part, color)
+        table.insert(highlights, highlight)
+
+        -- 追踪线仅针对第一个有效部件
+        if enableTracer and #tracers == 0 then
+            local tracer = createTracer(part, color)
+            table.insert(tracers, tracer)
+        end
+    end
+
+    local bill
+    if core and name then
+        bill = createBillboardGui(core, color, name)
+    end
+
+    local function checkAndUpdate()
+        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
+        for _, box in ipairs(boxes) do
+            if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
+                box:Destroy()
+            end
+        end
+        
+        for _, highlight in ipairs(highlights) do
+            if not highlight.Adornee or not highlight:IsDescendantOf(workspace) then
+                highlight:Destroy()
+            end
+        end
+
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
+    end
+
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    local ret = {}
+
+    ret.delete = function()
+        for _, box in ipairs(boxes) do
+            box:Destroy()
+        end
+        
+        for _, highlight in ipairs(highlights) do
+            highlight:Destroy()
+        end
+
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
+    end
+
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    local ret = {}
+
+    ret.delete = function()
+        for _, box in ipairs(boxes) do
+            box:Destroy()
+        end
+        
+        for _, highlight in ipairs(highlights) do
+            highlight:Destroy()
+        end
+
+        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+            bill:Destroy()
+        end
+
+        -- 检查 Tracer 是否需要更新
+        for _, tracer in ipairs(tracers) do
+            if not tracer or not tracer.Visible then
+                tracer:Remove()
+            end
+        end
+    end
+
+    RunService.Stepped:Connect(checkAndUpdate)
+
+    return ret
+end
+
+
 local buttons = {
     tpwalktoggle = nil,  -- TP Walk 开关按钮
     tpwalkspeed = nil,   -- TP Walk 速度滑块
@@ -199,6 +415,14 @@ MainGroup:AddToggle('ToggleSpeed', {
     end
 })
 buttons.tpwalktoggle = tpwalktglbtn
+
+-- Create a loop using RunService to enforce WalkSpeed
+RunService.RenderStepped:Connect(function()
+    if flags.tpwalktoggle then
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Enforce the selected WalkSpeed
+    end
+end)
+
 MainGroup:AddSlider('fov', {
 	Text = 'FOV',
 	Default = 70,
@@ -463,8 +687,8 @@ MainGroup:AddToggle('pe', {
     end
 })
 
-MainGroup:AddLabel('---------------------')
-MainGroup:AddToggle('pe', {
+RightGroup:AddLabel('---------------------')
+RightGroup:AddToggle('pe', {
     Text = 'Enity Event',
     Default = false,
     Tooltip = 'Walk through walls',
