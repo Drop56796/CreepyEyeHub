@@ -78,7 +78,7 @@ local esptable = {
 }
 
 local Window = Library:CreateWindow({
-    Title = 'Hydraulic Doors' .. v,
+    Title = 'Hydraulic Doors v' .. v,
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -170,7 +170,7 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 SaveManager:LoadAutoloadConfig()
 
 local RunService = game:GetService("RunService")
-LeftGroupBox:AddSlider('Speed', {
+MainGroup:AddSlider('Speed', {
 	Text = 'Speed',
 	Default = 20,
 	Min = 20,
