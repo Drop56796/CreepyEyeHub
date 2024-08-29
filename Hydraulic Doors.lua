@@ -385,6 +385,7 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 SaveManager:LoadAutoloadConfig()
 
 local RunService = game:GetService("RunService")
+MainGroup:AddLabel('---------------------', true)
 MainGroup:AddSlider('Speed', {
 	Text = 'Speed',
 	Default = 20,
@@ -494,6 +495,446 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
+MainGroup:AddLabel('---------------------', true)
+MainGroup:AddToggle('No Clip', {
+    Text = 'Chestbox / Drawers aura',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            -- open
+            autoInteract = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "DrawerContainer" then
+                            prompt = descendant:WaitForChild("Knobs"):WaitForChild("ActivateEventPrompt")
+                        elseif descendant.Name:sub(1, 8) == "ChestBox" or descendant.Name == "RolltopContainer" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            autoInteract = false
+        end
+    end
+})
+local function handlePrompt(prompt)
+    local interactions = prompt:GetAttribute("Interactions")
+    if not interactions then
+        task.spawn(function()
+            while flags.itemaura and not prompt:GetAttribute("Interactions") do
+                task.wait(0.1)
+                if game.Players.LocalPlayer:DistanceFromCharacter(prompt.Parent.PrimaryPart.Position) <= 12 then
+                    fireproximityprompt(prompt)
+                end
+            end
+        end)
+    end
+end
+
+-- Function to check items and handle prompts
+local function check(v)
+    if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
+        task.wait(0.1)
+        local part = v:FindFirstChild("Handle") or v:FindFirstChild("Prop")
+        if part then
+            -- Check if the item has a ModulePrompt
+            local prompt = v:FindFirstChild("ModulePrompt")
+            if prompt then
+                handlePrompt(prompt)
+            end
+        end
+    end
+end
+
+-- Function to setup items in a room
+local function setup(room)
+    local assets = room:WaitForChild("Assets")
+    
+    if assets then  
+        local subaddcon
+        subaddcon = assets.DescendantAdded:Connect(function(v)
+            check(v)
+        end)
+        
+        for _, v in pairs(assets:GetDescendants()) do
+            check(v)
+        end
+        
+        -- Manage the disconnect when item aura is turned off
+        return subaddcon
+    end
+end
+
+-- Function to start room detection
+local function startRoomDetection()
+    -- Connect to detect new rooms being added
+    local roomAddedConnection
+    roomAddedConnection = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+        if flags.itemaura then
+            setup(room)
+        end
+    end)
+    
+    -- Setup existing rooms
+    for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+        if room:FindFirstChild("Assets") then
+            setup(room)
+        end
+    end
+    
+    -- Return the connection to manage its lifecycle
+    return roomAddedConnection
+end
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Item aura',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.itemaura = state  
+        
+        if flags.itemaura then
+            -- Start room detection
+            local roomAddedConnection = startRoomDetection()
+            
+            -- Manage disconnection when item aura is turned off
+            task.spawn(function()
+                repeat task.wait() until not flags.itemaura
+                roomAddedConnection:Disconnect()
+            end)
+        else
+            -- Stop room detection
+            if roomAddedConnection then
+                roomAddedConnection:Disconnect()
+            end
+            -- Clear or reset any related data here if needed
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Gold aura',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            -- open
+            autoInteract = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "GoldPile" then
+                            prompt = descendant:WaitForChild("LootPrompt")
+                        end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            autoInteract = false
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Book / Breaker aura',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            -- open
+            Bookaura = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LiveBreakerPolePickup" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			elseif descendant.Name == "LiveHintBook" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LiveBreakerPolePickup" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			elseif descendant.Name == "LiveHintBook" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            Bookaura = false
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Lever aura',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            -- open
+            Leveraura = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LeverForGate" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "LeverForGate" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            Leveraura = false
+        end
+    end
+})
+MainGroup:AddLabel('---------------------', true)
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Nil A60',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.error = state -- 更新 flag 为当前 state
+        
+        if flags.error then
+            if LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("A90") then
+                LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules.A90.Name = "lol"
+	    end
+        end
+    end
+})
+MainGroup:AddToggle('No Clip', {
+    Text = 'Destory A60',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.noa90 = state -- 更新 flag 为当前 state
+        
+        if flags.noa90 then
+            local A90 = game.ReplicatedStorage.RemotesFolder:FindFirstChild("A90")
+            if A90 then
+                -- 当 noa90 为 true 且 A90 存在时，删除 A90
+                A90:Destroy()
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Cancel SeekChase',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(val, oldval)
+        flags.noseek = val  -- 直接设置 flags.noseek 的值
+
+        if flags.noseek then
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                local trigger = room:WaitForChild("TriggerEventCollision", 2)
+
+                if trigger then
+                    trigger:Destroy()
+                end
+            end)
+
+            -- 等待直到 noseek 被关闭，然后断开连接
+            repeat task.wait() until not flags.noseek
+            addconnect:Disconnect()
+        end
+    end
+})
+buttons.noseek = noseekbtn
+
 RightGroup:AddToggle('pe', {
     Text = 'Player esp',
     Default = false,
@@ -518,6 +959,133 @@ RightGroup:AddToggle('pe', {
     end
 })
 
+RightGroup:AddToggle('No Clip', {
+    Text = 'No Clip',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            _G.locESPInstances = {}
+	    flags.esploc = state
+
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "LeverForGate" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(25, 55, 5), v.PrimaryPart, "Lever")
+                        table.insert(esptable.lockers, h)
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.locESPInstances, esptable)
+
+	else
+            if _G.locESPInstances then
+                for _, instance in pairs(_G.locESPInstances) do
+                    for _, v in pairs(instance.loc) do
+                        v.delete()
+                    end
+                end
+                _G.locESPInstances = nil
+            end
+        end
+    end
+})
+
+RightGroup:AddToggle('pe', {
+    Text = 'Closet / Locker esp',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            _G.lockerESPInstances = {}
+	    flags.esplocker = state
+	    local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "Wardrobe" then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
+                        table.insert(esptable.lockers, h) 
+                    elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Locker")
+                        table.insert(esptable.lockers, h) 
+                    end
+                end
+            end
+                
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+                
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v) 
+                    end)
+                    
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+                    
+                    task.spawn(function()
+                        repeat task.wait() until not flags.esplocker
+                        subaddcon:Disconnect()  
+                    end) 
+                end 
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room) 
+            end
+
+            table.insert(_G.lockerESPInstances, esptable)
+
+	else
+            if _G.lockerESPInstances then
+                for _, instance in pairs(_G.lockerESPInstances) do
+                    for _, v in pairs(instance.lockers) do
+                        v.delete()
+                    end
+                end
+                _G.lockerESPInstances = nil
+            end
+        end
+    end
+})
 RightGroup:AddToggle('ee', {
     Text = 'enity esp',
     Default = false,
