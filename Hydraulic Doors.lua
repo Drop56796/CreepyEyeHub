@@ -259,7 +259,9 @@ local buttons = {
     tpwalkspeed = nil,   -- TP Walk 速度滑块
     camfov = nil,   -- FOV 滑块
     noclip = nil,
-    noseek = nil
+    noseek = nil,
+    notimothy = nil,
+    noscreech = nil
 }
 
 local flags = {
@@ -283,7 +285,9 @@ local flags = {
     esploc = false,
     r1 = false,
     r2 = false,
-    r3 = false
+    r3 = false,
+    notimothy = false
+    noscreech = false
 }
 local esptable = {
     entity = {},
@@ -1696,7 +1700,40 @@ MainGroup:AddToggle('pe', {
         end
     end
 })
+local ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
+MainGroup:AddToggle('pe', {
+    Text = 'Nil Screech',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(v)
+	flags.noscreech = val
 
+		if val then
+			if not ScreechModule then ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech") end
+			ScreechModule.Parent = nil
+		else
+			ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+		end
+	end
+})
+buttons.noscreech = noscreechbtn
+local SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
+MainGroup:AddToggle('pe', {
+    Text = 'Nil Spider Jumpscare',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(v)
+	flags.notimothy = val
+
+		if val then
+			if not SpiderJumpscareModule then SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare") end
+			SpiderJumpscareModule.Parent = nil
+		else
+			SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
+		end
+	end
+})
+buttons.notimothy = notimothybtn
 RightGroup:AddLabel('---------------------')
 RightGroup:AddToggle('pe', {
     Text = 'Enity Event',
