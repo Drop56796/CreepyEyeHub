@@ -291,7 +291,8 @@ local flags = {
     sj = false,
     sc = false,
     sd = false,
-    eyes = false
+    eyes = false,
+    thirdPerson = false
 }
 local esptable = {
     entity = {},
@@ -511,15 +512,13 @@ MainGroup:AddToggle('Third Person View', {
     Callback = function(state)
         flags.thirdPerson = state -- 更新 flag 为当前 state
         
-        while flags.thirdPerson do
+        if flags.thirdPerson then
             local player = game.Players.LocalPlayer
             local camera = game.Workspace.CurrentCamera
             
             -- 设置第三人称视角
             camera.CameraType = Enum.CameraType.Scriptable
             camera.CFrame = player.Character.Head.CFrame * CFrame.new(0, 5, -10) -- 调整摄像机位置
-            
-            wait(1) -- 等待一秒后再次检查
         end
         
         -- 恢复默认视角
