@@ -934,7 +934,7 @@ MainGroup:AddToggle('No Clip', {
 MainGroup:AddLabel('---------------------', true)
 
 MainGroup:AddToggle('No Clip', {
-    Text = 'Nil A60',
+    Text = 'Nil A90',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
@@ -948,7 +948,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 MainGroup:AddToggle('No Clip', {
-    Text = 'Destory A60',
+    Text = 'Destory A90',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
