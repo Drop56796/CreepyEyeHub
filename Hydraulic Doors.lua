@@ -287,7 +287,9 @@ local flags = {
     r2 = false,
     r3 = false,
     notimothy = false,
-    noscreech = false
+    noscreech = false,
+    sj = false,
+    sc = false
 }
 local esptable = {
     entity = {},
@@ -955,6 +957,40 @@ MainGroup:AddToggle('No Clip', {
             if A90 then
                 -- 当 noa90 为 true 且 A90 存在时，删除 A90
                 A90:Destroy()
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Destory Spider jumpscare',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.sj = state -- 更新 flag 为当前 state
+        
+        if flags.sj then
+            local sj = game.ReplicatedStorage.RemotesFolder:FindFirstChild("SpiderJumpscare")
+            if sj then
+                -- 当 noa90 为 true 且 A90 存在时，删除 A90
+                sj:Destroy()
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Destory Screech',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.sc = state -- 更新 flag 为当前 state
+        
+        if flags.sc then
+            local sc = game.ReplicatedStorage.RemotesFolder:FindFirstChild("Screech")
+            if sc then
+                -- 当 noa90 为 true 且 A90 存在时，删除 A90
+                sc:Destroy()
             end
         end
     end
