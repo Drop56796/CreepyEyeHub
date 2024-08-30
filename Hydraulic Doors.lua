@@ -286,18 +286,18 @@ local flags = {
     r1 = false,
     r2 = false,
     r3 = false,
-    notimothy = false
+    notimothy = false,
     noscreech = false
 }
 local esptable = {
     entity = {},
-	  doors = {},
-	  lockers = {},
-	  items = {},
-	  books = {},
-	  Gold = {},
-	  key = {},
-	  loc = {}
+    doors = {},
+    lockers = {},
+    items = {},
+    books = {},
+    Gold = {},
+    key = {},
+    loc = {}
 }
 
 local Window = Library:CreateWindow({
