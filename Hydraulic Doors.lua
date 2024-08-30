@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2.1
+local v = 2.2
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -504,6 +504,33 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
+MainGroup:AddToggle('Third Person View', {
+    Text = 'Third View',
+    Default = false,
+    Tooltip = 'Switch to third person view',
+    Callback = function(state)
+        flags.thirdPerson = state -- 更新 flag 为当前 state
+        
+        while flags.thirdPerson do
+            local player = game.Players.LocalPlayer
+            local camera = game.Workspace.CurrentCamera
+            
+            -- 设置第三人称视角
+            camera.CameraType = Enum.CameraType.Scriptable
+            camera.CFrame = player.Character.Head.CFrame * CFrame.new(0, 5, -10) -- 调整摄像机位置
+            
+            wait(1) -- 等待一秒后再次检查
+        end
+        
+        -- 恢复默认视角
+        local player = game.Players.LocalPlayer
+        local camera = game.Workspace.CurrentCamera
+        camera.CameraType = Enum.CameraType.Custom
+        camera.CameraSubject = player.Character.Humanoid
+    end
+})
+
+
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddToggle('No Clip', {
     Text = 'Chestbox / Drawers aura',
