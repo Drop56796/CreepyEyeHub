@@ -570,6 +570,33 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        if flags.r1 then
+            local latestRoomNumber = tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)
+            local latestRoom = game.workspace.CurrentRooms:FindFirstChild(latestRoomNumber)
+            
+            if latestRoom then
+                local assets = latestRoom:FindFirstChild("Assets")
+                
+                if assets then
+                    -- 尝试销毁吊灯
+                    local chandelier = assets:FindFirstChild("Chandelier")
+                    if chandelier then
+                        chandelier:Destroy()
+                    end
+
+                    -- 尝试销毁灯具
+                    local lightFixtures = assets:FindFirstChild("Light_Fixtures")
+                    if lightFixtures then
+                        lightFixtures:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+end)
+
 local function handlePrompt(prompt)
     local interactions = prompt:GetAttribute("Interactions")
     if not interactions then
@@ -662,6 +689,24 @@ MainGroup:AddToggle('No Clip', {
             end
             -- Clear or reset any related data here if needed
         end
+    end
+})
+game:GetService("Workspace").CurrentRooms.DescendantAdded:Connect(function(v)
+    if not big then return end
+    if v.IsA(v,"ProximityPrompt") then
+       if big then
+        v.MaxActivationDistance = 20
+       end
+    end
+end)
+
+local big = false
+MainGroup:AddToggle('No Clip', {
+    Text = 'big Range',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        big = state
     end
 })
 
@@ -1588,42 +1633,17 @@ MainGroup:AddToggle('pe', {
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(v)
-        flags.r1 = state	
+        flags.r1 = v	
     end
 })
 
-game:GetService("RunService").RenderStepped:Connect(function()
-    pcall(function()
-        if flags.r1 then
-            local latestRoomNumber = tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)
-            local latestRoom = game.workspace.CurrentRooms:FindFirstChild(latestRoomNumber)
-            
-            if latestRoom then
-                local assets = latestRoom:FindFirstChild("Assets")
-                
-                if assets then
-                    -- 尝试销毁吊灯
-                    local chandelier = assets:FindFirstChild("Chandelier")
-                    if chandelier then
-                        chandelier:Destroy()
-                    end
 
-                    -- 尝试销毁灯具
-                    local lightFixtures = assets:FindFirstChild("Light_Fixtures")
-                    if lightFixtures then
-                        lightFixtures:Destroy()
-                    end
-                end
-            end
-        end
-    end)
-end)
 
 MainGroup:AddToggle('pe', {
     Text = 'Remove Gate',
     Default = false,
     Tooltip = 'Walk through walls',
-    Callback = function(v)
+    Callback = function(state)
         flags.r2 = state
         
         -- 当 Gates 为 true 时，运行 RenderStepped 事件
@@ -1650,9 +1670,9 @@ MainGroup:AddToggle('pe', {
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(v)
-	flags.r3 = state
+	flags.r3 = v
 	
-        if state then
+        if v then
             game:GetService("RunService").RenderStepped:Connect(function()
                 pcall(function()
                     if flags.r3 then
@@ -1729,6 +1749,71 @@ RightGroup:AddToggle('pe', {
         end
     end
 })
+
+RightGroup:AddToggle('pe', {
+    Text = 'Library Code Event',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.getcode = val
+
+		if val then
+			local function deciphercode()
+				local paper = char:FindFirstChild("LibraryHintPaper")
+				local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+
+				local code = {[1]="_",[2]="_",[3]="_",[4]="_",[5]="_"}
+
+				if paper then
+					for i,v in pairs(paper:WaitForChild("UI"):GetChildren()) do
+						if v:IsA("ImageLabel") and v.Name ~= "Image" then
+							for i,img in pairs(hints:GetChildren()) do
+								if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
+									local num = img:FindFirstChild("TextLabel").Text
+
+									code[tonumber(v.Name)] = num 
+								end
+							end
+						end
+					end 
+				end
+
+				return code
+			end
+
+			local apart
+			local addconnect
+			addconnect = char.ChildAdded:Connect(function(v)
+				if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
+					task.wait()
+					local code = table.concat(deciphercode())
+
+					if code:find("_") then
+						local code = "Code : ".. code.." "
+						Library:Notify(code)
+					else
+						if apart == nil then
+							apart = Instance.new("Part", game.ReplicatedStorage)
+							apart.CanCollide = false
+							apart.Anchored = true
+							apart.Position = game.Players.LocalPlayer.Character.PrimaryPart.Position
+							apart.Transparency = 1
+							Library:Notify(code)
+							repeat task.wait(.1) until game:GetService("ReplicatedStorage").GameData.LatestRoom.Value ~= 50
+							apart:Destroy()
+							apart = nil
+						end
+					end
+				end
+			end)
+
+			repeat task.wait() until not flags.getcode
+			addconnect:Disconnect()
+		end
+	end
+})
+
+
 
 RightGroup:AddToggle('pe', {
     Text = 'Item Event',
