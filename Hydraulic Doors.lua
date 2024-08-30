@@ -989,14 +989,11 @@ MainGroup:AddToggle('No Clip', {
         flags.eyes = state -- 更新 flag 为当前 state
         
         while flags.eyes do
-            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-            if currentRooms then
-                local eyes = currentRooms:FindFirstChild("Eyes")
-                if eyes then
-                    eyes:Destroy()
-                end
+            local eyes = game.Workspace:FindFirstChild("Eyes")
+            if eyes then
+                eyes:Destroy()
             end
-            wait(0.1)
+            wait(1) -- 等待一秒后再次检查
         end
     end
 })
