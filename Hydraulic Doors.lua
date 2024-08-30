@@ -292,7 +292,7 @@ local flags = {
     sc = false,
     sd = false,
     eyes = false,
-    thirdPerson = false
+    bypass = false
 }
 local esptable = {
     entity = {},
@@ -505,30 +505,86 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Variables to manage third-person view state
+local thirdPersonEnabled = false
+
+-- Function to toggle third-person view
+local function toggleThirdPerson(state)
+    thirdPersonEnabled = state
+    
+    if state then
+        -- Enable third-person view
+        RunService:BindToRenderStep('ThirdPersonView', Enum.RenderPriority.Camera.Value, function()
+            if character and humanoidRootPart then
+                Camera.CameraType = Enum.CameraType.Scriptable
+                -- Adjust the camera position to be higher
+                local cameraPosition = humanoidRootPart.Position - humanoidRootPart.CFrame.LookVector * 10 + Vector3.new(0, 5, 0)
+                Camera.CFrame = CFrame.new(cameraPosition, humanoidRootPart.Position)
+            end
+        end)
+    else
+        -- Disable third-person view
+        RunService:UnbindFromRenderStep('ThirdPersonView')
+        Camera.CameraType = Enum.CameraType.Custom
+    end
+end
+
+-- Integrate into MainGroup:AddToggle
 MainGroup:AddToggle('Third Person View', {
     Text = 'Third View',
     Default = false,
     Tooltip = 'Switch to third person view',
     Callback = function(state)
-        flags.thirdPerson = state -- 更新 flag 为当前 state
-        
-        if flags.thirdPerson then
-            local player = game.Players.LocalPlayer
-            local camera = game.Workspace.CurrentCamera
-            
-            -- 设置第三人称视角
-            camera.CameraType = Enum.CameraType.Scriptable
-            camera.CFrame = player.Character.Head.CFrame * CFrame.new(0, 5, -10) -- 调整摄像机位置
-        end
-        
-        -- 恢复默认视角
-        local player = game.Players.LocalPlayer
-        local camera = game.Workspace.CurrentCamera
-        camera.CameraType = Enum.CameraType.Custom
-        camera.CameraSubject = player.Character.Humanoid
+        toggleThirdPerson(state)
     end
 })
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local collision = player.Character:WaitForChild("Collision")
+local crouch = collision:WaitForChild("CollisionCrouch")
+
+-- Variables to manage state
+local oTick = tick()
+
+-- Function to toggle bypass functionality
+local function toggleBypass(state)
+    flags.bypass = state -- 更新 flag 为当前 state
+    
+    if state then
+        -- Start bypass functionality
+        RunService:BindToRenderStep('Bypass', 999, function()
+            if (tick() - oTick) >= 0.2 then
+                crouch.Massless = not crouch.Massless
+                oTick = tick()
+            end
+        end)
+    else
+        -- Disable bypass functionality
+        RunService:UnbindFromRenderStep('Bypass')
+        crouch.Massless = false  -- Reset to default state
+    end
+end
+
+-- Integrate into MainGroup:AddToggle
+MainGroup:AddToggle('Bypass', {
+    Text = 'Bypass speed Anti cheating[35%]',
+    Default = false,
+    Tooltip = 'Toggle bypass functionality',
+    Callback = function(state)
+        toggleBypass(state)
+    end
+})
 
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddToggle('No Clip', {
