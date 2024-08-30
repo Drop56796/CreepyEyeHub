@@ -290,7 +290,8 @@ local flags = {
     noscreech = false,
     sj = false,
     sc = false,
-    sd = false
+    sd = false,
+    eyes = false
 }
 local esptable = {
     entity = {},
@@ -976,6 +977,26 @@ MainGroup:AddToggle('No Clip', {
                 -- 当 noa90 为 true 且 A90 存在时，删除 A90
                 sj:Destroy()
             end
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Destroy Eyes',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.eyes = state -- 更新 flag 为当前 state
+        
+        while flags.eyes do
+            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+            if currentRooms then
+                local eyes = currentRooms:FindFirstChild("Eyes")
+                if eyes then
+                    eyes:Destroy()
+                end
+            end
+            wait(0.1)
         end
     end
 })
