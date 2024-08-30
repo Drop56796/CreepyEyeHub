@@ -1700,48 +1700,6 @@ MainGroup:AddToggle('pe', {
         end
     end
 })
-local ScreechModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("Screech")
-MainGroup:AddToggle('pe', {
-    Text = 'Nil Screech',
-    Default = false,
-    Tooltip = 'Walk through walls',
-    Callback = function(val)
-        flags.noscreech = val
-
-        if val then
-            if ScreechModule then
-                ScreechModule.Parent = nil
-            end
-        else
-            if ScreechModule then
-                ScreechModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-            end
-        end
-    end
-})
-buttons.noscreech = noscreechbtn
-
-local SpiderJumpscareModule = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules:FindFirstChild("SpiderJumpscare")
-MainGroup:AddToggle('pe', {
-    Text = 'Nil Spider Jumpscare',
-    Default = false,
-    Tooltip = 'Walk through walls',
-    Callback = function(val)
-        flags.notimothy = val
-
-        if val then
-            if SpiderJumpscareModule then
-                SpiderJumpscareModule.Parent = nil
-            end
-        else
-            if SpiderJumpscareModule then
-                SpiderJumpscareModule.Parent = plr.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Modules
-            end
-        end
-    end
-})
-buttons.notimothy = notimothybtn
-
 RightGroup:AddLabel('---------------------')
 RightGroup:AddToggle('pe', {
     Text = 'Enity Event',
