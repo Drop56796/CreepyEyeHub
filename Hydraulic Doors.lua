@@ -289,7 +289,8 @@ local flags = {
     notimothy = false,
     noscreech = false,
     sj = false,
-    sc = false
+    sc = false,
+    sd = false
 }
 local esptable = {
     entity = {},
@@ -980,17 +981,42 @@ MainGroup:AddToggle('No Clip', {
 })
 
 MainGroup:AddToggle('No Clip', {
-    Text = 'Destory Screech',
+    Text = 'Destroy Screech',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
         flags.sc = state -- 更新 flag 为当前 state
         
         if flags.sc then
-            local sc = game.ReplicatedStorage.RemotesFolder:FindFirstChild("Screech")
-            if sc then
-                -- 当 noa90 为 true 且 A90 存在时，删除 A90
-                sc:Destroy()
+            local entities = game.ReplicatedStorage.Entities
+            local remotes = game.ReplicatedStorage.RemotesFolder
+            
+            local targets = {
+                remotes:FindFirstChild("Screech"),
+                entities:FindFirstChild("ScreechRetro"),
+                entities:FindFirstChild("Screech")
+            }
+            
+            for _, target in ipairs(targets) do
+                if target then
+                    target:Destroy()
+                end
+            end
+        end
+    end
+})
+
+MainGroup:AddToggle('No Clip', {
+    Text = 'Destroy Snare',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        flags.sd = state -- 更新 flag 为当前 state
+        
+        if flags.sd then
+            local snare = game.Workspace:FindFirstChild("Snare")
+            if snare then
+                snare:Destroy()
             end
         end
     end
