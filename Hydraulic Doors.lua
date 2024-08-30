@@ -1013,7 +1013,7 @@ MainGroup:AddToggle('No Clip', {
     Callback = function(state)
         flags.sd = state -- 更新 flag 为当前 state
         
-        if flags.sd then
+        while flags.sd do
             local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
             if currentRooms then
                 for _, room in ipairs(currentRooms:GetChildren()) do
@@ -1026,6 +1026,7 @@ MainGroup:AddToggle('No Clip', {
                     end
                 end
             end
+            wait(0.1) -- 等待一秒后再次检查
         end
     end
 })
