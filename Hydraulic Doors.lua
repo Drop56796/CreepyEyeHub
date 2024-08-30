@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2
+local v = 2.1
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -1014,9 +1014,17 @@ MainGroup:AddToggle('No Clip', {
         flags.sd = state -- 更新 flag 为当前 state
         
         if flags.sd then
-            local snare = game.Workspace:FindFirstChild("Snare")
-            if snare then
-                snare:Destroy()
+            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+            if currentRooms then
+                for _, room in ipairs(currentRooms:GetChildren()) do
+                    local assets = room:FindFirstChild("Assets")
+                    if assets then
+                        local snare = assets:FindFirstChild("Snare")
+                        if snare then
+                            snare:Destroy()
+                        end
+                    end
+                end
             end
         end
     end
