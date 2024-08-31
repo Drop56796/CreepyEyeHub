@@ -10,8 +10,6 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
-local placeId = game.PlaceId
-local Place = 2440500124
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -417,7 +415,11 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 SaveManager:LoadAutoloadConfig()
 
 SaveManager:LoadAutoloadConfig()
-if placeId == Place then
+local placeId = game.PlaceId
+local mainSceneId = 6516141723
+local subSceneId = 2440500124
+
+if placeId == mainSceneId or placeId == subSceneId then
     FTGroup:AddToggle('No Clip', {
         Text = 'Destroy GiggleCeiling',
         Default = false,
