@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2.2
+local v = 2.3
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -295,7 +295,8 @@ local flags = {
     bypass = false,
     lol = false,
     simplify = false,
-    boostFPS = false
+    boostFPS = false,
+    g = false
 }
 local esptable = {
     entity = {},
@@ -318,7 +319,7 @@ local characterName = character.Name
 
 -- 创建窗口并显示角色名称
 local Window = Library:CreateWindow({
-    Title = 'Hydraulic Doors v' .. v .. 'Workspace ID: ' .. characterName,
+    Title = 'Hydraulic Doors v' .. v .. '｜hum ID: ' .. characterName,
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -411,6 +412,8 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+
+SaveManager:LoadAutoloadConfig()
 FTGroup:AddToggle('No Clip', {
     Text = 'Destroy GiggleCeiling',
     Default = false,
@@ -427,6 +430,45 @@ FTGroup:AddToggle('No Clip', {
                         giggleCeiling:Destroy()
                     end
                 end
+            end
+            wait(0.1) -- 等待一秒后再次检查
+        end
+    end
+})
+
+FTGroup:AddToggle('No Clip', {
+    Text = 'Destroy GloomPile',
+    Default = false,
+    Tooltip = 'Remove GiggleCeiling from rooms',
+    Callback = function(state)
+        flags.g = state -- 更新 flag 为当前 state
+        
+        while flags.g do
+            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+            if currentRooms then
+                for _, room in ipairs(currentRooms:GetChildren()) do
+                    local giggleCeiling = room:FindFirstChild("GloomPile")
+                    if giggleCeiling then
+                        giggleCeiling:Destroy()
+                    end
+                end
+            end
+            wait(0.1) -- 等待一秒后再次检查
+        end
+    end
+})
+
+FTGroup:AddToggle('No Clip', {
+    Text = 'Destroy bat',
+    Default = false,
+    Tooltip = 'Remove GiggleCeiling from rooms',
+    Callback = function(state)
+        flags.g2 = state -- 更新 flag 为当前 state
+        
+        while flags.g2 do
+            local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
+            if spawned then
+                spawned:Destroy()
             end
             wait(0.1) -- 等待一秒后再次检查
         end
@@ -1255,7 +1297,7 @@ MainGroup:AddToggle('No Clip', {
             if eyes then
                 eyes:Destroy()
             end
-            wait(1) -- 等待一秒后再次检查
+            wait(0.1) -- 等待一秒后再次检查
         end
     end
 })
