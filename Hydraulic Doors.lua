@@ -570,7 +570,6 @@ gsGroup:AddToggle('Simplify Parts and Models', {
     end
 })
 
-
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddSlider('Speed', {
@@ -761,8 +760,8 @@ MainGroup:AddToggle('Bypass', {
     end
 })
 
-MainGroup:AddLabel('---------------------', true)
-MainGroup:AddToggle('No Clip', {
+local MainGroup2 = Tabs.Main:AddLeftGroupbox('----------------');
+MainGroup2:AddToggle('No Clip', {
     Text = 'Chestbox / Drawers aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -931,7 +930,7 @@ local function startRoomDetection()
     return roomAddedConnection
 end
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Item aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -966,7 +965,7 @@ game:GetService("Workspace").CurrentRooms.DescendantAdded:Connect(function(v)
 end)
 
 local big = false
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'big Range',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -975,7 +974,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Gold aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1045,7 +1044,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Book / Breaker aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1119,7 +1118,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Lever aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1188,8 +1187,8 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
-MainGroup:AddLabel('---------------------', true)
 
+local MainGroup3 = Tabs.Main:AddLeftGroupbox('---------------------');
 MainGroup:AddToggle('No Clip', {
     Text = 'Nil A90',
     Default = false,
@@ -1204,7 +1203,7 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destory A90',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1221,7 +1220,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destory Spider jumpscare',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1238,7 +1237,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destroy Eyes',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1255,7 +1254,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destroy Screech',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1281,7 +1280,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destroy Snare',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1306,7 +1305,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Cancel SeekChase',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1977,8 +1976,8 @@ MainGroup:AddToggle('pe', {
     end
 })
 
-MainGroup:AddLabel('---------------------')
-MainGroup:AddToggle('pe', {
+local LeftGroup4 = Tabs.Main:AddLeftGroupbox('---------------------');
+MainGroup4:AddToggle('pe', {
     Text = 'Remove Light [Anti Lag]',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1987,9 +1986,7 @@ MainGroup:AddToggle('pe', {
     end
 })
 
-
-
-MainGroup:AddToggle('pe', {
+MainGroup4:AddToggle('pe', {
     Text = 'Remove Gate',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2015,7 +2012,7 @@ MainGroup:AddToggle('pe', {
     end
 })
 
-MainGroup:AddToggle('pe', {
+MainGroup4:AddToggle('pe', {
     Text = 'Remove Seek Arm / Fire',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2046,8 +2043,8 @@ MainGroup:AddToggle('pe', {
         end
     end
 })
-RightGroup:AddLabel('---------------------')
-RightGroup:AddToggle('pe', {
+local RightGroup2 = Tabs.Main:AddRightGroupbox('---------------------');
+RightGroup2:AddToggle('pe', {
     Text = 'Enity Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2099,7 +2096,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+RightGroup2:AddToggle('pe', {
     Text = 'Library Code Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2164,7 +2161,7 @@ RightGroup:AddToggle('pe', {
 
 
 
-RightGroup:AddToggle('pe', {
+RightGroup2:AddToggle('pe', {
     Text = 'Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2237,7 +2234,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+RightGroup2:AddToggle('pe', {
     Text = 'Chat Enity / Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
