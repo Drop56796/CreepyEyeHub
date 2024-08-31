@@ -10,6 +10,8 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
+local placeId = game.PlaceId
+local Place = 2440500124
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -415,122 +417,70 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 SaveManager:LoadAutoloadConfig()
 
 SaveManager:LoadAutoloadConfig()
-FTGroup:AddToggle('No Clip', {
-    Text = 'Destroy GiggleCeiling',
-    Default = false,
-    Tooltip = 'Remove GiggleCeiling from rooms',
-    Callback = function(state)
-        flags.giggleCeiling = state -- 更新 flag 为当前 state
-        
-        while flags.giggleCeiling do
-            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-            if currentRooms then
-                for _, room in ipairs(currentRooms:GetChildren()) do
-                    local giggleCeiling = room:FindFirstChild("GiggleCeiling")
-                    if giggleCeiling then
-                        giggleCeiling:Destroy()
+if placeId == Place then
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy GiggleCeiling',
+        Default = false,
+        Tooltip = 'Remove GiggleCeiling from rooms',
+        Callback = function(state)
+            flags.giggleCeiling = state
+
+            while flags.giggleCeiling do
+                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    for _, room in ipairs(currentRooms:GetChildren()) do
+                        local giggleCeiling = room:FindFirstChild("GiggleCeiling")
+                        if giggleCeiling then
+                            giggleCeiling:Destroy()
+                        end
                     end
                 end
+                wait(0.1)
             end
-            wait(0.1) -- 等待一秒后再次检查
         end
-    end
-})
+    })
 
-FTGroup:AddToggle('No Clip', {
-    Text = 'Destroy GloomPile',
-    Default = false,
-    Tooltip = 'Remove GiggleCeiling from rooms',
-    Callback = function(state)
-        flags.g = state -- 更新 flag 为当前 state
-        
-        while flags.g do
-            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-            if currentRooms then
-                for _, room in ipairs(currentRooms:GetChildren()) do
-                    local giggleCeiling = room:FindFirstChild("GloomPile")
-                    if giggleCeiling then
-                        giggleCeiling:Destroy()
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy GloomPile',
+        Default = false,
+        Tooltip = 'Remove GloomPile from rooms',
+        Callback = function(state)
+            flags.g = state
+
+            while flags.g do
+                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    for _, room in ipairs(currentRooms:GetChildren()) do
+                        local gloomPile = room:FindFirstChild("GloomPile")
+                        if gloomPile then
+                            gloomPile:Destroy()
+                        end
                     end
                 end
+                wait(0.1)
             end
-            wait(0.1) -- 等待一秒后再次检查
         end
-    end
-})
+    })
 
-FTGroup:AddToggle('No Clip', {
-    Text = 'Destroy bat',
-    Default = false,
-    Tooltip = 'Remove GiggleCeiling from rooms',
-    Callback = function(state)
-        flags.g2 = state -- 更新 flag 为当前 state
-        
-        while flags.g2 do
-            local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
-            if spawned then
-                spawned:Destroy()
-            end
-            wait(0.1) -- 等待一秒后再次检查
-        end
-    end
-})
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy bat',
+        Default = false,
+        Tooltip = 'Remove GloombatSwarm from rooms',
+        Callback = function(state)
+            flags.g2 = state
 
-FTGroup:AddToggle('ESP Locker', {
-    Text = 'FuseKey esp',
-    Default = false,
-    Tooltip = 'Enable ESP for lockers',
-    Callback = function(state)
-        flags.lol = state -- 更新 flag 为当前 state
-        
-        local function check(v)
-            if v:IsA("Model") and v.Name == "FuseObtain" then
-                local hitbox = v:FindFirstChild("Hitbox")
-                if hitbox and hitbox.Parent == v then
-                    local fuseModel = v:FindFirstChild("FuseModel")
-                    if fuseModel and fuseModel.Name == "FuseModel" and fuseModel.MushID == "rbxassetid://16102454530" then
-                        local h = ESP:CreateESP(hitbox, Color3.fromRGB(255, 0, 0), "FuseKey")
-                        table.insert(esptable.lol, h)
-                    end
+            while flags.g2 do
+                local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
+                if spawned then
+                    spawned:Destroy()
                 end
+                wait(0.1)
             end
         end
-
-        local function setup(room)
-            local assets = room:WaitForChild("Assets")
-
-            if assets then
-                local subaddcon
-                subaddcon = assets.DescendantAdded:Connect(function(v)
-                    check(v)
-                end)
-
-                for i, v in pairs(assets:GetDescendants()) do
-                    check(v)
-                end
-
-                task.spawn(function()
-                    repeat task.wait() until not flags.lol
-                    subaddcon:Disconnect()
-                end)
-            end
-        end
-
-        local addconnect
-        addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-            setup(room)
-        end)
-
-        for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-            setup(room)
-        end
-
-        -- 停止 ESP Locker 功能
-        if not flags.lol then
-            addconnect:Disconnect()
-        end
-    end
-})
+    })
+else
+    FTGroup:AddLabel('Your place is not supported', true)
+end
 
 gsGroup:AddToggle('Boost FPS', {
     Text = 'Boost FPS',
