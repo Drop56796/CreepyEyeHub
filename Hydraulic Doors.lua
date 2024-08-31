@@ -292,7 +292,10 @@ local flags = {
     sc = false,
     sd = false,
     eyes = false,
-    bypass = false
+    bypass = false,
+    lol = false,
+    simplify = false,
+    boostFPS = false
 }
 local esptable = {
     entity = {},
@@ -302,11 +305,20 @@ local esptable = {
     books = {},
     Gold = {},
     key = {},
-    loc = {}
+    loc = {},
+    lol = {}
 }
 
+-- 假设玩家的角色对象在工作区中
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- 获取角色名称
+local characterName = character.Name
+
+-- 创建窗口并显示角色名称
 local Window = Library:CreateWindow({
-    Title = 'Hydraulic Doors v' .. v,
+    Title = 'Hydraulic Doors v' .. v .. 'Workspace ID: ' .. characterName,
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -317,11 +329,15 @@ local Window = Library:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab('Main'),
+    FT = Window:AddTab('Floor2'),
     ['UI Settings'] = Window:AddTab('UI Settings'),
+    gs = Window:AddTab('Game Setting'),
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
+local FTGroup = Tabs.FT:AddLeftGroupbox('Floor2')
 local RightGroup = Tabs.Main:AddRightGroupbox('esp')
+local gsGroup = Tabs.gs:AddLeftGroupbox('optimize fps')
 
 Library:SetWatermarkVisibility(true)
 
@@ -395,6 +411,170 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+FTGroup:AddToggle('No Clip', {
+    Text = 'Destroy GiggleCeiling',
+    Default = false,
+    Tooltip = 'Remove GiggleCeiling from rooms',
+    Callback = function(state)
+        flags.giggleCeiling = state -- 更新 flag 为当前 state
+        
+        while flags.giggleCeiling do
+            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+            if currentRooms then
+                for _, room in ipairs(currentRooms:GetChildren()) do
+                    local giggleCeiling = room:FindFirstChild("GiggleCeiling")
+                    if giggleCeiling then
+                        giggleCeiling:Destroy()
+                    end
+                end
+            end
+            wait(0.1) -- 等待一秒后再次检查
+        end
+    end
+})
+
+FTGroup:AddToggle('ESP Locker', {
+    Text = 'FuseKey esp',
+    Default = false,
+    Tooltip = 'Enable ESP for lockers',
+    Callback = function(state)
+        flags.lol = state -- 更新 flag 为当前 state
+        
+        local function check(v)
+            if v:IsA("Model") and v.Name == "FuseObtain" then
+                local hitbox = v:FindFirstChild("Hitbox")
+                if hitbox and hitbox.Parent == v then
+                    local fuseModel = v:FindFirstChild("FuseModel")
+                    if fuseModel and fuseModel.Name == "FuseModel" and fuseModel.MushID == "rbxassetid://16102454530" then
+                        local h = ESP:CreateESP(hitbox, Color3.fromRGB(255, 0, 0), "FuseKey")
+                        table.insert(esptable.lol, h)
+                    end
+                end
+            end
+        end
+
+        local function setup(room)
+            local assets = room:WaitForChild("Assets")
+
+            if assets then
+                local subaddcon
+                subaddcon = assets.DescendantAdded:Connect(function(v)
+                    check(v)
+                end)
+
+                for i, v in pairs(assets:GetDescendants()) do
+                    check(v)
+                end
+
+                task.spawn(function()
+                    repeat task.wait() until not flags.lol
+                    subaddcon:Disconnect()
+                end)
+            end
+        end
+
+        local addconnect
+        addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+            setup(room)
+        end)
+
+        for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+            setup(room)
+        end
+
+        -- 停止 ESP Locker 功能
+        if not flags.lol then
+            addconnect:Disconnect()
+        end
+    end
+})
+
+gsGroup:AddToggle('Boost FPS', {
+    Text = 'Boost FPS',
+    Default = false,
+    Tooltip = 'Simplify parts and models to improve FPS',
+    Callback = function(state)
+        flags.boostFPS = state -- 更新 flag 为当前 state
+        
+        while flags.boostFPS do
+            local function simplify(v)
+                if v:IsA("Part") then
+                    -- 简化 Part
+                    v.Material = Enum.Material.SmoothPlastic
+                    v.Anchored = true -- 示例：将对象锚定
+                    v.CastShadow = false -- 禁用阴影
+                elseif v:IsA("Model") then
+                    -- 简化 Model
+                    for _, part in pairs(v:GetDescendants()) do
+                        if part:IsA("Part") then
+                            part.Material = Enum.Material.SmoothPlastic
+                            part.Anchored = true
+                            part.CastShadow = false
+                        end
+                    end
+                end
+            end
+
+            local function setup(workspace)
+                for _, v in pairs(workspace:GetDescendants()) do
+                    simplify(v)
+                end
+
+                local subaddcon
+                subaddcon = workspace.DescendantAdded:Connect(function(v)
+                    simplify(v)
+                end)
+
+                task.spawn(function()
+                    repeat task.wait() until not flags.boostFPS
+                    subaddcon:Disconnect()
+                end)
+            end
+
+            setup(game.Workspace)
+            wait(1) -- 等待一秒后再次检查
+        end
+    end
+})
+
+gsGroup:AddToggle('Simplify Parts and Models', {
+    Text = 'Xray Part / Model',
+    Default = false,
+    Tooltip = 'Simplify all parts and models in the workspace',
+    Callback = function(state)
+        flags.simplify = state -- 更新 flag 为当前 state
+        
+        while flags.simplify do
+            local function simplify(v)
+                if v:IsA("Part") or v:IsA("Model") then
+                    -- 在这里添加你想对 Part 和 Model 执行的简化操作
+                    v.Transparency = 0.5 -- 示例：将透明度设置为 50%
+                    v.Anchored = true -- 示例：将对象锚定
+                end
+            end
+
+            local function setup(workspace)
+                for _, v in pairs(workspace:GetDescendants()) do
+                    simplify(v)
+                end
+
+                local subaddcon
+                subaddcon = workspace.DescendantAdded:Connect(function(v)
+                    simplify(v)
+                end)
+
+                task.spawn(function()
+                    repeat task.wait() until not flags.simplify
+                    subaddcon:Disconnect()
+                end)
+            end
+
+            setup(game.Workspace)
+            wait(1) -- 等待一秒后再次检查
+        end
+    end
+})
+
 
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
