@@ -1976,7 +1976,7 @@ MainGroup:AddToggle('pe', {
     end
 })
 
-local LeftGroup4 = Tabs.Main:AddLeftGroupbox('---------------------');
+local MainGroup4 = Tabs.Main:AddLeftGroupbox('---------------------');
 MainGroup4:AddToggle('pe', {
     Text = 'Remove Light [Anti Lag]',
     Default = false,
@@ -2043,7 +2043,7 @@ MainGroup4:AddToggle('pe', {
         end
     end
 })
-local RightGroup2 = Tabs.Main:AddRightGroupbox('---------------------');
+local RightGroup2 = Tabs.Main:AddRightGroupbox('---------------------')
 RightGroup2:AddToggle('pe', {
     Text = 'Enity Event',
     Default = false,
