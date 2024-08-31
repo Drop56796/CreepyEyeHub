@@ -296,7 +296,8 @@ local flags = {
     lol = false,
     simplify = false,
     boostFPS = false,
-    g = false
+    g = false,
+    g2 = false
 }
 local esptable = {
     entity = {},
