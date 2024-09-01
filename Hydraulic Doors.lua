@@ -297,7 +297,8 @@ local flags = {
     simplify = false,
     boostFPS = false,
     g = false,
-    g2 = false
+    g2 = false,
+    l = false
 }
 local esptable = {
     entity = {},
@@ -308,7 +309,8 @@ local esptable = {
     Gold = {},
     key = {},
     loc = {},
-    lol = {}
+    lol = {},
+    l = ｛｝ 
 }
 
 -- 假设玩家的角色对象在工作区中
@@ -1330,8 +1332,11 @@ MainGroup3:AddToggle('No Clip', {
     end
 })
 buttons.noseek = noseekbtn
+local TabBox = Tabs.Main:AddRightTabbox()
 
-RightGroup:AddToggle('pe', {
+local Group1 = TabBox:AddTab('>> Floor1 <<')
+local Group2 = TabBox:AddTab('>> Floor2 <<')
+Group1:AddToggle('pe', {
     Text = 'Player esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1355,7 +1360,89 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('No Clip', {
+Group2:AddToggle('ESP', {
+    Text = 'Item Locker and Generator ESP',
+    Default = false,
+    Tooltip = 'Enable ESP for lockers and generators',
+    Callback = function(state)
+        if state then
+            _G.lESPInstances = {}
+            flags.espl = state
+
+            local function check(v)
+                if v:IsA("Model") then
+                    task.wait(0.1)
+                    if v.Name == "Locker_Small" or (v.Name == "MinesGenerator" and v:FindFirstChild("GeneratorMain")) then
+                        local h = esp(v.PrimaryPart, Color3.fromRGB(25, 55, 5), v.PrimaryPart, v.Name)
+                        table.insert(esptable.l, h)
+                    end
+                end
+            end
+
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not flags.espl
+                        subaddcon:Disconnect()
+                    end)
+                end
+
+                local sideroom = room:FindFirstChild("Sideroom")
+                if sideroom then
+                    local sideroomAssets = sideroom:WaitForChild("Assets")
+                    if sideroomAssets then
+                        local subaddcon
+                        subaddcon = sideroomAssets.DescendantAdded:Connect(function(v)
+                            check(v)
+                        end)
+
+                        for i, v in pairs(sideroomAssets:GetDescendants()) do
+                            check(v)
+                        end
+
+                        task.spawn(function()
+                            repeat task.wait() until not flags.espl
+                            subaddcon:Disconnect()
+                        end)
+                    end
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room)
+            end
+
+            table.insert(_G.lESPInstances, esptable)
+        else
+            if _G.lESPInstances then
+                for _, instance in pairs(_G.lESPInstances) do
+                    for _, v in pairs(instance.l) do
+                        v.delete()
+                    end
+                end
+                _G.lESPInstances = nil
+            end
+        end
+    end
+})
+
+Group1:AddToggle('No Clip', {
     Text = 'Lever esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1418,7 +1505,7 @@ RightGroup:AddToggle('No Clip', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+Group1:AddToggle('pe', {
     Text = 'Closet / Locker esp[update]',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1482,7 +1569,7 @@ RightGroup:AddToggle('pe', {
         end
     end
 })
-RightGroup:AddToggle('ee', {
+Group1:AddToggle('ee', {
     Text = 'enity esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1636,7 +1723,7 @@ local function Invalidplayername(playerName, customName)
     end
 end
 
-RightGroup:AddToggle('pe', {
+Group1:AddToggle('pe', {
     Text = 'Key esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1689,7 +1776,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+Group1:AddToggle('pe', {
     Text = 'Gold esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1758,7 +1845,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+Group1:AddToggle('pe', {
     Text = 'Book / Breaker esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1834,7 +1921,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+Group1:AddToggle('pe', {
     Text = 'Item esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1898,7 +1985,7 @@ RightGroup:AddToggle('pe', {
         end
     end
 })
-RightGroup:AddToggle('pe', {
+Group1:AddToggle('pe', {
     Text = 'Door esp',
     Default = false,
     Tooltip = 'Walk through walls',
