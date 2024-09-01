@@ -415,14 +415,13 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 SaveManager:LoadAutoloadConfig()
 
 SaveManager:LoadAutoloadConfig()
-local placeId = game.PlaceId
-local mainSceneId = 6516141723
-local subSceneId = 2440500124
+--local placeId = game.PlaceId
+--local mainSceneId = 6516141723
+--local subSceneId = 2440500124
 destroy = "Remove Event:Destroy giggle now"
 destroy1 = "Remove Event:Destroy GloomPile now"
 destroy2 = "Remove Event:Destroy Bat now"
-if placeId == mainSceneId or placeId == subSceneId then
-    FTGroup:AddToggle('No Clip', {
+FTGroup:AddToggle('No Clip', {
         Text = 'Destroy GiggleCeiling',
         Default = false,
         Tooltip = 'Remove GiggleCeiling from rooms',
@@ -485,9 +484,6 @@ if placeId == mainSceneId or placeId == subSceneId then
             end
         end
     })
-else
-    FTGroup:AddLabel('Your place is not supported', true)
-end
 
 gsGroup:AddToggle('Boost FPS', {
     Text = 'Boost FPS',
