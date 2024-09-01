@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2.3
+local v = 2.5
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -420,6 +420,7 @@ local mainSceneId = 6516141723
 local subSceneId = 2440500124
 destroy = "Remove Event:Destroy giggle now"
 destroy1 = "Remove Event:Destroy GloomPile now"
+destroy2 = "Remove Event:Destroy Bat now"
 if placeId == mainSceneId or placeId == subSceneId then
     FTGroup:AddToggle('No Clip', {
         Text = 'Destroy GiggleCeiling',
