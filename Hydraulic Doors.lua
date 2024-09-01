@@ -479,6 +479,7 @@ if placeId == mainSceneId or placeId == subSceneId then
                 local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
                 if spawned then
                     spawned:Destroy()
+		    Library:Notify(destroy2)
                 end
                 wait(0.1)
             end
