@@ -418,7 +418,8 @@ SaveManager:LoadAutoloadConfig()
 local placeId = game.PlaceId
 local mainSceneId = 6516141723
 local subSceneId = 2440500124
-
+destroy = "Remove Event:Destroy giggle now"
+destroy1 = "Remove Event:Destroy GloomPile now"
 if placeId == mainSceneId or placeId == subSceneId then
     FTGroup:AddToggle('No Clip', {
         Text = 'Destroy GiggleCeiling',
@@ -434,6 +435,7 @@ if placeId == mainSceneId or placeId == subSceneId then
                         local giggleCeiling = room:FindFirstChild("GiggleCeiling")
                         if giggleCeiling then
                             giggleCeiling:Destroy()
+			    Library:Notify(destroy)
                         end
                     end
                 end
@@ -456,6 +458,7 @@ if placeId == mainSceneId or placeId == subSceneId then
                         local gloomPile = room:FindFirstChild("GloomPile")
                         if gloomPile then
                             gloomPile:Destroy()
+			    Library:Notify(destroy1)
                         end
                     end
                 end
@@ -1418,7 +1421,7 @@ RightGroup:AddToggle('No Clip', {
 })
 
 RightGroup:AddToggle('pe', {
-    Text = 'Closet / Locker esp',
+    Text = 'Closet / Locker esp[update]',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
@@ -1428,7 +1431,7 @@ RightGroup:AddToggle('pe', {
 	    local function check(v)
                 if v:IsA("Model") then
                     task.wait(0.1)
-                    if v.Name == "Wardrobe" then
+                    if v.Name == "Wardrobe" or v.Name == "Locker_Large" then
                         local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
                         table.insert(esptable.lockers, h) 
                     elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
