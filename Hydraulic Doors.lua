@@ -340,7 +340,6 @@ local Tabs = {
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
 local FTGroup = Tabs.FT:AddLeftGroupbox('Floor2')
-local RightGroup = Tabs.Main:AddRightGroupbox('esp')
 local gsGroup = Tabs.gs:AddLeftGroupbox('optimize fps')
 
 Library:SetWatermarkVisibility(true)
