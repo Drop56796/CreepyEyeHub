@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2.2
+local v = 2.5
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -296,7 +296,10 @@ local flags = {
     lol = false,
     simplify = false,
     boostFPS = false,
-    espl = false
+    espl = false,
+    g = false,
+    g2 = false,
+    l = false
 }
 local esptable = {
     entity = {},
@@ -413,27 +416,6 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
-FTGroup:AddToggle('No Clip', {
-    Text = 'Destroy GiggleCeiling',
-    Default = false,
-    Tooltip = 'Remove GiggleCeiling from rooms',
-    Callback = function(state)
-        flags.giggleCeiling = state -- 更新 flag 为当前 state
-        
-        while flags.giggleCeiling do
-            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-            if currentRooms then
-                for _, room in ipairs(currentRooms:GetChildren()) do
-                    local giggleCeiling = room:FindFirstChild("GiggleCeiling")
-                    if giggleCeiling then
-                        giggleCeiling:Destroy()
-                    end
-                end
-            end
-            wait(0.1) -- 等待一秒后再次检查
-        end
-    end
-})
 
 FTGroup:AddToggle('ESP Locker', {
     Text = 'FuseKey esp',
@@ -490,6 +472,73 @@ FTGroup:AddToggle('ESP Locker', {
         end
     end
 })
+
+destroy = "Remove Event:Destroy giggle now"
+destroy1 = "Remove Event:Destroy GloomPile now"
+destroy2 = "Remove Event:Destroy Bat now"
+FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy GiggleCeiling',
+        Default = false,
+        Tooltip = 'Remove GiggleCeiling from rooms',
+        Callback = function(state)
+            flags.giggleCeiling = state
+
+            while flags.giggleCeiling do
+                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    for _, room in ipairs(currentRooms:GetChildren()) do
+                        local giggleCeiling = room:FindFirstChild("GiggleCeiling")
+                        if giggleCeiling then
+                            giggleCeiling:Destroy()
+			    Library:Notify(destroy)
+                        end
+                    end
+                end
+                wait(0.1)
+            end
+        end
+    })
+
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy GloomPile',
+        Default = false,
+        Tooltip = 'Remove GloomPile from rooms',
+        Callback = function(state)
+            flags.g = state
+
+            while flags.g do
+                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    for _, room in ipairs(currentRooms:GetChildren()) do
+                        local gloomPile = room:FindFirstChild("GloomPile")
+                        if gloomPile then
+                            gloomPile:Destroy()
+			    Library:Notify(destroy1)
+                        end
+                    end
+                end
+                wait(0.1)
+            end
+        end
+    })
+
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy bat',
+        Default = false,
+        Tooltip = 'Remove GloombatSwarm from rooms',
+        Callback = function(state)
+            flags.g2 = state
+
+            while flags.g2 do
+                local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
+                if spawned then
+                    spawned:Destroy()
+		    Library:Notify(destroy2)
+                end
+                wait(0.1)
+            end
+        end
+    })
 
 gsGroup:AddToggle('Boost FPS', {
     Text = 'Boost FPS',
