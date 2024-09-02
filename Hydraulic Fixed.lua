@@ -295,7 +295,10 @@ local flags = {
     bypass = false,
     lol = false,
     simplify = false,
-    boostFPS = false
+    boostFPS = false,
+    g = false,
+    g2 = false,
+    giggleCeiling = false
 }
 local esptable = {
     entity = {},
