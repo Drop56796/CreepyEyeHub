@@ -339,7 +339,7 @@ local Tabs = {
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
-local RightGroup = Tabs.Main:AddRightGroupbox('esp')
+local Group1 = Tabs.Main:AddRightGroupbox('esp')
 local FTGroup = Tabs.FT:AddLeftGroupbox('Floor2')
 local gsGroup = Tabs.gs:AddLeftGroupbox('optimize fps')
 
@@ -1333,11 +1333,8 @@ MainGroup3:AddToggle('No Clip', {
 })
 buttons.noseek = noseekbtn
 
-local TabBox = Tabs.Main:AddRightTabbox()
 
-local Group1 = TabBox:AddTab('>> Floor1 <<')
-local Group2 = TabBox:AddTab('>> Floor2 <<')
-Group2:AddToggle('ESP', {
+Group1:AddToggle('ESP', {
     Text = 'Item Locker and Generator ESP',
     Default = false,
     Tooltip = 'Enable ESP for lockers and generators',
