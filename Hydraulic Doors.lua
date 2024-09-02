@@ -339,7 +339,7 @@ local Tabs = {
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
-local Group1 = Tabs.Main:AddRightGroupbox('esp')
+local RightGroup = Tabs.Main:AddRightGroupbox('esp')
 local FTGroup = Tabs.FT:AddLeftGroupbox('Floor2')
 local gsGroup = Tabs.gs:AddLeftGroupbox('optimize fps')
 
@@ -1333,7 +1333,7 @@ MainGroup3:AddToggle('No Clip', {
 })
 buttons.noseek = noseekbtn
 
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Player esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1357,7 +1357,7 @@ Group1:AddToggle('pe', {
     end
 })
 
-Group1:AddToggle('No Clip', {
+RightGroup:AddToggle('No Clip', {
     Text = 'Lever esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1420,7 +1420,7 @@ Group1:AddToggle('No Clip', {
     end
 })
 
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Closet / Locker esp[update]',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1484,7 +1484,7 @@ Group1:AddToggle('pe', {
         end
     end
 })
-Group1:AddToggle('ee', {
+RightGroup:AddToggle('ee', {
     Text = 'enity esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1638,7 +1638,7 @@ local function Invalidplayername(playerName, customName)
     end
 end
 
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Key esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1691,7 +1691,7 @@ Group1:AddToggle('pe', {
     end
 })
 
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Gold esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1760,7 +1760,7 @@ Group1:AddToggle('pe', {
     end
 })
 
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Book / Breaker esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1836,7 +1836,7 @@ Group1:AddToggle('pe', {
     end
 })
 
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Item esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1900,7 +1900,7 @@ Group1:AddToggle('pe', {
         end
     end
 })
-Group1:AddToggle('pe', {
+RightGroup:AddToggle('pe', {
     Text = 'Door esp',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2046,8 +2046,8 @@ MainGroup4:AddToggle('pe', {
         end
     end
 })
-local Group2 = Tabs.Main:AddRightGroupbox('---------------------')
-Group2:AddToggle('pe', {
+local RightGroup2 = Tabs.Main:AddRightGroupbox('---------------------')
+RightGroup2:AddToggle('pe', {
     Text = 'Enity Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2099,7 +2099,7 @@ Group2:AddToggle('pe', {
     end
 })
 
-Group2:AddToggle('pe', {
+RightGroup2:AddToggle('pe', {
     Text = 'Library Code Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2164,7 +2164,7 @@ Group2:AddToggle('pe', {
 
 
 
-Group2:AddToggle('pe', {
+RightGroup2:AddToggle('pe', {
     Text = 'Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2237,7 +2237,7 @@ Group2:AddToggle('pe', {
     end
 })
 
-Group2:AddToggle('pe', {
+RightGroup2:AddToggle('pe', {
     Text = 'Chat Enity / Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
