@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2.2
+local v = 2.6
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -318,7 +318,7 @@ local characterName = character.Name
 
 -- 创建窗口并显示角色名称
 local Window = Library:CreateWindow({
-    Title = 'Hydraulic Doors v' .. v .. 'Workspace ID: ' .. characterName,
+    Title = 'Hydraulic Fixed v' .. v .. 'ID: ' .. characterName,
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -411,27 +411,74 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+
+
+destroy = "Remove Event:Destroy giggle now"
+destroy1 = "Remove Event:Destroy GloomPile now"
+destroy2 = "Remove Event:Destroy Bat now"
 FTGroup:AddToggle('No Clip', {
-    Text = 'Destroy GiggleCeiling',
-    Default = false,
-    Tooltip = 'Remove GiggleCeiling from rooms',
-    Callback = function(state)
-        flags.giggleCeiling = state -- 更新 flag 为当前 state
-        
-        while flags.giggleCeiling do
-            local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-            if currentRooms then
-                for _, room in ipairs(currentRooms:GetChildren()) do
-                    local giggleCeiling = room:FindFirstChild("GiggleCeiling")
-                    if giggleCeiling then
-                        giggleCeiling:Destroy()
+        Text = 'Destroy GiggleCeiling',
+        Default = false,
+        Tooltip = 'Remove GiggleCeiling from rooms',
+        Callback = function(state)
+            flags.giggleCeiling = state
+
+            while flags.giggleCeiling do
+                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    for _, room in ipairs(currentRooms:GetChildren()) do
+                        local giggleCeiling = room:FindFirstChild("GiggleCeiling")
+                        if giggleCeiling then
+                            giggleCeiling:Destroy()
+			    Library:Notify(destroy)
+                        end
                     end
                 end
+                wait(0.1)
             end
-            wait(0.1) -- 等待一秒后再次检查
         end
-    end
-})
+    })
+
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy GloomPile',
+        Default = false,
+        Tooltip = 'Remove GloomPile from rooms',
+        Callback = function(state)
+            flags.g = state
+
+            while flags.g do
+                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    for _, room in ipairs(currentRooms:GetChildren()) do
+                        local gloomPile = room:FindFirstChild("GloomPile")
+                        if gloomPile then
+                            gloomPile:Destroy()
+			    Library:Notify(destroy1)
+                        end
+                    end
+                end
+                wait(0.1)
+            end
+        end
+    })
+
+    FTGroup:AddToggle('No Clip', {
+        Text = 'Destroy bat',
+        Default = false,
+        Tooltip = 'Remove GloombatSwarm from rooms',
+        Callback = function(state)
+            flags.g2 = state
+
+            while flags.g2 do
+                local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
+                if spawned then
+                    spawned:Destroy()
+		    Library:Notify(destroy2)
+                end
+                wait(0.1)
+            end
+        end
+    })
 
 FTGroup:AddToggle('ESP Locker', {
     Text = 'FuseKey esp',
@@ -766,8 +813,8 @@ MainGroup:AddToggle('Bypass', {
     end
 })
 
-MainGroup:AddLabel('---------------------', true)
-MainGroup:AddToggle('No Clip', {
+local MainGroup2 = Tabs.Main:AddRightGroupbox('Prompt Aura')
+MainGroup2:AddToggle('No Clip', {
     Text = 'Chestbox / Drawers aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -936,7 +983,7 @@ local function startRoomDetection()
     return roomAddedConnection
 end
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Item aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -971,7 +1018,7 @@ game:GetService("Workspace").CurrentRooms.DescendantAdded:Connect(function(v)
 end)
 
 local big = false
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'big Range',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -980,7 +1027,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Gold aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1050,7 +1097,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Book / Breaker aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1124,7 +1171,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup2:AddToggle('No Clip', {
     Text = 'Lever aura',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1193,9 +1240,9 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
-MainGroup:AddLabel('---------------------', true)
 
-MainGroup:AddToggle('No Clip', {
+local MainGroup3 = Tabs.Main:AddRightGroupbox('Bypass Enity')
+MainGroup3:AddToggle('No Clip', {
     Text = 'Nil A90',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1209,7 +1256,7 @@ MainGroup:AddToggle('No Clip', {
         end
     end
 })
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destory A90',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1226,7 +1273,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destory Spider jumpscare',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1243,7 +1290,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destroy Eyes',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1255,12 +1302,12 @@ MainGroup:AddToggle('No Clip', {
             if eyes then
                 eyes:Destroy()
             end
-            wait(1) -- 等待一秒后再次检查
+            wait(0.001) -- 等待一秒后再次检查
         end
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destroy Screech',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1286,7 +1333,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Destroy Snare',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1311,7 +1358,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 
-MainGroup:AddToggle('No Clip', {
+MainGroup3:AddToggle('No Clip', {
     Text = 'Cancel SeekChase',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -1434,7 +1481,7 @@ RightGroup:AddToggle('pe', {
 	    local function check(v)
                 if v:IsA("Model") then
                     task.wait(0.1)
-                    if v.Name == "Wardrobe" then
+                    if v.Name == "Wardrobe" or v.Name == "Locker_Large" then
                         local h = esp(v.PrimaryPart, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Closet")
                         table.insert(esptable.lockers, h) 
                     elseif (v.Name == "Rooms_Locker" or v.Name == "Rooms_Locker_Fridge") then
@@ -2051,8 +2098,8 @@ MainGroup:AddToggle('pe', {
         end
     end
 })
-RightGroup:AddLabel('---------------------')
-RightGroup:AddToggle('pe', {
+local RightGroup1 = Tabs.Main:AddRightGroupbox('Event')
+RightGroup1:AddToggle('pe', {
     Text = 'Enity Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2104,7 +2151,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+RightGroup1:AddToggle('pe', {
     Text = 'Library Code Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2169,7 +2216,7 @@ RightGroup:AddToggle('pe', {
 
 
 
-RightGroup:AddToggle('pe', {
+RightGroup1:AddToggle('pe', {
     Text = 'Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2242,7 +2289,7 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('pe', {
+RightGroup1:AddToggle('pe', {
     Text = 'Chat Enity / Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
