@@ -796,15 +796,6 @@ gsGroup:AddToggle('Simplify Parts and Models', {
     end
 })
 
-local MyButton2 = MainGroup:AddButton({
-	Text = 'God mode(test)',
-	Func = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Fluxus-concept-ui/main/a.lua"))()
-	end,
-	DoubleClick = true, -- You will have to click this button twice to trigger the callback
-	Tooltip = 'This is the sub button (double click me!)'
-})
-
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddSlider('Speed', {
