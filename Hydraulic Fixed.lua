@@ -91,7 +91,7 @@ local function createBillboardGui(core, color, name)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 18
-    txt.Font = Enum.Font.Oswald -- 设置字体为 Jura
+    txt.Font = Enum.Font.Code -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
     return bill
@@ -358,7 +358,7 @@ local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(
 		FrameCounter = 0;
 	end;
 
-	Library:SetWatermark(('Doors | %s fps | %s ms'):format(
+	Library:SetWatermark(('Hydraulic Fixed | %s fps | %s ms'):format(
 		math.floor(FPS),
 		math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
 	));
@@ -414,6 +414,52 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+MainGroup:AddToggle('Loop Speed Boost', {
+    Text = 'Loop Speed Boost(Seek Chase)',
+    Default = false,
+    Tooltip = 'Increase speed when SeekMusic Intro plays',
+    Callback = function(state)
+        local customSuffix = "SpeedBoost" -- 自定义后缀
+        local flagsName = "speedBoost" .. customSuffix
+
+        if state then
+            _G[flagsName] = state
+
+            local function onSoundPlay(sound)
+                if sound.Name == "Intro" and sound.Parent and sound.Parent.Name == "SeekMusic" and sound.Parent.Parent and sound.Parent.Parent.Name == "FloorReplicated" then
+                    while _G[flagsName] and sound.IsPlaying do
+                        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 23.5 -- 设置加速速度
+                        task.wait(0.1)
+                    end
+                    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 -- 恢复正常速度
+                end
+            end
+
+            local function setup()
+                local seekMusic = game.ReplicatedStorage:WaitForChild("FloorReplicated"):WaitForChild("SeekMusic")
+                local introSound = seekMusic:WaitForChild("Intro")
+                local endSound = seekMusic:WaitForChild("End")
+
+                introSound:GetPropertyChangedSignal("IsPlaying"):Connect(function()
+                    if introSound.IsPlaying then
+                        onSoundPlay(introSound)
+                    end
+                end)
+
+                endSound:GetPropertyChangedSignal("IsPlaying"):Connect(function()
+                    if endSound.IsPlaying then
+                        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 -- 恢复正常速度
+                    end
+                end)
+            end
+
+            setup()
+        else
+            _G[flagsName] = nil
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 -- 确保恢复正常速度
+        end
+    end
+})
 
 FTGroup:AddToggle('Fire All FuseObtain Prompts', {
     Text = 'F2 Locker Aura',
@@ -750,6 +796,14 @@ gsGroup:AddToggle('Simplify Parts and Models', {
     end
 })
 
+local MyButton2 = MainGroup:AddButton({
+	Text = 'God mode(test)',
+	Func = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Drop56796/Fluxus-concept-ui/main/a.lua"))()
+	end,
+	DoubleClick = true, -- You will have to click this button twice to trigger the callback
+	Tooltip = 'This is the sub button (double click me!)'
+})
 
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
