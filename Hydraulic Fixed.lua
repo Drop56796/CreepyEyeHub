@@ -415,6 +415,54 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
 
+FTGroup:AddToggle('Fire All FuseObtain Prompts', {
+    Text = 'F2 Locker Aura',
+    Default = false,
+    Tooltip = 'Trigger all FuseObtain prompts and open animations in CurrentRooms',
+    Callback = function(state)
+        local function firePromptAndOpen(v)
+            if v:IsA("Model") and v.Name == "Locker_Small" then
+                local openAnim = v:FindFirstChild("open")
+                if openAnim then
+                    openAnim:Play() -- 启用动画
+                end
+                local fuseObtain = v:FindFirstChild("FuseObtain")
+                if fuseObtain then
+                    local prompt = v:FindFirstChild("ModulePrompt")
+                    if prompt then
+                        prompt:Prompt() -- 自动提示
+                    end
+                end
+            end
+        end
+
+        local function check(room)
+            local assets = room:FindFirstChild("Assets")
+            if assets then
+                for _, v in pairs(assets:GetDescendants()) do
+                    firePromptAndOpen(v)
+                end
+            end
+
+            local sideroom = room:FindFirstChild("Sideroom")
+            if sideroom then
+                local sideroomAssets = sideroom:FindFirstChild("Assets")
+                if sideroomAssets then
+                    for _, v in pairs(sideroomAssets:GetDescendants()) do
+                        firePromptAndOpen(v)
+                    end
+                end
+            end
+        end
+
+        if state then
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                check(room)
+            end
+        end
+    end
+})
+
 FTGroup:AddToggle('Monitor MinesGenerator', {
     Text = 'Generator esp',
     Default = false,
