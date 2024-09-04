@@ -335,15 +335,12 @@ local Tabs = {
     FT = Window:AddTab('Floor2'),
     ['UI Settings'] = Window:AddTab('UI Settings'),
     gs = Window:AddTab('Game Setting'),
-    te = Window:AddTab('test function'),
 }
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
 local FTGroup = Tabs.FT:AddLeftGroupbox('Floor2')
 local RightGroup = Tabs.Main:AddRightGroupbox('esp')
 local gsGroup = Tabs.gs:AddLeftGroupbox('optimize fps')
-local te = Tabs.gs:AddLeftGroupbox('Enity')
-
 
 Library:SetWatermarkVisibility(true)
 
@@ -418,63 +415,68 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
 
-te:AddToggle('pe', {
-    Text = 'Entity Bypass (Moving height)',
+FTGroup:AddToggle('Monitor MinesGenerator', {
+    Text = 'Generator esp',
     Default = false,
-    Tooltip = 'Make detected entities ascend infinitely',
+    Tooltip = 'all MinesGenerator in CurrentRooms',
     Callback = function(state)
+        local customSuffix = "MinesGeneratorMonitor" -- 自定义后缀
+        local flagsName = "monitorMinesGenerator" .. customSuffix
+        local espTableName = "minesGeneratorESPInstances" .. customSuffix
+
         if state then
-            local entityNames = {"RushMoving", "AmbushMoving", "A60", "JeffTheKiller"}  -- 实体名称
-            local ascendSpeed = 1000 -- 飞升速度，可以根据需要修改
+            _G[espTableName] = {}
+            _G[flagsName] = state
 
-            -- 确保 flags 和 plr 已定义
-            local flags = flags or {} -- 防止错误
-            local plr = game.Players.LocalPlayer -- 防止错误2
-
-            local function ascendEntity(entity)
-                -- 移除实体内部的所有部件
-                for _, child in pairs(entity:GetChildren()) do
-                    if child:IsA("BasePart") or child:IsA("Model") or child:IsA("Script") then
-                        child:Destroy()
-                    end
-                end
-                -- 无限飞升
-                task.spawn(function()
-                    while flags.hintrush do
-                        local currentPosition = entity:GetPrimaryPartCFrame().Position
-                        local targetPosition = currentPosition + Vector3.new(0, ascendSpeed, 0)
-                        entity:SetPrimaryPartCFrame(CFrame.new(targetPosition))
-                        task.wait(0.1) -- 调整飞升速度
-                    end
-                end)
-            end
-
-            local function onChildAdded(child)
-                if table.find(entityNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-                    
-                    if child:IsDescendantOf(workspace) then
-                        ascendEntity(child)
+            local function check(v)
+                if v:IsA("Model") and v.Name == "MinesGenerator" then
+		    local generatorMain = v:FindFirstChild("GeneratorMain")
+                    if generatorMain then
+                        local h = esp(generatorMain, Color3.fromRGB(0, 255, 0), generatorMain, "Generator")
+                        table.insert(esptable.minesGeneratorESP, h)
                     end
                 end
             end
 
-            -- 无限循环以保持脚本运行并检查 hintrush 标志
-            local running = true
-            while running do
-                local connection = workspace.ChildAdded:Connect(onChildAdded)
-                
-                repeat
-                    task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrush or not running
-                
-                connection:Disconnect()
-            end 
-        else 
-            -- 关闭消息或进行其他清理（如有需要）
-            running = false
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
+
+                if assets then
+                    local subaddcon
+                    subaddcon = assets.DescendantAdded:Connect(function(v)
+                        check(v)
+                    end)
+
+                    for i, v in pairs(assets:GetDescendants()) do
+                        check(v)
+                    end
+
+                    task.spawn(function()
+                        repeat task.wait() until not _G[flagsName]
+                        subaddcon:Disconnect()
+                    end)
+                end
+            end
+
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                setup(room)
+            end
+
+            table.insert(_G[espTableName], esptable)
+        else
+            if _G[espTableName] then
+                for _, instance in pairs(_G[espTableName]) do
+                    for _, v in pairs(instance.minesGeneratorESP) do
+                        v.delete()
+                    end
+                end
+                _G[espTableName] = nil
+            end
         end
     end
 })
@@ -496,7 +498,7 @@ FTGroup:AddToggle('ESP for FuseObtain', {
                 if v:IsA("Model") and v.Name == "FuseObtain" then
                     local hitbox = v:FindFirstChild("Hitbox")
                     if hitbox then
-                        local h = esp(hitbox, Color3.fromRGB(255, 0, 0), hitbox, "FuseObtain")
+                        local h = esp(hitbox, Color3.fromRGB(255, 0, 0), hitbox, "FuseKey")
                         table.insert(esptable.fuseESP, h)
                     end
                 end
