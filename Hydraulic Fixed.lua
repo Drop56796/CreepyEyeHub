@@ -38,90 +38,37 @@ end
 
 ----- 示例调用 NewNotify 函数
 --newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
+
 local Camera = game:GetService("Workspace").CurrentCamera
 local RunService = game:GetService("RunService")
 
-local function createCylinderAdornment(part, color)
-    local cylinder = Instance.new("CylinderHandleAdornment")
-    cylinder.Height = part.Size.Y
-    cylinder.Radius = part.Size.X / 2
-    cylinder.AlwaysOnTop = true
-    cylinder.ZIndex = 10  -- 提高 ZIndex 确保在最上层
-    cylinder.AdornCullingMode = Enum.AdornCullingMode.Never
-    cylinder.Color3 = color
-    cylinder.Transparency = 0.5
-    cylinder.Adornee = part
-    cylinder.Parent = game.CoreGui
-    return cylinder
+-- 创建 SurfaceGui 实例
+local function createSurfaceGui(part, color)
+    local surfaceGui = Instance.new("SurfaceGui")
+    surfaceGui.Adornee = part
+    surfaceGui.AlwaysOnTop = true
+    surfaceGui.Parent = part
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundTransparency = 1
+    frame.BorderSizePixel = 0
+    frame.Parent = surfaceGui
+
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Color = color
+    uiStroke.Thickness = 2
+    uiStroke.Parent = frame
+
+    return surfaceGui
 end
 
--- 创建 Highlight 实例
-local function createHighlight(part, color)
-    local highlight = Instance.new("Highlight")
-    highlight.Adornee = part
-    highlight.FillColor = color
-    highlight.OutlineColor = color
-    highlight.OutlineTransparency = 0.5
-    highlight.FillTransparency = 0.5
-    highlight.Parent = part
-    return highlight
-end
-
--- 创建 BillboardGui 实例
-local function createBillboardGui(core, color, name)
-    local bill = Instance.new("BillboardGui", game.CoreGui)
-    bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 100, 0, 50)
-    bill.Adornee = core
-    bill.MaxDistance = 2000
-
-    local mid = Instance.new("Frame", bill)
-    mid.AnchorPoint = Vector2.new(0.5, 0.5)
-    mid.BackgroundColor3 = color
-    mid.Size = UDim2.new(0, 8, 0, 8)
-    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-    Instance.new("UIStroke", mid)
-
-    local txt = Instance.new("TextLabel", bill)
-    txt.AnchorPoint = Vector2.new(0.5, 0.5)
-    txt.BackgroundTransparency = 1
-    txt.BackgroundColor3 = color
-    txt.TextColor3 = color
-    txt.Size = UDim2.new(1, 0, 0, 20)
-    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
-    txt.Text = name
-    txt.TextStrokeTransparency = 0.5
-    txt.TextSize = 25
-    txt.Font = Enum.Font.Code -- 设置字体为 Jura
-    Instance.new("UIStroke", txt)
-
-    return bill
-end
-
--- 创建追踪线实例
-local function createTracer(target, color)
-    local line = Drawing.new("Line")
-    line.Color = color
-    line.Thickness = 2
-    line.Transparency = 1
-
-    local function updateTracer()
-        if target and target:IsDescendantOf(workspace) then
-            local targetPos = Camera:WorldToViewportPoint(target.Position)
-            local screenPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- 从屏幕中心底部开始
-
-            line.From = screenPos
-            line.To = Vector2.new(targetPos.X, targetPos.Y)
-            line.Visible = true
-        else
-            line.Visible = false
-        end
+local function applyESP(part, color)
+    local surfaces = {"Front", "Back", "Left", "Right", "Top", "Bottom"}
+    for _, surface in ipairs(surfaces) do
+        local surfaceGui = createSurfaceGui(part, color)
+        surfaceGui.Face = Enum.NormalId[surface]
     end
-
-    RunService.RenderStepped:Connect(updateTracer)
-
-    return line
 end
 
 -- 主 ESP 函数
@@ -150,14 +97,14 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    -- 创建和管理 CylinderHandleAdornment、Highlight 和 Tracer 实例
-    local cylinders = {}
+    -- 创建和管理 SurfaceGui、Highlight 和 Tracer 实例
+    local surfaceGuis = {}
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local cylinder = createCylinderAdornment(part, color)
-        table.insert(cylinders, cylinder)
+        local surfaceGui = applyESP(part, color)
+        table.insert(surfaceGuis, surfaceGui)
         
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
@@ -175,10 +122,10 @@ function esp(what, color, core, name, enableTracer)
     end
 
     local function checkAndUpdate()
-        -- 检查 CylinderHandleAdornment 和 Highlight 是否需要更新
-        for _, cylinder in ipairs(cylinders) do
-            if not cylinder.Adornee or not cylinder.Adornee:IsDescendantOf(workspace) then
-                cylinder:Destroy()
+        -- 检查 SurfaceGui 和 Highlight 是否需要更新
+        for _, surfaceGui in ipairs(surfaceGuis) do
+            if not surfaceGui.Adornee or not surfaceGui.Adornee:IsDescendantOf(workspace) then
+                surfaceGui:Destroy()
             end
         end
         
@@ -205,8 +152,8 @@ function esp(what, color, core, name, enableTracer)
     local ret = {}
 
     ret.delete = function()
-        for _, cylinder in ipairs(cylinders) do
-            cylinder:Destroy()
+        for _, surfaceGui in ipairs(surfaceGuis) do
+            surfaceGui:Destroy()
         end
         
         for _, highlight in ipairs(highlights) do
