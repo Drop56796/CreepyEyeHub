@@ -39,20 +39,22 @@ end
 ----- 示例调用 NewNotify 函数
 --newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
 local Camera = game:GetService("Workspace").CurrentCamera
+local RunService = game:GetService("RunService")
 
-local function createBoxAdornment(part, color)
-    local box = Instance.new("BoxHandleAdornment")
-    box.Size = part.Size
-    box.AlwaysOnTop = true
-    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
-    box.AdornCullingMode = Enum.AdornCullingMode.Never
-    box.Color3 = color
-    box.Transparency = 0.9178
-    box.Adornee = part
-    box.Parent = game.CoreGui
-    return box
+local function createCylinderAdornment(part, color)
+    local cylinder = Instance.new("CylinderHandleAdornment")
+    cylinder.Height = part.Size.Y
+    cylinder.Radius = part.Size.X / 2
+    cylinder.AlwaysOnTop = true
+    cylinder.ZIndex = 10  -- 提高 ZIndex 确保在最上层
+    cylinder.AdornCullingMode = Enum.AdornCullingMode.Never
+    cylinder.Color3 = color
+    cylinder.Transparency = 0.5
+    cylinder.Adornee = part
+    cylinder.Parent = game.CoreGui
+    return cylinder
 end
-    
+
 -- 创建 Highlight 实例
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
@@ -90,7 +92,7 @@ local function createBillboardGui(core, color, name)
     txt.Position = UDim2.new(0.5, 0, 0.7, 0)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
-    txt.TextSize = 18
+    txt.TextSize = 25
     txt.Font = Enum.Font.Code -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
 
@@ -148,14 +150,14 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
-    local boxes = {}
+    -- 创建和管理 CylinderHandleAdornment、Highlight 和 Tracer 实例
+    local cylinders = {}
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local box = createBoxAdornment(part, color)
-        table.insert(boxes, box)
+        local cylinder = createCylinderAdornment(part, color)
+        table.insert(cylinders, cylinder)
         
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
@@ -173,10 +175,10 @@ function esp(what, color, core, name, enableTracer)
     end
 
     local function checkAndUpdate()
-        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
-        for _, box in ipairs(boxes) do
-            if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
-                box:Destroy()
+        -- 检查 CylinderHandleAdornment 和 Highlight 是否需要更新
+        for _, cylinder in ipairs(cylinders) do
+            if not cylinder.Adornee or not cylinder.Adornee:IsDescendantOf(workspace) then
+                cylinder:Destroy()
             end
         end
         
@@ -203,56 +205,25 @@ function esp(what, color, core, name, enableTracer)
     local ret = {}
 
     ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
+        for _, cylinder in ipairs(cylinders) do
+            cylinder:Destroy()
         end
         
         for _, highlight in ipairs(highlights) do
             highlight:Destroy()
         end
 
-        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
+        if bill then
             bill:Destroy()
         end
 
-        -- 检查 Tracer 是否需要更新
         for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
-                tracer:Remove()
-            end
+            tracer:Remove()
         end
     end
-
-    RunService.Stepped:Connect(checkAndUpdate)
-
-    local ret = {}
-
-    ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
-        end
-        
-        for _, highlight in ipairs(highlights) do
-            highlight:Destroy()
-        end
-
-        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
-            bill:Destroy()
-        end
-
-        -- 检查 Tracer 是否需要更新
-        for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
-                tracer:Remove()
-            end
-        end
-    end
-
-    RunService.Stepped:Connect(checkAndUpdate)
 
     return ret
 end
-
 
 local buttons = {
     tpwalktoggle = nil,  -- TP Walk 开关按钮
