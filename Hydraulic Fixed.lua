@@ -414,7 +414,7 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
-MainGroup:AddToggle('Loop Speed Boost', {
+FTGroup:AddToggle('Loop Speed Boost', {
     Text = 'Loop Speed Boost(Seek Chase)',
     Default = false,
     Tooltip = 'Increase speed when SeekMusic Intro plays',
@@ -429,7 +429,7 @@ MainGroup:AddToggle('Loop Speed Boost', {
                 if sound.Name == "Intro" and sound.Parent and sound.Parent.Name == "SeekMusic" and sound.Parent.Parent and sound.Parent.Parent.Name == "FloorReplicated" then
                     while _G[flagsName] and sound.IsPlaying do
                         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 23.5 -- 设置加速速度
-                        task.wait(0.1)
+                        task.wait(0.0001)
                     end
                     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 -- 恢复正常速度
                 end
