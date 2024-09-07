@@ -319,7 +319,7 @@ local characterName = character.Name
 
 -- 创建窗口并显示角色名称
 local Window = Library:CreateWindow({
-    Title = 'Hydraulic Fixed v' .. v .. '  ID: ' .. characterName,
+    Title = 'Hydraulic <DOORS> v' .. v .. '  ID: ' .. characterName,
     Center = true,
     AutoShow = true,
     Resizable = true,
@@ -356,7 +356,7 @@ local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(
 		FrameCounter = 0;
 	end;
 
-	Library:SetWatermark(('Hydraulic Fixed | %s fps | %s ms'):format(
+	Library:SetWatermark(('Hydraulic <DOORS>  < %s fps ｜ %s ms > '):format(
 		math.floor(FPS),
 		math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
 	));
@@ -1338,6 +1338,76 @@ MainGroup2:AddToggle('No Clip', {
         else
             -- close
             Bookaura = false
+        end
+    end
+})
+
+MainGroup2:AddToggle('No Clip', {
+    Text = 'Toolbox aura',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            -- open
+            boxaura = true
+
+            -- getplayer
+            local player = game.Players.LocalPlayer
+
+            -- check
+            workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                room.DescendantAdded:Connect(function(descendant)
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "Toolbox" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end)
+
+            -- check2
+            for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                for _, descendant in pairs(room:GetDescendants()) do
+                    if descendant:IsA("Model") then
+                        local prompt = nil
+                        if descendant.Name == "Toolbox" then
+                            prompt = descendant:WaitForChild("ActivateEventPrompt")
+			end
+
+                        if prompt then
+                            local interactions = prompt:GetAttribute("Interactions")
+                            if not interactions then
+                                task.spawn(function()
+                                    while autoInteract and not prompt:GetAttribute("Interactions") do
+                                        task.wait(0.1)
+                                        if player:DistanceFromCharacter(descendant.PrimaryPart.Position) <= 12 then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- close
+            boxaura = false
         end
     end
 })
