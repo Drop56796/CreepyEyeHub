@@ -2,7 +2,7 @@ local repo = 'https://raw.githubusercontent.com/mstudio45/LinoriaLib/main/'
 local Library = loadstring(game:HttpGet("https://github.com/Drop56796/CreepyEyeHub/blob/main/UI%20Style%20theme.lua?raw=true"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-local v = 2.6
+local v = 2.7
 local Players = game:GetService("Players")
 local textChannel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
 local player = Players.LocalPlayer
@@ -1475,6 +1475,74 @@ MainGroup3:AddToggle('No Clip', {
                 -- 当 noa90 为 true 且 A90 存在时，删除 A90
                 sj:Destroy()
             end
+        end
+    end
+})
+
+MainGroup3:AddToggle('pe', {
+    Text = 'Enity bypass  <Beta what??>',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            local entityNames = {"RushMoving", "AmbushMoving"}  -- 实体名称
+
+            -- 确保 flags 和 plr 已定义
+            local flags = flags or {} -- 防止错误
+            local plr = game.Players.LocalPlayer -- 防止错误2
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        -- Teleport player 35 units down and immobilize
+                        local originalPosition = plr.Character.HumanoidRootPart.Position
+                        plr.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition.X, originalPosition.Y - 35, originalPosition.Z)
+                        plr.Character.HumanoidRootPart.Anchored = true
+                        
+                        -- Wait for 4 seconds
+                        task.wait(4)
+                        
+                        -- Make entity fly up for 10 seconds
+                        local entityOriginalPosition = child:GetPivot().Position
+                        child:SetPrimaryPartCFrame(CFrame.new(entityOriginalPosition.X, entityOriginalPosition.Y + 100, entityOriginalPosition.Z))
+                        task.wait(9.5)
+                        
+                        -- Teleport player to the nearest "Doors" part in each room
+                        for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                            local doorsPart = room:FindFirstChild("Door")
+                            if doorsPart then
+                                plr.Character.HumanoidRootPart.CFrame = doorsPart.CFrame
+                            end
+                        end
+                        
+                        -- Immobilize entity
+                        child.PrimaryPart.Anchored = true
+                        
+                        -- Return player to start position and unanchor
+                        plr.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition)
+                        plr.Character.HumanoidRootPart.Anchored = false
+                    end
+                end
+            end
+
+            -- 无限循环以保持脚本运行并检查 hintrush 标志
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- 根据需要调整等待时间
+                until not flags.hintrush or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- 关闭消息或进行其他清理（如有需要）
+            running = false
         end
     end
 })
