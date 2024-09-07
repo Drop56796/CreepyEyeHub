@@ -285,7 +285,6 @@ local flags = {
     espitems = false,
     espbooks = false,
     espgold = false,
-    targetKeyObtain = false,
     noclip = false,
     getcode = false,
     itemaura = false,
@@ -1736,64 +1735,65 @@ RightGroup:AddToggle('ee', {
     end
 })
 RightGroup:AddToggle('pe', {
-    Text = 'Key / Lever esp',
+    Text = 'Key / Lever ESP',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
-    flags.espkeys = val
-    
-    if val then
-        local function check(v)
-            if v:IsA("Model") and (v.Name == "LeverForGate" or v.Name == "KeyObtain") then
-                task.wait(0.1)
-                if v.Name == "KeyObtain" then
-                    local hitbox = v:WaitForChild("Hitbox")
-                    local parts = hitbox:GetChildren()
-                    table.remove(parts,table.find(parts,hitbox:WaitForChild("PromptHitbox")))
-                    
-                    local h = esp(parts,Color3.fromRGB(145, 100, 75),hitbox,"Key")
-                    table.insert(esptable.keys,h)
-                    
-                elseif v.Name == "LeverForGate" then
-                    local h = esp(v,Color3.fromRGB(90,255,40),v.PrimaryPart,"Lever")
-                    table.insert(esptable.keys,h)
-                    
-                    v.PrimaryPart:WaitForChild("SoundToPlay").Played:Connect(function()
-                        h.delete()
-                    end) 
+        flags.espkeys = state
+        
+        if state then
+            local function check(v)
+                if v:IsA("Model") and (v.Name == "LeverForGate" or v.Name == "KeyObtain") then
+                    task.wait(0.1)
+                    if v.Name == "KeyObtain" then
+                        local hitbox = v:WaitForChild("Hitbox")
+                        local parts = hitbox:GetChildren()
+                        table.remove(parts, table.find(parts, hitbox:WaitForChild("PromptHitbox")))
+                        
+                        local h = esp(parts, Color3.fromRGB(145, 100, 75), hitbox, "Key")
+                        table.insert(esptable.keys, h)
+                        
+                    elseif v.Name == "LeverForGate" then
+                        local h = esp(v, Color3.fromRGB(90, 255, 40), v.PrimaryPart, "Lever")
+                        table.insert(esptable.keys, h)
+                        
+                        v.PrimaryPart:WaitForChild("SoundToPlay").Played:Connect(function()
+                            h.delete()
+                        end)
+                    end
                 end
             end
-        end
-        
-        local function setup(room)
-            local assets = room:WaitForChild("Assets")
             
-            assets.DescendantAdded:Connect(function(v)
-                check(v) 
-            end)
+            local function setup(room)
+                local assets = room:WaitForChild("Assets")
                 
-            for i,v in pairs(assets:GetDescendants()) do
-                check(v)
-            end 
-        end
-        
-        local addconnect
-        addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-            setup(room)
-        end)
-        
-        for i,room in pairs(workspace.CurrentRooms:GetChildren()) do
-            if room:FindFirstChild("Assets") then
-                setup(room) 
+                assets.DescendantAdded:Connect(function(v)
+                    check(v)
+                end)
+                    
+                for i, v in pairs(assets:GetDescendants()) do
+                    check(v)
+                end
+            end
+            
+            local addconnect
+            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+                setup(room)
+            end)
+            
+            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                if room:FindFirstChild("Assets") then
+                    setup(room)
+                end
+            end
+            
+            repeat task.wait() until not flags.espkeys
+            addconnect:Disconnect()
+            
+            for i, v in pairs(esptable.keys) do
+                v.delete()
             end
         end
-        
-        repeat task.wait() until not flags.espkeys
-        addconnect:Disconnect()
-        
-        for i,v in pairs(esptable.keys) do
-            v.delete()
-        end 
     end
 })
 
@@ -2208,62 +2208,58 @@ RightGroup1:AddToggle('pe', {
         end
     end
 })
-codeNo = "Are u sure get all Books?"
-success = "Code is " .. code
 RightGroup1:AddToggle('pe', {
     Text = 'Library Code Event',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
-    flags.getcode = val
-    
-    if val then
-        local function deciphercode()
-        local paper = char:FindFirstChild("LibraryHintPaper")
-        local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+        flags.getcode = state
         
-        local code = {[1]="_",[2]="_",[3]="_",[4]="_",[5]="_"}
-            
-            if paper then
-                for i,v in pairs(paper:WaitForChild("UI"):GetChildren()) do
-                    if v:IsA("ImageLabel") and v.Name ~= "Image" then
-                        for i,img in pairs(hints:GetChildren()) do
-                            if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
-                                local num = img:FindFirstChild("TextLabel").Text
-                                
-                                code[tonumber(v.Name)] = num 
+        if state then
+            local function deciphercode()
+                local paper = char:FindFirstChild("LibraryHintPaper")
+                local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+                
+                local code = {[1]="_", [2]="_", [3]="_", [4]="_", [5]="_"}
+                
+                if paper then
+                    for i, v in pairs(paper:WaitForChild("UI"):GetChildren()) do
+                        if v:IsA("ImageLabel") and v.Name ~= "Image" then
+                            for i, img in pairs(hints:GetChildren()) do
+                                if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
+                                    local num = img:FindFirstChild("TextLabel").Text
+                                    
+                                    code[tonumber(v.Name)] = num
+                                end
                             end
                         end
                     end
-                end 
+                end
+                
+                return code
             end
             
-            return code
-        end
-        
-        local addconnect
-        addconnect = char.ChildAdded:Connect(function(v)
-            if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
-                task.wait()
-                
-                local code = table.concat(deciphercode())
-                
-                if code:find("_") then
-                    Library:Notify(codeNo)
-		    addAndPlaySound("ExampleSound", 4590657391)
-                else
-                    message(success)
-		    Library:Notify(itemMessage)
+            local addconnect
+            addconnect = char.ChildAdded:Connect(function(v)
+                if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
+                    task.wait()
+                    
+                    local code = table.concat(deciphercode())
+                    
+                    if code:find("_") then
+                        Library:Notify("Are you sure you got all the books?")
+                        addAndPlaySound("ExampleSound", 4590657391)
+                    else
+                        Library:Notify("Code is " .. code)
+                    end
                 end
-            end
-        end)
-        
-        repeat task.wait() until not flags.getcode
-        addconnect:Disconnect()
+            end)
+            
+            repeat task.wait() until not flags.getcode
+            addconnect:Disconnect()
+        end
     end
 })
-
-
 
 
 RightGroup1:AddToggle('pe', {
