@@ -308,7 +308,8 @@ local flags = {
     boostFPS = false,
     g = false,
     g2 = false,
-    giggleCeiling = false
+    giggleCeiling = false,
+    espkeys = false
 }
 local esptable = {
     entity = {},
@@ -317,7 +318,7 @@ local esptable = {
     items = {},
     books = {},
     Gold = {},
-    key = {},
+    keys = {},
     loc = {},
     lol = {}
 }
@@ -1594,70 +1595,6 @@ RightGroup:AddToggle('pe', {
         end
     end
 })
-
-RightGroup:AddToggle('No Clip', {
-    Text = 'Lever esp',
-    Default = false,
-    Tooltip = 'Walk through walls',
-    Callback = function(state)
-        if state then
-            _G.locESPInstances = {}
-	    flags.esploc = state
-
-	    local function check(v)
-                if v:IsA("Model") then
-                    task.wait(0.1)
-                    if v.Name == "LeverForGate" then
-                        local h = esp(v.PrimaryPart, Color3.fromRGB(25, 55, 5), v.PrimaryPart, "Lever")
-                        table.insert(esptable.lockers, h)
-                    end
-                end
-            end
-                
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-                
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v) 
-                    end)
-                    
-                    for i, v in pairs(assets:GetDescendants()) do
-                        check(v)
-                    end
-                    
-                    task.spawn(function()
-                        repeat task.wait() until not flags.esplocker
-                        subaddcon:Disconnect()  
-                    end) 
-                end 
-            end
-            
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-            
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                setup(room) 
-            end
-
-            table.insert(_G.locESPInstances, esptable)
-
-	else
-            if _G.locESPInstances then
-                for _, instance in pairs(_G.locESPInstances) do
-                    for _, v in pairs(instance.loc) do
-                        v.delete()
-                    end
-                end
-                _G.locESPInstances = nil
-            end
-        end
-    end
-})
-
 RightGroup:AddToggle('pe', {
     Text = 'Closet / Locker esp',
     Default = false,
@@ -1798,134 +1735,65 @@ RightGroup:AddToggle('ee', {
         end
     end
 })
-
-local markedTargets = {}
-
--- 创建 BillboardGui
-local function createBillboardGui(core, color, name)
-    local bill = Instance.new("BillboardGui", game.CoreGui)
-    bill.AlwaysOnTop = true
-    bill.Size = UDim2.new(0, 100, 0, 50)
-    bill.Adornee = core
-    bill.MaxDistance = 2000
-
-    local mid = Instance.new("Frame", bill)
-    mid.AnchorPoint = Vector2.new(0.5, 0.5)
-    mid.BackgroundColor3 = color
-    mid.Size = UDim2.new(0, 8, 0, 8)
-    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-    Instance.new("UIStroke", mid)
-
-    local txt = Instance.new("TextLabel", bill)
-    txt.AnchorPoint = Vector2.new(0.5, 0.5)
-    txt.BackgroundTransparency = 1
-    txt.BackgroundColor3 = color
-    txt.TextColor3 = color
-    txt.Size = UDim2.new(1, 0, 0, 20)
-    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
-    txt.Text = name
-    txt.TextStrokeTransparency = 0.5
-    txt.TextSize = 18
-    txt.Font = Enum.Font.Jura -- 设置字体为 Jura
-    Instance.new("UIStroke", txt)
-
-    return bill
-end
-
--- 标记目标
-local function markTarget(target, customName)
-    if not target then return end
-    local oldBillboard = target:FindFirstChild("BillboardGui")
-    if oldBillboard then
-        oldBillboard:Destroy()
-    end
-    local bill = createBillboardGui(target, Color3.fromRGB(255, 255, 255), customName)
-    bill.Parent = target
-    markedTargets[target] = customName
-end
-
--- 递归查找所有实例
-local function recursiveFindAll(parent, name, targets)
-    for _, child in ipairs(parent:GetChildren()) do
-        if child.Name == name then
-            table.insert(targets, child)
-        end
-        recursiveFindAll(child, name, targets)
-    end
-end
-
--- 根据名称标记所有实例
-local function Itemlocationname(name, customName)
-    local targets = {}
-    recursiveFindAll(game, name, targets)
-    for _, target in ipairs(targets) do
-        markTarget(target, customName)
-    end
-end
-
--- 标记指定玩家的头部
-local function Invalidplayername(playerName, customName)
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.Name == playerName and player.Character then
-            local head = player.Character:FindFirstChild("Head")
-            if head then
-                markTarget(head, customName)
-            end
-        end
-    end
-end
-
 RightGroup:AddToggle('pe', {
-    Text = 'Key esp',
+    Text = 'Key / Lever esp',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
-        if state then
-            -- 连接事件以处理新玩家和新实例
-            Players.PlayerAdded:Connect(function(player)
-                player.CharacterAdded:Connect(function(character)
-                    local head = character:FindFirstChild("Head")
-                    if head then
-                        markTarget(head, player.Name)
-                    end
-                end)
-            end)
-
-            game.DescendantAdded:Connect(function(descendant)
-                if descendant.Name == "Key" or descendant.Name == "KeyObtain" then
-                    markTarget(descendant, descendant.Name)
-                end
-            end)
-
-            RunService.RenderStepped:Connect(function()
-                for target, customName in pairs(markedTargets) do
-                    if target and target:FindFirstChild("BillboardGui") then
-                        local bill = target.BillboardGui
-                        if bill and bill:FindFirstChild("TextLabel") then
-                            bill.TextLabel.Text = customName
-                        else
-                            if target then
-                                markTarget(target, customName)
-                            end
-                        end
-                    end
-                end
-            end)
-
-            -- 立即处理现有实例和玩家
-            Invalidplayername("玩家名称", "玩家")
-            Itemlocationname("Key", "Key")
-            Itemlocationname(".", ".")
-        else
-            -- 清理标记
-            for target, _ in pairs(markedTargets) do
-                if target:FindFirstChild("BillboardGui") then
-                    target.BillboardGui:Destroy()
+    flags.espkeys = val
+    
+    if val then
+        local function check(v)
+            if v:IsA("Model") and (v.Name == "LeverForGate" or v.Name == "KeyObtain") then
+                task.wait(0.1)
+                if v.Name == "KeyObtain" then
+                    local hitbox = v:WaitForChild("Hitbox")
+                    local parts = hitbox:GetChildren()
+                    table.remove(parts,table.find(parts,hitbox:WaitForChild("PromptHitbox")))
+                    
+                    local h = esp(parts,Color3.fromRGB(145, 100, 75),hitbox,"Key")
+                    table.insert(esptable.keys,h)
+                    
+                elseif v.Name == "LeverForGate" then
+                    local h = esp(v,Color3.fromRGB(90,255,40),v.PrimaryPart,"Lever")
+                    table.insert(esptable.keys,h)
+                    
+                    v.PrimaryPart:WaitForChild("SoundToPlay").Played:Connect(function()
+                        h.delete()
+                    end) 
                 end
             end
-            markedTargets = {}
         end
+        
+        local function setup(room)
+            local assets = room:WaitForChild("Assets")
+            
+            assets.DescendantAdded:Connect(function(v)
+                check(v) 
+            end)
+                
+            for i,v in pairs(assets:GetDescendants()) do
+                check(v)
+            end 
+        end
+        
+        local addconnect
+        addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+            setup(room)
+        end)
+        
+        for i,room in pairs(workspace.CurrentRooms:GetChildren()) do
+            if room:FindFirstChild("Assets") then
+                setup(room) 
+            end
+        end
+        
+        repeat task.wait() until not flags.espkeys
+        addconnect:Disconnect()
+        
+        for i,v in pairs(esptable.keys) do
+            v.delete()
+        end 
     end
 })
 
@@ -2340,69 +2208,61 @@ RightGroup1:AddToggle('pe', {
         end
     end
 })
-
+codeNo = "Are u sure get all Books?"
+success = "Code is " .. code
 RightGroup1:AddToggle('pe', {
     Text = 'Library Code Event',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(state)
-        flags.getcode = val
-
-		if val then
-			local function deciphercode()
-				local paper = char:FindFirstChild("LibraryHintPaper")
-				local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
-
-				local code = {[1]="_",[2]="_",[3]="_",[4]="_",[5]="_"}
-
-				if paper then
-					for i,v in pairs(paper:WaitForChild("UI"):GetChildren()) do
-						if v:IsA("ImageLabel") and v.Name ~= "Image" then
-							for i,img in pairs(hints:GetChildren()) do
-								if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
-									local num = img:FindFirstChild("TextLabel").Text
-
-									code[tonumber(v.Name)] = num 
-								end
-							end
-						end
-					end 
-				end
-
-				return code
-			end
-
-			local apart
-			local addconnect
-			addconnect = char.ChildAdded:Connect(function(v)
-				if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
-					task.wait()
-					local code = table.concat(deciphercode())
-
-					if code:find("_") then
-						local code = "Code : ".. code.." "
-						Library:Notify(code)
-					else
-						if apart == nil then
-							apart = Instance.new("Part", game.ReplicatedStorage)
-							apart.CanCollide = false
-							apart.Anchored = true
-							apart.Position = game.Players.LocalPlayer.Character.PrimaryPart.Position
-							apart.Transparency = 1
-							Library:Notify(code)
-							repeat task.wait(.1) until game:GetService("ReplicatedStorage").GameData.LatestRoom.Value ~= 50
-							apart:Destroy()
-							apart = nil
-						end
-					end
-				end
-			end)
-
-			repeat task.wait() until not flags.getcode
-			addconnect:Disconnect()
-		end
-	end
+    flags.getcode = val
+    
+    if val then
+        local function deciphercode()
+        local paper = char:FindFirstChild("LibraryHintPaper")
+        local hints = plr.PlayerGui:WaitForChild("PermUI"):WaitForChild("Hints")
+        
+        local code = {[1]="_",[2]="_",[3]="_",[4]="_",[5]="_"}
+            
+            if paper then
+                for i,v in pairs(paper:WaitForChild("UI"):GetChildren()) do
+                    if v:IsA("ImageLabel") and v.Name ~= "Image" then
+                        for i,img in pairs(hints:GetChildren()) do
+                            if img:IsA("ImageLabel") and img.Visible and v.ImageRectOffset == img.ImageRectOffset then
+                                local num = img:FindFirstChild("TextLabel").Text
+                                
+                                code[tonumber(v.Name)] = num 
+                            end
+                        end
+                    end
+                end 
+            end
+            
+            return code
+        end
+        
+        local addconnect
+        addconnect = char.ChildAdded:Connect(function(v)
+            if v:IsA("Tool") and v.Name == "LibraryHintPaper" then
+                task.wait()
+                
+                local code = table.concat(deciphercode())
+                
+                if code:find("_") then
+                    Library:Notify(codeNo)
+		    addAndPlaySound("ExampleSound", 4590657391)
+                else
+                    message(success)
+		    Library:Notify(itemMessage)
+                end
+            end
+        end)
+        
+        repeat task.wait() until not flags.getcode
+        addconnect:Disconnect()
+    end
 })
+
 
 
 
