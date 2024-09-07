@@ -1000,7 +1000,7 @@ MainGroup:AddToggle('Bypass', {
     end
 })
 
-local MainGroup2 = Tabs.Main:AddRightGroupbox('Prompt Aura')
+local MainGroup2 = Tabs.Main:AddLeftGroupbox('Prompt Aura')
 MainGroup2:AddToggle('No Clip', {
     Text = 'Chestbox / Drawers aura',
     Default = false,
@@ -1430,7 +1430,7 @@ MainGroup2:AddToggle('No Clip', {
     end
 })
 
-local MainGroup3 = Tabs.Main:AddRightGroupbox('Bypass Enity')
+local MainGroup3 = Tabs.Main:AddLeftGroupbox('Bypass Enity')
 MainGroup3:AddToggle('No Clip', {
     Text = 'Nil A90',
     Default = false,
@@ -1571,7 +1571,6 @@ MainGroup3:AddToggle('No Clip', {
     end
 })
 buttons.noseek = noseekbtn
-
 RightGroup:AddToggle('pe', {
     Text = 'Player esp',
     Default = false,
