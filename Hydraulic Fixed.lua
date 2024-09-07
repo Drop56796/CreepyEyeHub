@@ -13,6 +13,18 @@ local rootPart = char:WaitForChild("HumanoidRootPart")
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
+local SoundService = game:GetService("SoundService")
+
+-- 添加并播放声音
+local function addAndPlaySound(name, soundId)
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. soundId
+    sound.Name = name
+    sound.Parent = SoundService
+    sound:Play()
+end
+
+
 function warnNofiy(title, text)
 	Notification:Notify(
 		{Title = title, Description = text},
@@ -317,6 +329,9 @@ local character = player.Character or player.CharacterAdded:Wait()
 -- 获取角色名称
 local characterName = character.Name
 
+local v = "User authentication succeeded, and the script was executed"
+Library:Notify(v)
+addAndPlaySound("ExampleSound", 4590657391)
 -- 创建窗口并显示角色名称
 local Window = Library:CreateWindow({
     Title = 'Hydraulic <DOORS> v' .. v .. '  ID: ' .. characterName,
@@ -2288,8 +2303,10 @@ RightGroup1:AddToggle('pe', {
                 local entityMessage
                 if entity.Name:gsub("Moving", ""):lower() == "Jeffthekiller" then
                     entityMessage = "Entity Event: JeffTheKiller in the next door and be careful of his attack."
+		    addAndPlaySound("ExampleSound", 4590657391)
                 else
                     entityMessage = "Entity Event: " .. entity.Name:gsub("Moving", ""):lower() .. " Spawned!"
+		    addAndPlaySound("ExampleSound", 4590657391)
                 end
                 Library:Notify(entityMessage)
 	    end
@@ -2402,6 +2419,7 @@ RightGroup1:AddToggle('pe', {
             local function notifyItem(itemName)
                 local itemMessage = "Item Event: " .. itemName .. " is spawned"
                 Library:Notify(itemMessage)
+		addAndPlaySound("ExampleSound", 4590657391)
             end
 
             -- 监控新物品的出现
