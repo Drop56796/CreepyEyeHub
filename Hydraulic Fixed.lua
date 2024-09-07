@@ -329,8 +329,9 @@ local character = player.Character or player.CharacterAdded:Wait()
 -- 获取角色名称
 local characterName = character.Name
 
-local v = "User authentication succeeded, and the script was executed"
-Library:Notify(v)
+wait(3)
+local val = "User authentication succeeded, and the script was executed"
+Library:Notify(val)
 addAndPlaySound("ExampleSound", 4590657391)
 -- 创建窗口并显示角色名称
 local Window = Library:CreateWindow({
