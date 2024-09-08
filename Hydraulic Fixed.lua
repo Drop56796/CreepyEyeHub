@@ -964,7 +964,7 @@ MainGroup:AddToggle('Third Person View', {
 
 
 -- 添加切换按钮
-FTGroup:AddToggle('Speed Bypass', {
+MainGroup:AddToggle('Speed Bypass', {
     Text = 'Anti Speed Cheat',
     Default = false,
     Tooltip = 'Toggle Speed Bypass',
@@ -1550,9 +1550,13 @@ MainGroup3:AddToggle('No Clip', {
     end
 })
 --------
-function Script.Functions.DeleteSeek(child)
+-- 删除 Seek 的函数
+function Script.Functions.Antiseek(child)
     if child.Name == "TriggerEventCollision" and flags.noseek and character then
-        Library:Notify("Bro stop open door I'm deleting seek", child:FindFirstChildOfClass("BasePart"))
+        local basePart = child:FindFirstChildOfClass("BasePart")
+        if basePart then
+            Library:Notify("Bro stop open door I'm deleting seek", basePart)
+        end
         
         if fireTouch then
             repeat
@@ -1588,7 +1592,7 @@ MainGroup3:AddToggle('No Clip', {
                 local trigger = room:WaitForChild("TriggerEventCollision", 2)
 
                 if trigger then
-                    Script.Functions.DeleteSeek(trigger)
+                    Script.Functions.Antiseek(trigger)
                 end
             end)
 
