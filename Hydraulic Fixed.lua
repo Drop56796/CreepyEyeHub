@@ -308,7 +308,8 @@ local flags = {
     g = false,
     g2 = false,
     giggleCeiling = false,
-    espkeys = false
+    espkeys = false,
+    SpeedBypass = false
 }
 local esptable = {
     entity = {},
@@ -964,7 +965,7 @@ MainGroup:AddToggle('Third Person View', {
 
 -- 添加切换按钮
 FTGroup:AddToggle('Speed Bypass', {
-    Text = 'Anti Speed Che',
+    Text = 'Anti Speed Cheat',
     Default = false,
     Tooltip = 'Toggle Speed Bypass',
     Callback = function(state)
@@ -1551,7 +1552,7 @@ MainGroup3:AddToggle('No Clip', {
 --------
 function Script.Functions.DeleteSeek(child)
     if child.Name == "TriggerEventCollision" and flags.noseek and character then
-        Script.Functions.Alert("Deleting Seek, do not open the next door...", child:FindFirstChildOfClass("BasePart"))
+        Library:Notify("Bro stop open door I'm deleting seek", child:FindFirstChildOfClass("BasePart"))
         
         if fireTouch then
             repeat
@@ -1569,7 +1570,7 @@ function Script.Functions.DeleteSeek(child)
             repeat task.wait() until #child:GetChildren() == 0 or not flags.noseek
         end
         
-        Script.Functions.Alert("Deleted Seek successfully! You can open the next door", 5)
+        Library:Notify("bro now to open door")
     end
 end
 
