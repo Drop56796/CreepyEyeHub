@@ -915,7 +915,7 @@ MainGroup:AddToggle('Speed Bypass', {
 
                 while flags.SpeedBypass and collisionClone do
                     collisionClone.Massless = not collisionClone.Massless
-                    task.wait(0.125)
+                    task.wait(0.220005555)
                 end
             end
         else
@@ -930,22 +930,19 @@ MainGroup:AddToggle('Speed Bypass', {
 })
 
 MainGroup:AddToggle('No Clip', {
-    Text = 'No Clip?',
+    Text = 'No Clip',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(Value)
         local player = game.Players.LocalPlayer
         local char = player.Character
         local runService = game:GetService("RunService")
-        local rootPart = char:WaitForChild("HumanoidRootPart")
-
         if Value then
             _G.NoClip = runService.Stepped:Connect(function()
-                local collision = char:FindFirstChild("Collision") or char:FindFirstChild("CollisionClone")
-                if collision and rootPart then
-                    collision.CanCollide = false
-                    collision.Position = rootPart.Position + Vector3.new(0, -6, 0)
-                    collision.CFrame = rootPart.CFrame * CFrame.new(0, -6, 0)
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
                 end
             end)
         else
@@ -953,11 +950,10 @@ MainGroup:AddToggle('No Clip', {
                 _G.NoClip:Disconnect()
                 _G.NoClip = nil
             end
-            local collision = char:FindFirstChild("Collision") or char:FindFirstChild("CollisionClone")
-            if collision then
-                collision.CanCollide = true
-                collision.Position = rootPart.Position -- 恢复位置
-                collision.CFrame = rootPart.CFrame -- 恢复 CFrame
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
             end
         end
     end
