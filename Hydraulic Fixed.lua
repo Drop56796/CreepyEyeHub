@@ -1550,34 +1550,6 @@ MainGroup3:AddToggle('No Clip', {
     end
 })
 --------
--- 删除 Seek 的函数
-function Script.Functions.Antiseek(child)
-    if child.Name == "TriggerEventCollision" and flags.noseek and character then
-        local basePart = child:FindFirstChildOfClass("BasePart")
-        if basePart then
-            Library:Notify("Bro stop open door I'm deleting seek", basePart)
-        end
-        
-        if fireTouch then
-            repeat
-                for _, v in pairs(child:GetChildren()) do
-                    fireTouch(v, rootPart, 1)
-                    task.wait()
-                    fireTouch(v, rootPart, 0)
-                    task.wait()
-                end
-            until #child:GetChildren() == 0 or not flags.noseek
-        else
-            child:PivotTo(CFrame.new(rootPart.Position))
-            rootPart.Anchored = true
-
-            repeat task.wait() until #child:GetChildren() == 0 or not flags.noseek
-        end
-        
-        Library:Notify("bro now to open door")
-    end
-end
-
 -- 添加切换按钮
 MainGroup3:AddToggle('No Clip', {
     Text = 'Anti Seek',
@@ -1592,7 +1564,7 @@ MainGroup3:AddToggle('No Clip', {
                 local trigger = room:WaitForChild("TriggerEventCollision", 2)
 
                 if trigger then
-                    Script.Functions.Antiseek(trigger)
+                    trigger:Destroy()
                 end
             end)
 
