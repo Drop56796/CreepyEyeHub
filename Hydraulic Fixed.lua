@@ -309,7 +309,6 @@ local flags = {
     g2 = false,
     giggleCeiling = false,
     espkeys = false,
-    SpeedBypass = false,
     GodMode = false
 }
 local esptable = {
@@ -963,45 +962,6 @@ MainGroup:AddToggle('Third Person View', {
     end
 })
 
-
--- 添加切换按钮
-MainGroup:AddToggle('Speed Bypass', {
-    Text = 'Anti Speed Cheat',
-    Default = false,
-    Tooltip = 'Toggle Speed Bypass',
-    Callback = function(state)
-        flags.SpeedBypass = state
-        if state then
-            -- 启用 Speed Bypass
-            local character = game.Players.LocalPlayer.Character
-            local collision = character:WaitForChild("Collision")
-            local collisionClone
-
-            if collision then
-                collisionClone = collision:Clone()
-                collisionClone.CanCollide = false
-                collisionClone.Massless = true
-                collisionClone.Name = "CollisionClone"
-                if collisionClone:FindFirstChild("CollisionCrouch") then
-                    collisionClone.CollisionCrouch:Destroy()
-                end
-                collisionClone.Parent = character
-
-                while flags.SpeedBypass and collisionClone do
-                    collisionClone.Massless = not collisionClone.Massless
-                    task.wait(0.225)
-                end
-            end
-        else
-            -- 禁用 Speed Bypass
-            local character = game.Players.LocalPlayer.Character
-            local collisionClone = character:FindFirstChild("CollisionClone")
-            if collisionClone then
-                collisionClone.Massless = true
-            end
-        end
-    end
-})
 
 
 local MainGroup2 = Tabs.Main:AddLeftGroupbox('Prompt Aura')
