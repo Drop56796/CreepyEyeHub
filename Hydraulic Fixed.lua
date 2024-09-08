@@ -442,7 +442,7 @@ FTGroup:AddToggle('Loop Speed Boost', {
             local function onSoundPlay(sound)
                 if sound.Name == "Intro" and sound.Parent and sound.Parent.Name == "SeekMusic" and sound.Parent.Parent and sound.Parent.Parent.Name == "FloorReplicated" then
                     while _G[flagsName] and sound.IsPlaying do
-                        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 23.5 -- 设置加速速度
+                        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 27 -- 设置加速速度
                         task.wait(0.0001)
                     end
                     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 -- 恢复正常速度
@@ -816,7 +816,7 @@ MainGroup:AddSlider('Speed', {
 	Text = 'Speed',
 	Default = 20,
 	Min = 20,
-	Max = 22,
+	Max = 25,
 	Rounding = 1,
 	Compact = false,
 
