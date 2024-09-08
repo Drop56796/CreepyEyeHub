@@ -309,7 +309,8 @@ local flags = {
     g2 = false,
     giggleCeiling = false,
     espkeys = false,
-    SpeedBypass = false
+    SpeedBypass = false,
+    GodMode = false
 }
 local esptable = {
     entity = {},
@@ -1574,6 +1575,100 @@ MainGroup3:AddToggle('No Clip', {
         end
     end
 })
+
+-- 假设 MainGroup 和 flags 已经定义
+local MainGroup = {} -- 这是一个示例，你需要用实际的 MainGroup 替换
+local flags = {} -- 这是一个示例，你需要用实际的 flags 替换
+
+-- 添加切换按钮
+MainGroup:AddToggle('God Mode', {
+    Text = 'God(if open pls close Anti Speed Cheat)',
+    Default = false,
+    Tooltip = 'Toggle God Mode',
+    Callback = function(state)
+        flags.GodMode = state
+        if state then
+            -- 启用 God Mode
+            local character = game.Players.LocalPlayer.Character
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            local rootPart = character:WaitForChild("HumanoidRootPart")
+            local collision = character:WaitForChild("Collision")
+            local collisionClone
+            local savedHumanoidState = humanoid:Clone()
+            local savedAnimations = {}
+
+            -- 保存当前动画
+            for _, animTrack in pairs(humanoid:GetPlayingAnimationTracks()) do
+                table.insert(savedAnimations, animTrack)
+            end
+
+            if collision then
+                collisionClone = collision:Clone()
+                collisionClone.CanCollide = false
+                collisionClone.Massless = true
+                collisionClone.Name = "CollisionClone"
+                if collisionClone:FindFirstChild("CollisionCrouch") then
+                    collisionClone.CollisionCrouch:Destroy()
+                end
+                collisionClone.Parent = character
+
+                -- 禁用伤害
+                if humanoid then
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+
+                    -- 监控健康状态
+                    humanoid.HealthChanged:Connect(function(health)
+                        if health <= 0 then
+                            -- 克隆并恢复健康
+                            local newHumanoid = savedHumanoidState:Clone()
+                            newHumanoid.Parent = character
+                            character.Humanoid:Destroy()
+                            character.Humanoid = newHumanoid
+                            newHumanoid.Health = newHumanoid.MaxHealth
+
+                            -- 恢复动画
+                            for _, animTrack in pairs(savedAnimations) do
+                                newHumanoid:LoadAnimation(animTrack.Animation):Play()
+                            end
+                        end
+                    end)
+                end
+
+                -- 使用 RunService 来持续更新 collisionClone 的位置
+                local runService = game:GetService("RunService")
+                local connection
+                connection = runService.Stepped:Connect(function()
+                    if not flags.GodMode or not collisionClone then
+                        connection:Disconnect()
+                        return
+                    end
+                    -- 将 collisionClone 的位置设置为 rootPart 的下面
+                    collisionClone.CFrame = rootPart.CFrame * CFrame.new(0, -3, 0)
+                end)
+            end
+        else
+            -- 禁用 God Mode
+            local character = game.Players.LocalPlayer.Character
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            local collisionClone = character:FindFirstChild("CollisionClone")
+            if collisionClone then
+                collisionClone:Destroy()
+            end
+
+            -- 恢复伤害
+            if humanoid then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+            end
+        end
+    end
+})
+
+-- 示例：初始化 flags
+flags.GodMode = false
 
 RightGroup:AddToggle('pe', {
     Text = 'Player esp',
