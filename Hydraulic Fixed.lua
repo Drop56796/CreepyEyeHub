@@ -815,15 +815,18 @@ gsGroup:AddToggle('Simplify Parts and Models', {
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddSlider('Speed', {
-    Text = 'Speed',
-    Default = 20,
-    Min = 20,
-    Max = 25,
-    Rounding = 1,
-    Compact = false,
+	Text = 'Speed',
+	Default = 20,
+	Min = 20,
+	Max = 23,
+	Rounding = 1,
+	Compact = false,
 
-    Callback = function(val, oldval)
-        flags.tpwalkspeed = val
+	Callback = function(val, oldval)
+	flags.tpwalkspeed = val
+        if flags.tpwalktoggle then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = val  -- Directly set WalkSpeed if toggle is on
+        end
     end
 })
 buttons.tpwalkspeed = tpwalkspeedslider
@@ -833,21 +836,19 @@ MainGroup:AddToggle('ToggleSpeed', {
     Tooltip = 'Walk through walls',
     Callback = function(val, oldval)
         flags.tpwalktoggle = val
+        if val then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
+        else
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
+        end
     end
 })
 buttons.tpwalktoggle = tpwalktglbtn
 
--- Create a loop using RunService to enforce CFrame walk
+-- Create a loop using RunService to enforce WalkSpeed
 RunService.RenderStepped:Connect(function()
     if flags.tpwalktoggle then
-        local character = game.Players.LocalPlayer.Character
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local moveDirection = character.Humanoid.MoveDirection
-            if moveDirection.Magnitude > 0 then
-                humanoidRootPart.CFrame = humanoidRootPart.CFrame + moveDirection * flags.tpwalkspeed * RunService.RenderStepped:Wait()
-            end
-        end
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Enforce the selected WalkSpeed
     end
 end)
 
@@ -912,16 +913,10 @@ MainGroup:AddToggle('Speed Bypass', {
                 end
                 collisionClone.Parent = character
 
-                -- 使用 RunService 来持续更新 collisionClone 的属性
-                local runService = game:GetService("RunService")
-                local connection
-                connection = runService.Stepped:Connect(function()
-                    if not flags.SpeedBypass or not collisionClone then
-                        connection:Disconnect()
-                        return
-                    end
+                while flags.SpeedBypass and collisionClone do
                     collisionClone.Massless = not collisionClone.Massless
-                end)
+                    task.wait(0.125)
+                end
             end
         else
             -- 禁用 Speed Bypass
@@ -935,19 +930,22 @@ MainGroup:AddToggle('Speed Bypass', {
 })
 
 MainGroup:AddToggle('No Clip', {
-    Text = 'No Clip',
+    Text = 'No Clip?',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(Value)
         local player = game.Players.LocalPlayer
         local char = player.Character
         local runService = game:GetService("RunService")
+        local rootPart = char:WaitForChild("HumanoidRootPart")
+
         if Value then
             _G.NoClip = runService.Stepped:Connect(function()
-                for _, v in pairs(char:GetDescendants()) do
-                    if v:IsA("BasePart") then
-                        v.CanCollide = false
-                    end
+                local collision = char:FindFirstChild("Collision") or char:FindFirstChild("CollisionClone")
+                if collision and rootPart then
+                    collision.CanCollide = false
+                    collision.Position = rootPart.Position + Vector3.new(0, -6, 0)
+                    collision.CFrame = rootPart.CFrame * CFrame.new(0, -6, 0)
                 end
             end)
         else
@@ -955,10 +953,11 @@ MainGroup:AddToggle('No Clip', {
                 _G.NoClip:Disconnect()
                 _G.NoClip = nil
             end
-            for _, v in pairs(char:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.CanCollide = true
-                end
+            local collision = char:FindFirstChild("Collision") or char:FindFirstChild("CollisionClone")
+            if collision then
+                collision.CanCollide = true
+                collision.Position = rootPart.Position -- 恢复位置
+                collision.CFrame = rootPart.CFrame -- 恢复 CFrame
             end
         end
     end
