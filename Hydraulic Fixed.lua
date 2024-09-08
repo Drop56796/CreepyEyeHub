@@ -309,7 +309,8 @@ local flags = {
     g2 = false,
     giggleCeiling = false,
     espkeys = false,
-    GodMode = false
+    GodMode = false,
+    SpeedBypass = false
 }
 local esptable = {
     entity = {},
@@ -890,6 +891,49 @@ task.spawn(function()
         end
     end)
 end)
+MainGroup:AddToggle('Speed Bypass', {
+    Text = 'Anti Speed Cheat',
+    Default = false,
+    Tooltip = 'Toggle Speed Bypass',
+    Callback = function(state)
+        flags.SpeedBypass = state
+        if state then
+            -- 启用 Speed Bypass
+            local character = game.Players.LocalPlayer.Character
+            local collision = character:WaitForChild("Collision")
+            local collisionClone
+
+            if collision then
+                collisionClone = collision:Clone()
+                collisionClone.CanCollide = false
+                collisionClone.Massless = true
+                collisionClone.Name = "CollisionClone"
+                if collisionClone:FindFirstChild("CollisionCrouch") then
+                    collisionClone.CollisionCrouch:Destroy()
+                end
+                collisionClone.Parent = character
+
+                -- 使用 RunService 来持续更新 collisionClone 的属性
+                local runService = game:GetService("RunService")
+                local connection
+                connection = runService.Stepped:Connect(function()
+                    if not flags.SpeedBypass or not collisionClone then
+                        connection:Disconnect()
+                        return
+                    end
+                    collisionClone.Massless = not collisionClone.Massless
+                end)
+            end
+        else
+            -- 禁用 Speed Bypass
+            local character = game.Players.LocalPlayer.Character
+            local collisionClone = character:FindFirstChild("CollisionClone")
+            if collisionClone then
+                collisionClone.Massless = true
+            end
+        end
+    end
+})
 
 MainGroup:AddToggle('No Clip', {
     Text = 'No Clip',
@@ -1535,11 +1579,6 @@ MainGroup3:AddToggle('No Clip', {
         end
     end
 })
-
--- 假设 MainGroup 和 flags 已经定义
-local MainGroup = {} -- 这是一个示例，你需要用实际的 MainGroup 替换
-local flags = {} -- 这是一个示例，你需要用实际的 flags 替换
-
 -- 添加切换按钮
 MainGroup:AddToggle('God Mode', {
     Text = 'God(if open pls close Anti Speed Cheat)',
@@ -1626,9 +1665,6 @@ MainGroup:AddToggle('God Mode', {
         end
     end
 })
-
--- 示例：初始化 flags
-flags.GodMode = false
 
 RightGroup:AddToggle('pe', {
     Text = 'Player esp',
