@@ -815,18 +815,15 @@ gsGroup:AddToggle('Simplify Parts and Models', {
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddSlider('Speed', {
-	Text = 'Speed',
-	Default = 20,
-	Min = 20,
-	Max = 25,
-	Rounding = 1,
-	Compact = false,
+    Text = 'Speed',
+    Default = 20,
+    Min = 20,
+    Max = 25,
+    Rounding = 1,
+    Compact = false,
 
-	Callback = function(val, oldval)
-	flags.tpwalkspeed = val
-        if flags.tpwalktoggle then
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = val  -- Directly set WalkSpeed if toggle is on
-        end
+    Callback = function(val, oldval)
+        flags.tpwalkspeed = val
     end
 })
 buttons.tpwalkspeed = tpwalkspeedslider
@@ -836,19 +833,21 @@ MainGroup:AddToggle('ToggleSpeed', {
     Tooltip = 'Walk through walls',
     Callback = function(val, oldval)
         flags.tpwalktoggle = val
-        if val then
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Apply selected WalkSpeed when enabled
-        else
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16  -- Reset to default WalkSpeed when disabled
-        end
     end
 })
 buttons.tpwalktoggle = tpwalktglbtn
 
--- Create a loop using RunService to enforce WalkSpeed
+-- Create a loop using RunService to enforce CFrame walk
 RunService.RenderStepped:Connect(function()
     if flags.tpwalktoggle then
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = flags.tpwalkspeed  -- Enforce the selected WalkSpeed
+        local character = game.Players.LocalPlayer.Character
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local moveDirection = character.Humanoid.MoveDirection
+            if moveDirection.Magnitude > 0 then
+                humanoidRootPart.CFrame = humanoidRootPart.CFrame + moveDirection * flags.tpwalkspeed * RunService.RenderStepped:Wait()
+            end
+        end
     end
 end)
 
