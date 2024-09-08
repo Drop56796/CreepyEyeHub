@@ -961,44 +961,46 @@ MainGroup:AddToggle('Third Person View', {
     end
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 
-local player = Players.LocalPlayer
-local collision = player.Character:WaitForChild("Collision")
-local crouch = collision:WaitForChild("CollisionCrouch")
-
--- Variables to manage state
-local oTick = tick()
-
--- Function to toggle bypass functionality
-local function toggleBypass(state)
-    flags.bypass = state -- 更新 flag 为当前 state
-    
-    if state then
-        -- Start bypass functionality
-        RunService:BindToRenderStep('Bypass', 999, function()
-            if (tick() - oTick) >= 0.2 then
-                crouch.Massless = not crouch.Massless
-                oTick = tick()
-            end
-        end)
-    else
-        -- Disable bypass functionality
-        RunService:UnbindFromRenderStep('Bypass')
-        crouch.Massless = false  -- Reset to default state
-    end
-end
-
--- Integrate into MainGroup:AddToggle
-MainGroup:AddToggle('Bypass', {
-    Text = 'Bypass speed Anti cheating[35%]',
+-- 添加切换按钮
+FTGroup:AddToggle('Speed Bypass', {
+    Text = 'Anti Speed Che',
     Default = false,
-    Tooltip = 'Toggle bypass functionality',
+    Tooltip = 'Toggle Speed Bypass',
     Callback = function(state)
-        toggleBypass(state)
+        flags.SpeedBypass = state
+        if state then
+            -- 启用 Speed Bypass
+            local character = game.Players.LocalPlayer.Character
+            local collision = character:WaitForChild("Collision")
+            local collisionClone
+
+            if collision then
+                collisionClone = collision:Clone()
+                collisionClone.CanCollide = false
+                collisionClone.Massless = true
+                collisionClone.Name = "CollisionClone"
+                if collisionClone:FindFirstChild("CollisionCrouch") then
+                    collisionClone.CollisionCrouch:Destroy()
+                end
+                collisionClone.Parent = character
+
+                while flags.SpeedBypass and collisionClone do
+                    collisionClone.Massless = not collisionClone.Massless
+                    task.wait(0.225)
+                end
+            end
+        else
+            -- 禁用 Speed Bypass
+            local character = game.Players.LocalPlayer.Character
+            local collisionClone = character:FindFirstChild("CollisionClone")
+            if collisionClone then
+                collisionClone.Massless = true
+            end
+        end
     end
 })
+
 
 local MainGroup2 = Tabs.Main:AddLeftGroupbox('Prompt Aura')
 MainGroup2:AddToggle('No Clip', {
@@ -1546,9 +1548,34 @@ MainGroup3:AddToggle('No Clip', {
         end
     end
 })
+--------
+function Script.Functions.DeleteSeek(child)
+    if child.Name == "TriggerEventCollision" and flags.noseek and character then
+        Script.Functions.Alert("Deleting Seek, do not open the next door...", child:FindFirstChildOfClass("BasePart"))
+        
+        if fireTouch then
+            repeat
+                for _, v in pairs(child:GetChildren()) do
+                    fireTouch(v, rootPart, 1)
+                    task.wait()
+                    fireTouch(v, rootPart, 0)
+                    task.wait()
+                end
+            until #child:GetChildren() == 0 or not flags.noseek
+        else
+            child:PivotTo(CFrame.new(rootPart.Position))
+            rootPart.Anchored = true
 
+            repeat task.wait() until #child:GetChildren() == 0 or not flags.noseek
+        end
+        
+        Script.Functions.Alert("Deleted Seek successfully! You can open the next door", 5)
+    end
+end
+
+-- 添加切换按钮
 MainGroup3:AddToggle('No Clip', {
-    Text = 'Cancel SeekChase',
+    Text = 'Anti Seek',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(val, oldval)
@@ -1560,7 +1587,7 @@ MainGroup3:AddToggle('No Clip', {
                 local trigger = room:WaitForChild("TriggerEventCollision", 2)
 
                 if trigger then
-                    trigger:Destroy()
+                    Script.Functions.DeleteSeek(trigger)
                 end
             end)
 
@@ -1570,7 +1597,7 @@ MainGroup3:AddToggle('No Clip', {
         end
     end
 })
-buttons.noseek = noseekbtn
+
 RightGroup:AddToggle('pe', {
     Text = 'Player esp',
     Default = false,
