@@ -41,9 +41,9 @@ local Library = {
 	FontColor = Color3.fromRGB(255, 255, 255);
 	MainColor = Color3.fromRGB(28, 28, 28);
 	BackgroundColor = Color3.fromRGB(20, 20, 20);
-	AccentColor = Color3.fromRGB(0, 85, 255);
+	AccentColor = Color3.fromRGB(0, 85, 255); -- 初始颜色
 	OutlineColor = Color3.fromRGB(50, 50, 50);
-	RiskColor = Color3.fromRGB(255, 50, 50),
+	RiskColor = Color3.fromRGB(255, 50, 50);
 
 	Black = Color3.new(0, 0, 0);
 	Font = Enum.Font.Jura,
@@ -67,11 +67,30 @@ local Library = {
 	TotalTabs = 0;
 };
 
+-- 定义一个函数来循环改变 AccentColor
+local function cycleAccentColor()
+	local colors = {
+		Color3.fromRGB(255, 0, 0), -- 红色
+		Color3.fromRGB(0, 255, 0), -- 绿色
+		Color3.fromRGB(0, 0, 255), -- 蓝色
+		Color3.fromRGB(255, 255, 0), -- 黄色
+		Color3.fromRGB(0, 255, 255), -- 青色
+		Color3.fromRGB(255, 0, 255) -- 洋红色
+	}
+	local index = 1
+
+	while true do
+		Library.AccentColor = colors[index]
+		index = index % #colors + 1
+		wait(1) -- 每秒改变一次颜色
+	end
+end
+
 pcall(function() Library.DevicePlatform = InputService:GetPlatform(); end); -- For safety so the UI library doesn't error.
 Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
 
 if Library.IsMobile then
-	Library.MinSize = Vector2.new(550, 200); -- Make UI little bit smaller.
+	Library.MinSize = Vector2.new(700, 200); -- Make UI little bit smaller.
 end
 
 local RainbowStep = 0
