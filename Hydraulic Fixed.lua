@@ -323,8 +323,7 @@ local esptable = {
     loc = {},
     lol = {}
 }
-
--- 假设玩家的角色对象在工作区中
+---玩家的角色对象在工作区中
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
@@ -394,6 +393,15 @@ local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 
 -- I set NoUI so it does not show up in the keybinds menu
 MenuGroup:AddButton('Unload', function() Library:Unload() end)
+local MyButton2 = MenuGroup:AddButton({
+	Text = 'RainBow AccentColor',
+	Func = function()
+		spawn(cycleAccentColor)
+		Library:Notify("Now Rainbow is executed", nil, 4590657391)
+	end,
+	DoubleClick = true, -- You will have to click this button twice to trigger the callback
+	Tooltip = 'This is the sub button (double click me!)'
+})
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind' })
 
 Library.ToggleKeybind = Options.MenuKeybind -- Allows you to have a custom keybind for the menu
