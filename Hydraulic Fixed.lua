@@ -51,20 +51,6 @@ end
 ----- 示例调用 NewNotify 函数
 --newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
 local Camera = game:GetService("Workspace").CurrentCamera
-
-local function createBoxAdornment(part, color)
-    local box = Instance.new("BoxHandleAdornment")
-    box.Size = part.Size
-    box.AlwaysOnTop = true
-    box.ZIndex = 10  -- 提高 ZIndex 确保在最上层
-    box.AdornCullingMode = Enum.AdornCullingMode.Never
-    box.Color3 = color
-    box.Transparency = 0.9178
-    box.Adornee = part
-    box.Parent = game.CoreGui
-    return box
-end
-    
 -- 创建 Highlight 实例
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
@@ -160,15 +146,11 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    -- 创建和管理 BoxHandleAdornment、Highlight 和 Tracer 实例
-    local boxes = {}
+    
     local highlights = {}
     local tracers = {}
 
     for _, part in ipairs(parts) do
-        local box = createBoxAdornment(part, color)
-        table.insert(boxes, box)
-        
         local highlight = createHighlight(part, color)
         table.insert(highlights, highlight)
 
@@ -184,14 +166,7 @@ function esp(what, color, core, name, enableTracer)
         bill = createBillboardGui(core, color, name)
     end
 
-    local function checkAndUpdate()
-        -- 检查 BoxHandleAdornment 和 Highlight 是否需要更新
-        for _, box in ipairs(boxes) do
-            if not box.Adornee or not box.Adornee:IsDescendantOf(workspace) then
-                box:Destroy()
-            end
-        end
-        
+    local function checkAndUpdate()        
         for _, highlight in ipairs(highlights) do
             if not highlight.Adornee or not highlight:IsDescendantOf(workspace) then
                 highlight:Destroy()
@@ -214,11 +189,7 @@ function esp(what, color, core, name, enableTracer)
 
     local ret = {}
 
-    ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
-        end
-        
+    ret.delete = function()      
         for _, highlight in ipairs(highlights) do
             highlight:Destroy()
         end
@@ -240,10 +211,6 @@ function esp(what, color, core, name, enableTracer)
     local ret = {}
 
     ret.delete = function()
-        for _, box in ipairs(boxes) do
-            box:Destroy()
-        end
-        
         for _, highlight in ipairs(highlights) do
             highlight:Destroy()
         end
