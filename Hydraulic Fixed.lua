@@ -398,7 +398,7 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
-local TabBox = Tabs.FTGroup:AddRightTabbox() -- Add Tabbox on right side
+local TabBox = Tabs.FT:AddRightTabbox() -- Add Tabbox on right side
 
 -- Anything we can do in a Groupbox, we can do in a Tabbox tab (AddToggle, AddSlider, AddLabel, etc etc...)
 local Tab1 = TabBox:AddTab('>> Anti Enity <<')
