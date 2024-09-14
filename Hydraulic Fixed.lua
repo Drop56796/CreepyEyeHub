@@ -10,6 +10,8 @@ local RunService = game:GetService("RunService")
 local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -396,6 +398,86 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+local TabBox = Tabs.FTGroup:AddRightTabbox() -- Add Tabbox on right side
+
+-- Anything we can do in a Groupbox, we can do in a Tabbox tab (AddToggle, AddSlider, AddLabel, etc etc...)
+local Tab1 = TabBox:AddTab('>> Anti Enity <<')
+Tab1:AddToggle('AntiHalt', { Text = 'Anti halt' });
+Tab1:AddToggle('Giggle', { Text = 'Anti Giggle' });
+Tab1:AddToggle('AntiGloomPile', { Text = 'Anti GloomPile' });
+
+local Tab2 = TabBox:AddTab('>> Anti Enity <<')
+Tab2:AddToggle('AntiDupe', { Text = 'Anti Dupe' });
+Tab2:AddToggle('Antibat', { Text = 'Anti bat' });
+
+Toggles.AntiHalt:OnChanged(function(value)
+    if not entityModules then return end
+    local module = entityModules:FindFirstChild("Shade") or entityModules:FindFirstChild("_Shade")
+
+    if module then
+        module.Name = value and "_Shade" or "Shade"
+    end
+end)
+
+Toggles.AntiDupe:OnChanged(function(value)
+    for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+        for _, dupeRoom in pairs(room:GetChildren()) do
+            if dupeRoom:GetAttribute("LoadModule") == "DupeRoom" then
+                task.spawn(function() Script.Functions.DisableDupe(dupeRoom, value) end)
+            end
+        end
+    end
+end)
+
+Toggles.Giggle:OnChanged(function(value)
+    flags.giggleCeiling = value
+
+    while flags.giggleCeiling do
+        local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+        if currentRooms then
+            for _, room in ipairs(currentRooms:GetChildren()) do
+                local giggleCeiling = room:FindFirstChild("GiggleCeiling")
+                if giggleCeiling then
+                    giggleCeiling:Destroy()
+                    Library:Notify("GiggleCeiling destroyed")
+                end
+            end
+        end
+        wait(0.1)
+    end
+end)
+
+Toggles.AntiGloomPile:OnChanged(function(value)
+    flags.g = value
+
+    while flags.g do
+        local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+        if currentRooms then
+            for _, room in ipairs(currentRooms:GetChildren()) do
+                local gloomPile = room:FindFirstChild("GloomPile")
+                if gloomPile then
+                    gloomPile:Destroy()
+                    Library:Notify("GloomPile destroyed")
+                end
+            end
+        end
+        wait(0.1)
+    end
+end)
+
+Toggles.Antibat:OnChanged(function(value)
+    flags.g2 = value
+
+    while flags.g2 do
+        local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
+        if spawned then
+            spawned:Destroy()
+            Library:Notify("GloombatSwarm destroyed")
+        end
+        wait(0.1)
+    end
+end)
+
 FTGroup:AddToggle('Loop Speed Boost', {
     Text = 'Loop Speed Boost(Seek Chase)',
     Default = false,
@@ -623,72 +705,6 @@ FTGroup:AddToggle('ESP for FuseObtain', {
     end
 })
 
-destroy = "Remove Event:Destroy giggle now"
-destroy1 = "Remove Event:Destroy GloomPile now"
-destroy2 = "Remove Event:Destroy Bat now"
-FTGroup:AddToggle('No Clip', {
-        Text = 'Destroy GiggleCeiling',
-        Default = false,
-        Tooltip = 'Remove GiggleCeiling from rooms',
-        Callback = function(state)
-            flags.giggleCeiling = state
-
-            while flags.giggleCeiling do
-                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-                if currentRooms then
-                    for _, room in ipairs(currentRooms:GetChildren()) do
-                        local giggleCeiling = room:FindFirstChild("GiggleCeiling")
-                        if giggleCeiling then
-                            giggleCeiling:Destroy()
-			    Library:Notify(destroy)
-                        end
-                    end
-                end
-                wait(0.1)
-            end
-        end
-    })
-
-    FTGroup:AddToggle('No Clip', {
-        Text = 'Destroy GloomPile',
-        Default = false,
-        Tooltip = 'Remove GloomPile from rooms',
-        Callback = function(state)
-            flags.g = state
-
-            while flags.g do
-                local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
-                if currentRooms then
-                    for _, room in ipairs(currentRooms:GetChildren()) do
-                        local gloomPile = room:FindFirstChild("GloomPile")
-                        if gloomPile then
-                            gloomPile:Destroy()
-			    Library:Notify(destroy1)
-                        end
-                    end
-                end
-                wait(0.1)
-            end
-        end
-    })
-
-    FTGroup:AddToggle('No Clip', {
-        Text = 'Destroy bat',
-        Default = false,
-        Tooltip = 'Remove GloombatSwarm from rooms',
-        Callback = function(state)
-            flags.g2 = state
-
-            while flags.g2 do
-                local spawned = game.Workspace:FindFirstChild("GloombatSwarm")
-                if spawned then
-                    spawned:Destroy()
-		    Library:Notify(destroy2)
-                end
-                wait(0.1)
-            end
-        end
-    })
 
 
 
