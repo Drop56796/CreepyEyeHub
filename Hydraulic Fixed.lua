@@ -406,7 +406,7 @@ Tab1:AddToggle('AntiHalt', { Text = 'Anti halt' });
 Tab1:AddToggle('Giggle', { Text = 'Anti Giggle' });
 Tab1:AddToggle('AntiGloomPile', { Text = 'Anti GloomPile' });
 
-local Tab2 = TabBox:AddTab('>> Anti Enity <<')
+local Tab2 = TabBox:AddTab('>> Anti Enity [2] <<')
 Tab2:AddToggle('AntiDupe', { Text = 'Anti Dupe' });
 Tab2:AddToggle('Antibat', { Text = 'Anti bat' });
 
