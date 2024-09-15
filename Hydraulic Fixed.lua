@@ -2076,7 +2076,7 @@ RightGroup:AddToggle('pe', {
 })
 
 RightGroup:AddToggle('Monitor MinesGenerator', {
-    Text = 'Generator esp',
+    Text = 'Key esp <???>',
     Default = false,
     Tooltip = 'all MinesGenerator in CurrentRooms',
     Callback = function(state)
