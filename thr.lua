@@ -1,4 +1,4 @@
-local v = 1.1
+local v = 1.2
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 local Window = OrionLib:MakeWindow({Name = "Hydraulic <thirsy vampire> V" .. v, HidePremium = false, SaveConfig = true, ConfigFolder = "AdvancedHitboxConfig"})
 
@@ -49,11 +49,13 @@ Section:AddToggle({
             game:GetService("RunService").RenderStepped:Connect(function()
                 for _, player in ipairs(game.Players:GetPlayers()) do
                     if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                        local hitbox = player.Character:FindFirstChild("HumanoidRootPart")
-                        if hitbox then
-                            hitbox.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
-                            hitbox.Transparency = hitboxTransparency
-                            hitbox.Color = hitboxColor
+                        if player.Team ~= game.Players.LocalPlayer.Team then
+                            local hitbox = player.Character:FindFirstChild("HumanoidRootPart")
+                            if hitbox then
+                                hitbox.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
+                                hitbox.Transparency = hitboxTransparency
+                                hitbox.Color = hitboxColor
+                            end
                         end
                     end
                 end
@@ -73,6 +75,7 @@ Section:AddToggle({
         end
     end
 })
+
 
 -- Infinite Yield Integration
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
