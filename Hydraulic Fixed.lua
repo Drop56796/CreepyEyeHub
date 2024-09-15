@@ -797,7 +797,7 @@ gsGroup:AddToggle('Simplify Parts and Models', {
 local RunService = game:GetService("RunService")
 MainGroup:AddLabel('---------------------', true)
 MainGroup:AddSlider('Speed', {
-	Text = 'Speed',
+	Text = '>> Speed <<',
 	Default = 20,
 	Min = 20,
 	Max = 23,
@@ -812,6 +812,19 @@ MainGroup:AddSlider('Speed', {
     end
 })
 buttons.tpwalkspeed = tpwalkspeedslider
+MainGroup:AddSlider('fov', {
+	Text = '>> FOV <<',
+	Default = 70,
+	Min = 70,
+	Max = 120,
+	Rounding = 1,
+	Compact = false,
+
+	Callback = function(val, oldval)
+	flags.camfov = val
+    end
+})
+buttons.camfov = camfovslider
 MainGroup:AddToggle('ToggleSpeed', {
     Text = 'Toggle Speed',
     Default = false,
@@ -834,19 +847,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-MainGroup:AddSlider('fov', {
-	Text = 'FOV',
-	Default = 70,
-	Min = 70,
-	Max = 120,
-	Rounding = 1,
-	Compact = false,
-
-	Callback = function(val, oldval)
-	flags.camfov = val
-    end
-})
-buttons.camfov = camfovslider
 MainGroup:AddToggle('Togglefov', {
     Text = 'Toggle FOV',
     Default = false,
