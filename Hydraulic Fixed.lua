@@ -2361,61 +2361,52 @@ MainGroup:AddToggle('pe', {
         end
     end
 })
-local RightGroup1 = Tabs.Main:AddRightGroupbox('Event')
-RightGroup1:AddToggle('pe', {
-    Text = 'Enity Event',
-    Default = false,
-    Tooltip = 'Walk through walls',
-    Callback = function(state)
-        if state then
-            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"}  -- 实体名称
-
-            -- 确保 flags 和 plr 已定义
-            local flags = flags or {} -- 防止错误
-            local plr = game.Players.LocalPlayer -- 防止错误2
-
-            local function notifyEntitySpawn(entity)
-                local entityMessage
-                if entity.Name:gsub("Moving", ""):lower() == "Jeffthekiller" then
-                    entityMessage = "Entity Event: JeffTheKiller in the next door and be careful of his attack."
-		    addAndPlaySound("ExampleSound", 4590657391)
-                else
-                    entityMessage = "Entity Event: " .. entity.Name:gsub("Moving", ""):lower() .. " Spawned!"
-		    addAndPlaySound("ExampleSound", 4590657391)
-                end
-                Library:Notify(entityMessage)
-	    end
-	 
-            local function onChildAdded(child)
-                if table.find(entityNames, child.Name) then
-                    repeat
-                        task.wait()
-                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
-                    
-                    if child:IsDescendantOf(workspace) then
-                        notifyEntitySpawn(child)
-                    end
-                end
-            end
-
-            -- 无限循环以保持脚本运行并检查 hintrush 标志
-            local running = true
-            while running do
-                local connection = workspace.ChildAdded:Connect(onChildAdded)
-                
-                repeat
-                    task.wait(1) -- 根据需要调整等待时间
-                until not flags.hintrush or not running
-                
-                connection:Disconnect()
-            end 
-        else 
-            -- 关闭消息或进行其他清理（如有需要）
-            running = false
-        end
+local RightGroup1 = Tabs.Main:AddRightGroupbox('Event / Custom Event')
+-- Adding input textboxes to the LeftGroupBox for custom event notifications
+RightGroup1:AddInput('LibraryEventTextbox', {
+    Default = 'library code',
+    Numeric = false, -- Allows both text and numbers
+    Finished = false, -- Callback is called on every change, not just on pressing enter
+    ClearTextOnFocus = true, -- Clears the text when the textbox is focused
+    Text = 'Custom Library Event Notification',
+    Tooltip = 'Enter a custom message for library events', -- Tooltip shown on hover
+    Placeholder = 'e.g., all books found!', -- Example placeholder text
+    Callback = function(Value)
+        customLibraryMessage = Value
+        print('[cb] Custom library event message updated:', customLibraryMessage)
     end
 })
-RightGroup1:AddToggle('pe', {
+
+RightGroup1:AddInput('ItemEventTextbox', {
+    Default = 'Item Event',
+    Numeric = false, -- Allows both text and numbers
+    Finished = false, -- Callback is called on every change, not just on pressing enter
+    ClearTextOnFocus = true, -- Clears the text when the textbox is focused
+    Text = 'Custom Item Event Notification',
+    Tooltip = 'Enter a custom message for item events', -- Tooltip shown on hover
+    Placeholder = 'e.g., has been found!', -- Example placeholder text
+    Callback = function(Value)
+        customItemMessage = Value
+        print('[cb] Custom item event message updated:', customItemMessage)
+    end
+})
+
+RightGroup1:AddInput('EntityEventTextbox', {
+    Default = 'Enity Event',
+    Numeric = false, -- Allows both text and numbers
+    Finished = false, -- Callback is called on every change, not just on pressing enter
+    ClearTextOnFocus = true, -- Clears the text when the textbox is focused
+    Text = 'Custom Entity Event Notification',
+    Tooltip = 'Enter a custom message for entity events', -- Tooltip shown on hover
+    Placeholder = 'e.g., is approaching!', -- Example placeholder text
+    Callback = function(Value)
+        customEntityMessage = Value
+        print('[cb] Custom entity event message updated:', customEntityMessage)
+    end
+})
+
+-- Adding a toggle to the RightGroup1 for Library Code Event
+RightGroup1:AddToggle('libraryCodeEvent', {
     Text = 'Library Code Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2454,7 +2445,7 @@ RightGroup1:AddToggle('pe', {
                     local code = table.concat(deciphercode())
                     
                     if code:find("_") then
-                        Library:Notify("Are you sure you got all the books?")
+                        Library:Notify(customLibraryMessage or "Are you sure you got all the books?")
                         addAndPlaySound("ExampleSound", 4590657391)
                     else
                         Library:Notify("Code is " .. code)
@@ -2468,8 +2459,8 @@ RightGroup1:AddToggle('pe', {
     end
 })
 
-
-RightGroup1:AddToggle('pe', {
+-- Adding a toggle to the RightGroup1 for Item Event
+RightGroup1:AddToggle('itemEvent', {
     Text = 'Item Event',
     Default = false,
     Tooltip = 'Walk through walls',
@@ -2478,22 +2469,22 @@ RightGroup1:AddToggle('pe', {
             _G.itemNotificationInstances = {}
             local flags = {notifitems = true}
 
-            -- 发送通知的函数
+            -- Function to send notifications
             local function notifyItem(itemName)
-                local itemMessage = "Item Event: " .. itemName .. " is spawned"
+                local itemMessage = itemName .. " " .. (customItemMessage or "is spawned")
                 Library:Notify(itemMessage)
-		addAndPlaySound("ExampleSound", 4590657391)
+                addAndPlaySound("ExampleSound", 4590657391)
             end
 
-            -- 监控新物品的出现
+            -- Monitor new items
             local function check(v)
                 if v:IsA("Model") and (v:GetAttribute("Pickup") or v:GetAttribute("PropType")) then
                     task.wait(0.1)
 
-                    -- 尝试找到物品的主部件
+                    -- Try to find the main part of the item
                     local part = v:FindFirstChild("Handle") or v:FindFirstChild("Prop") or v:FindFirstChildWhichIsA("BasePart")
                     
-                    -- 如果找到了部件，发送通知
+                    -- If part is found, send notification
                     if part then
                         local itemName = v.Name
                         notifyItem(itemName)
@@ -2501,7 +2492,7 @@ RightGroup1:AddToggle('pe', {
                 end
             end
 
-            -- 设置监视器以处理现有和新添加的物品
+            -- Set up monitors for existing and newly added items
             local function setup(room)
                 local assets = room:WaitForChild("Assets")
 
@@ -2539,6 +2530,55 @@ RightGroup1:AddToggle('pe', {
             if _G.itemNotificationInstances then
                 _G.itemNotificationInstances = nil
             end
+        end
+    end
+})
+
+RightGroup1:AddToggle('entityEvent', {
+    Text = 'Entity Event',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        if state then
+            local entityNames = {"RushMoving", "AmbushMoving", "Snare", "A60", "A120", "A90", "Eyes", "JeffTheKiller"} -- Entity names
+
+            -- Ensure flags and plr are defined
+            local flags = flags or {} -- Prevent errors
+            local plr = game.Players.LocalPlayer -- Prevent errors
+
+            local function notifyEntitySpawn(entity)
+                local entityName = entity.Name:gsub("Moving", ""):lower()
+                local entityMessage = entityName .. " " .. (customEntityMessage or "Spawned!")
+                addAndPlaySound("ExampleSound", 4590657391)
+                Library:Notify(entityMessage)
+            end
+
+            local function onChildAdded(child)
+                if table.find(entityNames, child.Name) then
+                    repeat
+                        task.wait()
+                    until plr:DistanceFromCharacter(child:GetPivot().Position) < 1000 or not child:IsDescendantOf(workspace)
+                    
+                    if child:IsDescendantOf(workspace) then
+                        notifyEntitySpawn(child)
+                    end
+                end
+            end
+
+            -- Infinite loop to keep the script running and check the hintrush flag
+            local running = true
+            while running do
+                local connection = workspace.ChildAdded:Connect(onChildAdded)
+                
+                repeat
+                    task.wait(1) -- Adjust wait time as needed
+                until not flags.hintrush or not running
+                
+                connection:Disconnect()
+            end 
+        else 
+            -- Turn off notifications or perform other cleanup if needed
+            running = false
         end
     end
 })
