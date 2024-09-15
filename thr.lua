@@ -84,7 +84,7 @@ Section:AddButton({
     end
 })
 local remote = false
--- External Command to Toggle Hitbox
+
 Section:AddToggle({
     Name = "Take the stick remotely.",
     Default = false,
@@ -93,15 +93,16 @@ Section:AddToggle({
         if state then
             -- Enable hitbox expansion
             game:GetService("RunService").RenderStepped:Connect(function()
-                local batCollection = game.Workspace:FindFirstChild("MidCastle"):FindFirstChild("BatCollection")
-                if batCollection then
-                    for _, bat in ipairs(batCollection:GetChildren()) do
-                        if bat:IsA("Model") and bat:FindFirstChild("HumanoidRootPart") then
-                            local hitbox = bat:FindFirstChild("HumanoidRootPart")
-                            if hitbox then
-                                hitbox.Size = Vector3.new(350, 350, 350) -- Fixed size
-                                hitbox.Transparency = 1 -- Semi-transparent
-                                hitbox.Color = Color3.fromRGB(255, 0, 0) -- Red color
+                for _, item in ipairs(game.Workspace:GetDescendants()) do
+                    if item:IsA("Model") and item.Name == "BatCollection" then
+                        for _, bat in ipairs(item:GetChildren()) do
+                            if bat:IsA("Model") and bat:FindFirstChild("HumanoidRootPart") then
+                                local hitbox = bat:FindFirstChild("HumanoidRootPart")
+                                if hitbox then
+                                    hitbox.Size = Vector3.new(350, 350, 350) -- Fixed size
+                                    hitbox.Transparency = 1 -- Semi-transparent
+                                    hitbox.Color = Color3.fromRGB(255, 0, 0) -- Red color
+                                end
                             end
                         end
                     end
@@ -109,15 +110,16 @@ Section:AddToggle({
             end)
         else
             -- Disable hitbox expansion
-            local batCollection = game.Workspace:FindFirstChild("MidCastle"):FindFirstChild("BatCollection")
-            if batCollection then
-                for _, bat in ipairs(batCollection:GetChildren()) do
-                    if bat:IsA("Model") and bat:FindFirstChild("HumanoidRootPart") then
-                        local hitbox = bat:FindFirstChild("HumanoidRootPart")
-                        if hitbox then
-                            hitbox.Size = Vector3.new(2, 2, 1) -- Default size
-                            hitbox.Transparency = 0
-                            hitbox.Color = Color3.fromRGB(255, 255, 255) -- Default color
+            for _, item in ipairs(game.Workspace:GetDescendants()) do
+                if item:IsA("Model") and item.Name == "BatCollection" then
+                    for _, bat in ipairs(item:GetChildren()) do
+                        if bat:IsA("Model") and bat:FindFirstChild("HumanoidRootPart") then
+                            local hitbox = bat:FindFirstChild("HumanoidRootPart")
+                            if hitbox then
+                                hitbox.Size = Vector3.new(2, 2, 1) -- Default size
+                                hitbox.Transparency = 0
+                                hitbox.Color = Color3.fromRGB(255, 255, 255) -- Default color
+                            end
                         end
                     end
                 end
