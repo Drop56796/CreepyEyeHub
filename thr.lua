@@ -83,12 +83,13 @@ Section:AddButton({
         loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
     end
 })
-
+local remote = false
 -- External Command to Toggle Hitbox
 Section:AddToggle({
     Name = "Take the stick remotely.",
     Default = false,
     Callback = function(state)
+        remote = state
         if state then
             -- Enable hitbox expansion
             game:GetService("RunService").RenderStepped:Connect(function()
