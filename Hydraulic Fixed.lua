@@ -2075,72 +2075,137 @@ RightGroup:AddToggle('pe', {
     end
 })
 
-RightGroup:AddToggle('Monitor MinesGenerator', {
-    Text = 'Key esp <???>',
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local markedTargets = {}
+
+-- Function to create a BillboardGui
+local function createBillboardGui(core, color, name)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = core
+    billboard.Size = UDim2.new(0, 100, 0, 50)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 2000
+
+    local frame = Instance.new("Frame", billboard)
+    frame.AnchorPoint = Vector2.new(0.5, 0.5)
+    frame.BackgroundColor3 = color
+    frame.Size = UDim2.new(0, 8, 0, 8)
+    frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", frame)
+
+    local textLabel = Instance.new("TextLabel", billboard)
+    textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = color
+    textLabel.Size = UDim2.new(1, 0, 0, 20)
+    textLabel.Position = UDim2.new(0.5, 0, 0.7, 0)
+    textLabel.Text = name
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.TextSize = 18
+    textLabel.Font = Enum.Font.Jura
+    Instance.new("UIStroke", textLabel)
+
+    return billboard
+end
+
+-- Function to mark a target
+local function markTarget(target, customName)
+    if not target then return end
+    local existingBillboard = target:FindFirstChildOfClass("BillboardGui")
+    if existingBillboard then
+        existingBillboard:Destroy()
+    end
+    local keyObtainBillboard = target:FindFirstChild("KeyObtain")
+    if keyObtainBillboard then
+        keyObtainBillboard:Destroy()
+    end
+    local billboard = createBillboardGui(target, Color3.fromRGB(255, 255, 255), customName)
+    billboard.Parent = target
+    markedTargets[target] = customName
+end
+
+-- Function to recursively find all instances with a specific name
+local function findAllInstances(parent, name, targets)
+    for _, child in ipairs(parent:GetChildren()) do
+        if child.Name == name then
+            table.insert(targets, child)
+        end
+        findAllInstances(child, name, targets)
+    end
+end
+
+-- Function to mark all instances with a specific name
+local function markInstancesByName(name, customName)
+    local targets = {}
+    findAllInstances(game, name, targets)
+    for _, target in ipairs(targets) do
+        markTarget(target, customName)
+    end
+end
+
+-- Function to mark a specific player's head
+local function markPlayerHead(playerName, customName)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name == playerName and player.Character then
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                markTarget(head, customName)
+            end
+        end
+    end
+end
+
+-- Connect events to handle new players and instances
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        local head = character:FindFirstChild("Head")
+        if head then
+            markTarget(head, player.Name)
+        end
+    end)
+end)
+
+game.DescendantAdded:Connect(function(descendant)
+    if descendant.Name == "Key" or descendant.Name == "KeyObtain" then
+        markTarget(descendant, descendant.Name)
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    for target, customName in pairs(markedTargets) do
+        if target and target:FindFirstChildOfClass("BillboardGui") then
+            local billboard = target:FindFirstChildOfClass("BillboardGui")
+            if billboard and billboard:FindFirstChildOfClass("TextLabel") then
+                billboard.TextLabel.Text = customName
+            else
+                markTarget(target, customName)
+            end
+        end
+    end
+end)
+
+-- Toggle function
+RightGroup:AddToggle('pe', {
+    Text = 'Key esp',
     Default = false,
-    Tooltip = 'all MinesGenerator in CurrentRooms',
+    Tooltip = 'Walk through walls',
     Callback = function(state)
-        local customSuffix = "Key" -- 自定义后缀
-        local flagsName = "Key" .. customSuffix
-        local espTableName = "Key" .. customSuffix
-
         if state then
-            _G[espTableName] = {}
-            _G[flagsName] = state
-
-            local function check(v)
-                if room:GetAttribute("RequiresKey") then
-                    local key = room:FindFirstChild("KeyObtain", true)
-                    if key then
-                        local hitbox = key:WaitForChild("Hitbox")
-                        local parts = hitbox:GetChildren()
-                        table.remove(parts, table.find(parts, hitbox:WaitForChild("PromptHitbox")))
-                        
-                        local h = esp(parts, Color3.fromRGB(145, 100, 75), hitbox, "Key")
-                        table.insert(esptable.keys, h)
-                    end
-                end
-            end
-
-            local function setup(room)
-                local assets = room:WaitForChild("Assets")
-
-                if assets then
-                    local subaddcon
-                    subaddcon = assets.DescendantAdded:Connect(function(v)
-                        check(v)
-                    end)
-
-                    for i, v in pairs(assets:GetDescendants()) do
-                        check(v)
-                    end
-
-                    task.spawn(function()
-                        repeat task.wait() until not _G[flagsName]
-                        subaddcon:Disconnect()
-                    end)
-                end
-            end
-
-            local addconnect
-            addconnect = workspace.CurrentRooms.ChildAdded:Connect(function(room)
-                setup(room)
-            end)
-
-            for i, room in pairs(workspace.CurrentRooms:GetChildren()) do
-                setup(room)
-            end
-
-            table.insert(_G[espTableName], esptable)
+            -- Enable ESP
+            markPlayerHead("PlayerName", "Player")
+            markInstancesByName("Key", "Key")
+            markInstancesByName(".", ".")
         else
-            if _G[espTableName] then
-                for _, instance in pairs(_G[espTableName]) do
-                    for _, v in pairs(instance.Key) do
-                        v.delete()
-                    end
+            -- Disable ESP
+            for target, _ in pairs(markedTargets) do
+                if target and target:FindFirstChildOfClass("BillboardGui") then
+                    target:FindFirstChildOfClass("BillboardGui"):Destroy()
                 end
-                _G[espTableName] = nil
             end
+            markedTargets = {}
         end
     end
 })
