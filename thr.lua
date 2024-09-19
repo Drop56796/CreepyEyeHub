@@ -29,7 +29,7 @@ local HitboxSection = MainTab:AddLeftGroupbox("Hitbox Controls")
 
 local hitboxSize = 5
 local hitboxTransparency = 0.5
-local hc = Color3.fromRGB(255, 255, 255)
+local hitboxColor = Color3.fromRGB(255, 0, 0)
 local hitboxEnabled = false
 
 HitboxSection:AddInput("HitboxSize", {
@@ -51,15 +51,16 @@ HitboxSection:AddInput("HitboxTransparency", {
         hitboxTransparency = tonumber(value)
     end
 })
-HitboxSection:AddColorPicker('ColorPicker3', {
-	Default = Color3.new(255, 255, 255),
-	Title = 'hc (Hitbox Color)',
-	Transparency = 0,
-
-	Callback = function(value)
-		hc = value
-	end
+HitboxSection:AddInput("HitboxColor", {
+    Text = "Hitbox Color (RGB)",
+    Default = "255,0,0",
+    Finished = true,
+    Callback = function(value)
+        local r, g, b = value:match("(%d+),(%d+),(%d+)")
+        hitboxColor = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
+    end
 })
+
 HitboxSection:AddToggle("EnableHitbox", {
     Text = "Enable Hitbox",
     Default = false,
