@@ -52,15 +52,6 @@ HitboxSection:AddInput("HitboxTransparency", {
     end
 })
 
-HitboxSection:AddColorPicker("HitboxColor", {
-    Default = Color3.new(1, 0, 0),
-    Title = "Hitbox Color",
-    Transparency = 0,
-    Callback = function(value)
-        hitboxColor = value
-    end
-})
-
 HitboxSection:AddToggle("EnableHitbox", {
     Text = "Enable Hitbox",
     Default = false,
@@ -105,8 +96,10 @@ HitboxSection:AddToggle("EnableHitbox", {
 		hc = value
 	end
 })
+
+
 local MyButton2 = HitboxSection:AddButton({
-    Text = 'Join new Server',
+    Text = 'Join New Server',
     Func = function()
         local TeleportService = game:GetService("TeleportService")
         local PlaceId = game.PlaceId
@@ -120,7 +113,7 @@ local MyButton2 = HitboxSection:AddButton({
             if game.JobId == savedJobId then
                 TeleportService:TeleportToPlaceInstance(PlaceId, savedJobId, game.Players.LocalPlayer)
             else
-                Library:Notify("No found New server", nil, 4590657391)
+                print("No matching server found.")
             end
         end
 
