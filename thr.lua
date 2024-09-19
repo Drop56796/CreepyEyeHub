@@ -96,7 +96,7 @@ HitboxSection:AddToggle("EnableHitbox", {
             end
         end
     end
-}):HitboxSection:AddColorPicker("HitboxColor", {
+}):AddColorPicker("HitboxColor", {
     Default = Color3.new(1, 0, 0),
     Title = "Hitbox Color",
     Transparency = 0,
