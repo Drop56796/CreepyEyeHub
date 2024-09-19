@@ -51,7 +51,15 @@ HitboxSection:AddInput("HitboxTransparency", {
         hitboxTransparency = tonumber(value)
     end
 })
+HitboxSection:AddColorPicker('ColorPicker3', {
+	Default = Color3.new(255, 255, 255),
+	Title = 'hc (Hitbox Color)',
+	Transparency = 0,
 
+	Callback = function(value)
+		hc = value
+	end
+})
 HitboxSection:AddToggle("EnableHitbox", {
     Text = "Enable Hitbox",
     Default = false,
@@ -87,16 +95,7 @@ HitboxSection:AddToggle("EnableHitbox", {
             end
         end
     end
-}):AddColorPicker('ColorPicker3', {
-	Default = Color3.new(255, 255, 255),
-	Title = 'hc (Hitbox Color)',
-	Transparency = 0,
-
-	Callback = function(value)
-		hc = value
-	end
 })
-
 
 local MyButton2 = HitboxSection:AddButton({
     Text = 'Join New Server',
