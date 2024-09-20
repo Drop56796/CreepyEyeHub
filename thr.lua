@@ -206,3 +206,46 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+local runService = game:GetService("RunService")
+
+local hit = false
+local connection
+
+-- 定义一个函数来拉近目标玩家
+local function pullPlayer(target)
+    if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPosition = localPlayer.Character.HumanoidRootPart.Position + localPlayer.Character.HumanoidRootPart.CFrame.LookVector * 3
+        target.Character:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+    end
+end
+
+-- 定义一个函数来启用或禁用拉近功能
+local function toggleHitbox(state)
+    hit = state
+    if hit then
+        connection = runService.RenderStepped:Connect(function()
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= localPlayer and player.TeamColor ~= localPlayer.TeamColor then
+                    pullPlayer(player)
+                end
+            end
+        end)
+    else
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
+    end
+end
+
+-- 示例：添加一个开关来控制拉近功能
+Section:AddToggle({
+    Name = "Enable Attack Player <Beta>",
+    Default = false,
+    Callback = function(state)
+        toggleHitbox(state)
+    end
+})
