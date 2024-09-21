@@ -242,10 +242,43 @@ local function toggleHitbox(state)
 end
 
 -- 示例：添加一个开关来控制拉近功能
-Section:AddToggle({
-    Name = "Enable Attack Player <Beta>",
+HitboxSection:AddToggle({
+    Name = "Enable Attack Player",
     Default = false,
     Callback = function(state)
         toggleHitbox(state)
+    end
+})
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+local runService = game:GetService("RunService")
+
+local rotating = false
+local connection
+
+-- 定义一个函数来启用或禁用旋转功能
+local function toggleRotation(state)
+    rotating = state
+    if rotating then
+        connection = runService.RenderStepped:Connect(function()
+            if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                localPlayer.Character.HumanoidRootPart.CFrame = localPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(1), 0)
+            end
+        end)
+    else
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
+    end
+end
+
+-- 示例：添加一个开关来控制旋转功能
+HitboxSection:AddToggle({
+    Name = "Enable Fling",
+    Default = false,
+    Callback = function(state)
+        toggleRotation(state)
     end
 })
