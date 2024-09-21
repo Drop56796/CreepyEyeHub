@@ -157,7 +157,6 @@ local Tabs = {
 }
 
 --// Functions \\--
-
 function Script.Functions.Warn(message: string)
     warn("WARN - mspaint:", message)
 end
@@ -198,24 +197,33 @@ function Script.Functions.ESP(args: ESP)
 
     local billboardGui = Instance.new("BillboardGui") do
         billboardGui.Adornee = ESPManager.TextParent or ESPManager.Object
-		billboardGui.AlwaysOnTop = true
-		billboardGui.ClipsDescendants = false
-		billboardGui.Size = UDim2.new(0, 1, 0, 1)
-		billboardGui.StudsOffset = ESPManager.Offset
+        billboardGui.AlwaysOnTop = true
+        billboardGui.ClipsDescendants = false
+        billboardGui.Size = UDim2.new(0, 1, 0, 1)
+        billboardGui.StudsOffset = ESPManager.Offset
         billboardGui.Parent = ESPManager.TextParent or ESPManager.Object
-	end
+    end
 
     local textLabel = Instance.new("TextLabel") do
-		textLabel.BackgroundTransparency = 1
-		textLabel.Font = Enum.Font.Oswald
-		textLabel.Size = UDim2.new(1, 0, 1, 0)
-		textLabel.Text = ESPManager.Text
-		textLabel.TextColor3 = ESPManager.Color
-		textLabel.TextSize = Options.ESPTextSize.Value
+        textLabel.BackgroundTransparency = 1
+        textLabel.Font = Enum.Font.Oswald
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.Text = ESPManager.Text
+        textLabel.TextColor3 = ESPManager.Color
+        textLabel.TextSize = Options.ESPTextSize.Value
         textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
         textLabel.TextStrokeTransparency = 0.75
         textLabel.Parent = billboardGui
-	end
+    end
+
+    -- Add a small circle above the TextLabel
+    local mid = Instance.new("Frame", billboardGui)
+    mid.AnchorPoint = Vector2.new(0.5, 1) -- Anchor to the bottom center
+    mid.BackgroundColor3 = Color3.new(1, 1, 1) -- White color
+    mid.Size = UDim2.new(0, 8, 0, 8)
+    mid.Position = UDim2.new(0.5, 0, 0, -10) -- Position above the TextLabel
+    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", mid)
 
     function ESPManager.SetColor(newColor: Color3)
         ESPManager.Color = newColor
@@ -254,11 +262,8 @@ function Script.Functions.ESP(args: ESP)
         highlight.OutlineTransparency = Options.ESPOutlineTransparency.Value
         textLabel.TextSize = Options.ESPTextSize.Value
 
-        if Toggles.ESPDistance.Value then
-            textLabel.Text = string.format("%s\n[%s]", ESPManager.Text, math.floor(Script.Functions.DistanceFromCharacter(ESPManager.Object)))
-        else
-            textLabel.Text = ESPManager.Text
-        end
+        -- Remove distance display
+        textLabel.Text = ESPManager.Text
     end)
 
     Script.ESPTable[ESPManager.Type][tableIndex] = ESPManager
