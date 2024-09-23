@@ -2365,7 +2365,7 @@ RightGroup1:AddInput('LibraryEventTextbox', {
     Numeric = false, -- Allows both text and numbers
     Finished = false, -- Callback is called on every change, not just on pressing enter
     ClearTextOnFocus = true, -- Clears the text when the textbox is focused
-    Text = 'Custom Library Event Notification',
+    Text = 'Code :',
     Tooltip = 'Enter a custom message for library events', -- Tooltip shown on hover
     Placeholder = 'e.g., all books found!', -- Example placeholder text
     Callback = function(Value)
@@ -2379,7 +2379,7 @@ RightGroup1:AddInput('ItemEventTextbox', {
     Numeric = false, -- Allows both text and numbers
     Finished = false, -- Callback is called on every change, not just on pressing enter
     ClearTextOnFocus = true, -- Clears the text when the textbox is focused
-    Text = 'Custom Item Event Notification',
+    Text = 'spawned',
     Tooltip = 'Enter a custom message for item events', -- Tooltip shown on hover
     Placeholder = 'e.g., has been found!', -- Example placeholder text
     Callback = function(Value)
@@ -2393,7 +2393,7 @@ RightGroup1:AddInput('EntityEventTextbox', {
     Numeric = false, -- Allows both text and numbers
     Finished = false, -- Callback is called on every change, not just on pressing enter
     ClearTextOnFocus = true, -- Clears the text when the textbox is focused
-    Text = 'Custom Entity Event Notification',
+    Text = '!',
     Tooltip = 'Enter a custom message for entity events', -- Tooltip shown on hover
     Placeholder = 'e.g., is approaching!', -- Example placeholder text
     Callback = function(Value)
@@ -2663,3 +2663,20 @@ RightGroup1:AddToggle('pe', {
         end
     end
 })
+local MiscGroupBox = Tabs.Main:AddRightGroupbox("Misc") do
+    MiscGroupBox:AddButton({
+        Text = "Play Again",
+        Func = function()
+            remotesFolder.PlayAgain:FireServer()
+        end,
+        DoubleClick = true
+    })
+
+    MiscGroupBox:AddButton({
+        Text = "Lobby",
+        Func = function()
+            remotesFolder.Lobby:FireServer()
+        end,
+        DoubleClick = true
+    })
+end
