@@ -207,7 +207,7 @@ local Options = getgenv().Linoria.Options
 local Toggles = getgenv().Linoria.Toggles
 
 local Window = Library:CreateWindow({
-	Title = "MS V2 汉化作者：小玄奘【最新】 服务器：DOORS",
+	Title = "Mspaint v2 (谁他妈要是汉化我操死谁的妈)",
 	Center = true,
 	AutoShow = true,
 	Resizable = true,
