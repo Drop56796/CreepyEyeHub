@@ -316,6 +316,7 @@ local Window = Library:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab('Main'),
+    s = Window:AddTab('Troll'),
     FT = Window:AddTab('Floor2'),
     ['UI Settings'] = Window:AddTab('UI Settings'),
     gs = Window:AddTab('Game Setting'),
@@ -323,6 +324,7 @@ local Tabs = {
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('player')
 local FTGroup = Tabs.FT:AddLeftGroupbox('Floor2')
+local s = Tabs.s:AddLeftGroupbox('Item')
 local RightGroup = Tabs.Main:AddRightGroupbox('esp')
 local gsGroup = Tabs.gs:AddLeftGroupbox('optimize fps')
 
@@ -398,6 +400,42 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 -- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
+-- Create a dropdown menu for selecting items
+s:AddDropdown('ItemDropdown', {
+    Values = { 'Flashlight', 'Vitamin', 'Crucifix', 'SnakeFlashlight', 'InfiniteVitamin' },
+    Default = 1, -- Default to the first item
+    Multi = false, -- Single selection
+
+    Text = 'Select an Item',
+    Tooltip = 'Choose an item to receive',
+
+    Callback = function(Value)
+        print('[cb] Dropdown got changed. New value:', Value)
+    end
+})
+
+-- Create a button to give the selected item
+local MyButton2 = s:AddButton({
+    Text = 'Get Item',
+    Func = function()
+        local selectedItem = s:GetDropdownValue('ItemDropdown')
+        -- Add your item-giving logic here
+        if selectedItem == 'Flashlight' then
+            local a=game:GetObjects("rbxassetid://12937907732")[1]local b=game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")local c=false;a.Parent=game.Players.LocalPlayer.Backpack;a.Activated:Connect(function()if c==false then for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end;local d=b:LoadAnimation(a.Animations.open)local b=b:LoadAnimation(a.Animations.idle)d:Play()a.Handle.sound_open:Play()a.Handle.Neon.LightAttach.SurfaceLight.Enabled=true;a.Handle.Neon.Transparency=0;a.Handle.Neon.Attachment.Shiny.Enabled=true;a.Handle.Neon.Attachment.ParticleEmitter.Enabled=true;a.Handle.Neon.Attachment.SurfaceLight.Enabled=true;a.Handle.Neon.PointLight.Enabled=true;wait(0.5)b:Play()c=true else for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end;local d=b:LoadAnimation(a.Animations.close)local b=b:LoadAnimation(a.Animations.idleclosed)d:Play()a.Handle.sound_close:Play()a.Handle.Neon.LightAttach.SurfaceLight.Enabled=false;a.Handle.Neon.Transparency=1;a.Handle.Neon.Attachment.Shiny.Enabled=false;a.Handle.Neon.Attachment.ParticleEmitter.Enabled=false;a.Handle.Neon.Attachment.SurfaceLight.Enabled=false;a.Handle.Neon.PointLight.Enabled=false;wait(0.5)b:Play()c=false end end)a.Equipped:Connect(function()local d=a.Animations.idle;local a=a.Animations.idleclosed;local d=b:LoadAnimation(d)local a=b:LoadAnimation(a)if c==true then d:Play()else a:Play()end end)a.Unequipped:Connect(function()for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end end)
+        elseif selectedItem == ' InfiniteVitamin' then
+            local a=game:GetObjects("rbxassetid://13017590400")[1]local b=game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")local c=false;a.Parent=game:GetService("Players").LocalPlayer.Backpack;a.Activated:Connect(function()if c==true then print("no")else local d=a.Animations.open;local d=b:LoadAnimation(d)d:Play()a.Handle.sound_open:Play()wait(0.821)c=true;wait(7)c=false;b.WalkSpeed=15 end end)a.Equipped:Connect(function()local a=a.Animations.idle;local a=b:LoadAnimation(a)a:Play()end)a.Unequipped:Connect(function()for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end end)while true do wait(.1)if c==true then b.WalkSpeed=21 end end
+        elseif selectedItem == 'Vitamin' then
+            local a=game:GetObjects("rbxassetid://13017590400")[1]local b=game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")local c=false;a.Parent=game:GetService("Players").LocalPlayer.Backpack;a.Activated:Connect(function()if c==true then print("no")else local d=a.Animations.open;local d=b:LoadAnimation(d)d:Play()a.Handle.sound_open:Play()wait(0.821)c=true;a:Destroy()wait(7)c=false;b.WalkSpeed=15 end end)a.Equipped:Connect(function()local a=a.Animations.idle;local a=b:LoadAnimation(a)a:Play()end)a.Unequipped:Connect(function()for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end end)while true do wait(.1)if c==true then b.WalkSpeed=21 end end
+	elseif selectedItem == 'Crucifix' then
+	    local a=game:GetObjects("rbxassetid://12987670263")[1]local b=game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")a.Parent=game.Players.LocalPlayer.Backpack;a.Equipped:Connect(function()local a=a.Animations.idle;local a=b:LoadAnimation(a)a:Play()end)a.Unequipped:Connect(function()for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end end)
+	elseif selectedItem == 'SnakeFlashlight' then
+	    local a=game:GetObjects("rbxassetid://12928963137")[1]local b=game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")a.Parent=game.Players.LocalPlayer.Backpack;a.Equipped:Connect(function()local a=a.Animations.idle;local a=b:LoadAnimation(a)a:Play()end)a.Unequipped:Connect(function()for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end end)
+        end
+        Library:Notify("Now Item system give you: " .. selectedItem, nil, 4590657391)
+    end,
+    DoubleClick = true, -- Require double click to confirm
+    Tooltip = 'Click twice to receive the selected item'
+})
 local TabBox = Tabs.FT:AddRightTabbox() -- Add Tabbox on right side
 
 -- Anything we can do in a Groupbox, we can do in a Tabbox tab (AddToggle, AddSlider, AddLabel, etc etc...)
