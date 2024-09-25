@@ -11,7 +11,7 @@ local char = player.Character or player.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")  -- Ensure Humanoid exists
 local rootPart = char:WaitForChild("HumanoidRootPart")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
+local remotesFolder = ReplicatedStorage:WaitForChild("RemotesFolder")
 --------A1000↓---------------------
 --local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
@@ -418,7 +418,7 @@ s:AddDropdown('ItemDropdown', {
 local MyButton2 = s:AddButton({
     Text = 'Get Item',
     Func = function()
-        local selectedItem = s:GetDropdownValue('ItemDropdown')
+        local selectedItem = s:GetDropdown('ItemDropdown')
         -- Add your item-giving logic here
         if selectedItem == 'Flashlight' then
             local a=game:GetObjects("rbxassetid://12937907732")[1]local b=game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")local c=false;a.Parent=game.Players.LocalPlayer.Backpack;a.Activated:Connect(function()if c==false then for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end;local d=b:LoadAnimation(a.Animations.open)local b=b:LoadAnimation(a.Animations.idle)d:Play()a.Handle.sound_open:Play()a.Handle.Neon.LightAttach.SurfaceLight.Enabled=true;a.Handle.Neon.Transparency=0;a.Handle.Neon.Attachment.Shiny.Enabled=true;a.Handle.Neon.Attachment.ParticleEmitter.Enabled=true;a.Handle.Neon.Attachment.SurfaceLight.Enabled=true;a.Handle.Neon.PointLight.Enabled=true;wait(0.5)b:Play()c=true else for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end;local d=b:LoadAnimation(a.Animations.close)local b=b:LoadAnimation(a.Animations.idleclosed)d:Play()a.Handle.sound_close:Play()a.Handle.Neon.LightAttach.SurfaceLight.Enabled=false;a.Handle.Neon.Transparency=1;a.Handle.Neon.Attachment.Shiny.Enabled=false;a.Handle.Neon.Attachment.ParticleEmitter.Enabled=false;a.Handle.Neon.Attachment.SurfaceLight.Enabled=false;a.Handle.Neon.PointLight.Enabled=false;wait(0.5)b:Play()c=false end end)a.Equipped:Connect(function()local d=a.Animations.idle;local a=a.Animations.idleclosed;local d=b:LoadAnimation(d)local a=b:LoadAnimation(a)if c==true then d:Play()else a:Play()end end)a.Unequipped:Connect(function()for a,a in pairs(b.Animator:GetPlayingAnimationTracks())do a:Stop()end end)
