@@ -100,7 +100,7 @@ MainGroup:AddToggle('No Clip', {
     end
 })
 MainGroup:AddToggle('No Clip', {
-    Text = 'Anto Jump,
+    Text = 'Anto Jump',
     Default = false,
     Tooltip = 'Walk through walls',
     Callback = function(val)
