@@ -15,7 +15,7 @@ local flags = {
 }
 
 local Window = Library:CreateWindow({
-    Title = 'Ly X / Nico nextbots,
+    Title = 'Ly X / Nico nextbots',
     Center = true,
     AutoShow = true,
     Resizable = true,
