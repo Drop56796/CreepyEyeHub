@@ -2668,3 +2668,70 @@ RightGroup1:AddToggle('pe', {
         end
     end
 })
+
+local MiscGroupBox = Tabs.Main:AddRightGroupbox("Misc") do
+    MiscGroupBox:AddButton({
+        Text = "Revive (don't open Anto Revive)",
+        Func = function()
+            remotesFolder.Revive:FireServer()
+        end,
+        DoubleClick = true
+    })
+
+    MiscGroupBox:AddButton({
+        Text = "Play Again",
+        Func = function()
+            remotesFolder.PlayAgain:FireServer()
+        end,
+        DoubleClick = true
+    })
+
+    MiscGroupBox:AddButton({
+        Text = "Lobby",
+        Func = function()
+            remotesFolder.Lobby:FireServer()
+        end,
+        DoubleClick = true
+    })
+end
+
+RightGroup1:AddToggle('pe', {
+    Text = 'Anto Revive for Character',
+    Default = false,
+    Tooltip = 'Walk through walls',
+    Callback = function(state)
+        local plr = game.Players.LocalPlayer
+        local remotesFolder = game:GetService("ReplicatedStorage"):WaitForChild("RemotesFolder")
+
+        if state then
+            -- 自动复活函数
+            local function autoRevive(humanoid)
+                if humanoid.Health == 0 then
+                    remotesFolder.Revive:FireServer()
+                end
+            end
+
+            -- 监听角色变化
+            local function onCharacterAdded(character)
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.HealthChanged:Connect(function()
+                        autoRevive(humanoid)
+                    end)
+                end
+            end
+
+            -- 初始监听
+            if plr.Character then
+                onCharacterAdded(plr.Character)
+            end
+            plr.CharacterAdded:Connect(onCharacterAdded)
+
+            -- 关闭时断开连接
+            task.spawn(function()
+                repeat task.wait(1) until not state
+                -- 这里不需要断开连接，因为监听会在角色重生时自动处理
+            end)
+        end
+    end
+})
