@@ -36,7 +36,7 @@ MainGroup:AddSlider('Speed', {
 	Text = '>> Speed <<',
 	Default = 20,
 	Min = 20,
-	Max = 40,
+	Max = 100,
 	Rounding = 1,
 	Compact = false,
 
