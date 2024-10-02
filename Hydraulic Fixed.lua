@@ -71,14 +71,6 @@ local function createBillboardGui(core, color, name)
     bill.Adornee = core
     bill.MaxDistance = 2000
 
-    local mid = Instance.new("Frame", bill)
-    mid.AnchorPoint = Vector2.new(0.5, 0.5)
-    mid.BackgroundColor3 = color
-    mid.Size = UDim2.new(0, 8, 0, 8)
-    mid.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Instance.new("UICorner", mid).CornerRadius = UDim.new(1, 0)
-    Instance.new("UIStroke", mid)
-
     local txt = Instance.new("TextLabel", bill)
     txt.AnchorPoint = Vector2.new(0.5, 0.5)
     txt.BackgroundTransparency = 1
@@ -107,9 +99,21 @@ local function createBillboardGui(core, color, name)
     local function updateDistance()
         if core and core:IsDescendantOf(workspace) then
             local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-            local targetPos = core.Position
-            local distance = (playerPos - targetPos).Magnitude
-            distanceLabel.Text = string.format("Distance: %.2f", distance)
+            local targetPos
+
+            if core:IsA("Model") then
+                local primaryPart = core.PrimaryPart or core:FindFirstChildWhichIsA("BasePart")
+                if primaryPart then
+                    targetPos = primaryPart.Position
+                end
+            elseif core:IsA("BasePart") then
+                targetPos = core.Position
+            end
+
+            if targetPos then
+                local distance = (playerPos - targetPos).Magnitude
+                distanceLabel.Text = string.format("Distance: %.2f", distance)
+            end
         end
     end
 
