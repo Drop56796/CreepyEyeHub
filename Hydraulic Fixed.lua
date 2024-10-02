@@ -52,8 +52,6 @@ end
 
 ----- 示例调用 NewNotify 函数
 --newNofiy("Hydraulic Doors", "hi", "Welcome to use", "rbxassetid://12309073114")
-local Camera = game:GetService("Workspace").CurrentCamera
--- 创建 Highlight 实例
 local function createHighlight(part, color)
     local highlight = Instance.new("Highlight")
     highlight.Adornee = part
@@ -87,12 +85,35 @@ local function createBillboardGui(core, color, name)
     txt.BackgroundColor3 = color
     txt.TextColor3 = color
     txt.Size = UDim2.new(1, 0, 0, 20)
-    txt.Position = UDim2.new(0.5, 0, 0.7, 0)
+    txt.Position = UDim2.new(0.5, 0, 0.5, 0)
     txt.Text = name
     txt.TextStrokeTransparency = 0.5
     txt.TextSize = 25
     txt.Font = Enum.Font.Code -- 设置字体为 Jura
     Instance.new("UIStroke", txt)
+
+    local distanceLabel = Instance.new("TextLabel", bill)
+    distanceLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.TextColor3 = color
+    distanceLabel.Size = UDim2.new(1, 0, 0, 20)
+    distanceLabel.Position = UDim2.new(0.5, 0, 0.9, 0) -- Position below the name
+    distanceLabel.TextStrokeTransparency = 0.5
+    distanceLabel.TextSize = 20
+    distanceLabel.Font = Enum.Font.Code -- 设置字体为 Jura
+    Instance.new("UIStroke", distanceLabel)
+
+    -- Update distance text
+    local function updateDistance()
+        if core and core:IsDescendantOf(workspace) then
+            local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+            local targetPos = core.Position
+            local distance = (playerPos - targetPos).Magnitude
+            distanceLabel.Text = string.format("Distance: %.2f", distance)
+        end
+    end
+
+    RunService.RenderStepped:Connect(updateDistance)
 
     return bill
 end
@@ -148,7 +169,6 @@ function esp(what, color, core, name, enableTracer)
         end
     end
 
-    
     local highlights = {}
     local tracers = {}
 
@@ -160,7 +180,7 @@ function esp(what, color, core, name, enableTracer)
         if enableTracer and #tracers == 0 then
             local tracer = createTracer(part, color)
             table.insert(tracers, tracer)
-	end
+        end
     end
 
     local bill
@@ -192,27 +212,6 @@ function esp(what, color, core, name, enableTracer)
     local ret = {}
 
     ret.delete = function()      
-        for _, highlight in ipairs(highlights) do
-            highlight:Destroy()
-        end
-
-        if bill and (not bill.Adornee or not bill.Adornee:IsDescendantOf(workspace)) then
-            bill:Destroy()
-        end
-
-        -- 检查 Tracer 是否需要更新
-        for _, tracer in ipairs(tracers) do
-            if not tracer or not tracer.Visible then
-                tracer:Remove()
-            end
-        end
-    end
-
-    RunService.Stepped:Connect(checkAndUpdate)
-
-    local ret = {}
-
-    ret.delete = function()
         for _, highlight in ipairs(highlights) do
             highlight:Destroy()
         end
