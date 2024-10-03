@@ -213,11 +213,7 @@ local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer.PlayerGui
 local mainUI = playerGui:WaitForChild("MainUI")
 local mainGame = mainUI:WaitForChild("Initiator"):WaitForChild("Main_Game")
-local mainGameSrc = if ExecutorSupport["require"] then require(mainGame) else nil
-
 local playerScripts = localPlayer.PlayerScripts
-local controlModule = if ExecutorSupport["require"] then require(playerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")) else nil
-
 local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local alive = localPlayer:GetAttribute("Alive")
 local humanoid: Humanoid
